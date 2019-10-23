@@ -1,0 +1,9 @@
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\bin\Debug\Client.exe.config
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\bin\Debug\Client.exe
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\bin\Debug\Client.pdb
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\bin\Debug\RemotingServicesLibrary.dll
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\bin\Debug\RemotingServicesLibrary.pdb
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\obj\Debug\Client.csprojAssemblyReference.cache
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\obj\Debug\Client.csproj.CopyComplete
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\obj\Debug\Client.exe
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\obj\Debug\Client.pdb

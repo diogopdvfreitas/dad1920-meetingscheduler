@@ -1,0 +1,5 @@
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\RemotingServicesLibrary\bin\Debug\RemotingServicesLibrary.dll
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\RemotingServicesLibrary\bin\Debug\RemotingServicesLibrary.pdb
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csprojAssemblyReference.cache
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.dll
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.pdb
