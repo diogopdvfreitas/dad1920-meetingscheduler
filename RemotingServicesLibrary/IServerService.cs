@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ObjectsLibrary;
 
 namespace RemotingServicesLibrary {
     public interface IServerService {
+        bool checkMeetingStatus(Meeting meeting);
 
-        List<Meeting> listMeetings();
-        void createMeeting(String topic, int min_attnd, int nSlots);
-        void joinMeeting(String topic);
-        void closeMeeting(String topic);
+        Meeting getMeeting(String meetingTopic);
+
+        void createMeeting(Meeting meeting);
+
+        //void joinMeeting(String topic);
+        //void closeMeeting(String topic);
     }
 }

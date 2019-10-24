@@ -8,3 +8,11 @@ G:\My Drive\Documents\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\bin\D
 G:\My Drive\Documents\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csprojAssemblyReference.cache
 G:\My Drive\Documents\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.dll
 G:\My Drive\Documents\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.pdb
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\bin\Debug\RemotingServicesLibrary.dll
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\bin\Debug\RemotingServicesLibrary.pdb
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\bin\Debug\ObjectsLibrary.dll
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\bin\Debug\ObjectsLibrary.pdb
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csprojAssemblyReference.cache
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csproj.CopyComplete
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.dll
+D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.pdb

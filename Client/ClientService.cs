@@ -1,5 +1,5 @@
 ﻿using System;
-using ClassLibrary;
+using RemotingServicesLibrary;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
