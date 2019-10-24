@@ -7,3 +7,12 @@ D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client
 D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\obj\Debug\Client.csproj.CopyComplete
 D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\obj\Debug\Client.exe
 D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\MSDAD1920\Client\obj\Debug\Client.pdb
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\Client\bin\Debug\Client.exe.config
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\Client\bin\Debug\Client.exe
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\Client\bin\Debug\Client.pdb
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\Client\bin\Debug\RemotingServicesLibrary.dll
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\Client\bin\Debug\RemotingServicesLibrary.pdb
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\Client\obj\Debug\Client.csprojAssemblyReference.cache
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\Client\obj\Debug\Client.csproj.CopyComplete
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\Client\obj\Debug\Client.exe
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\Client\obj\Debug\Client.pdb

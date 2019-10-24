@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 
-namespace Client {
+namespace ObjectsLibrary {
     [Serializable]
     public class Meeting {
         String _coord;
