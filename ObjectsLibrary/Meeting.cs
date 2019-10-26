@@ -8,17 +8,17 @@ namespace ObjectsLibrary {
         String _topic;
         int _minAtt;
         int _nSlots;
-        int _nInvit;
+        int _nInvits;
         List<String> _slots;
         List<String> _invits;
         bool _closed; //false: the meeting is still open; true: the meeting is closed;
 
-        public Meeting(String coord, String topic, int minAtt, int nSlots, int nInvit, List<String> slots, List<String> invits) {
+        public Meeting(String coord, String topic, int minAtt, int nSlots, int nInvits, List<String> slots, List<String> invits) {
             _coord = coord;
             _topic = topic;
             _minAtt = minAtt;
             _nSlots = nSlots;
-            _nInvit = nInvit;
+            _nInvits = nInvits;
             _slots = slots;
             _invits = invits;
             _closed = false;
@@ -50,7 +50,7 @@ namespace ObjectsLibrary {
         }
 
         public String print() {
-            return "Meeting: Coordinator: " + _coord + " Topic: " + _topic + " Min Attendes: " + _minAtt + " N Slots: " + _nSlots + " N Invitees: " + _nInvit + " Slots: " + printList(_slots) + "Invitees " + printList(_invits);
+            return "Meeting: Coordinator: " + _coord + ", Topic: " + _topic + ", Min Attendes: " + _minAtt + ", N Slots: " + _nSlots + ", N Invitees: " + _nInvits + ", Slots: " + printList(_slots) + ", Invitees: " + printList(_invits) + ";";
         }
 
 
