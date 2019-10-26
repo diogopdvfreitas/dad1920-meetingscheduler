@@ -7,9 +7,10 @@ using System.Runtime.Remoting.Channels.Tcp;
 using System.Runtime.Remoting.Channels;
 using RemotingServicesLibrary;
 using System.Runtime.Remoting;
+using ClientLibrary;
 
 namespace Client {
-    public class Client {
+    public class Client : ClientAPI {
 
         private TcpChannel _channel;
         private String _clientUrl = "tcp://localhost:8080/CLIENT"; //Estes url sao fornecido pelos PCS quando se cria o cliente
