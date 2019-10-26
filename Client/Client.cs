@@ -15,17 +15,20 @@ namespace Client {
         private TcpChannel _channel;
         private String _clientUrl = "tcp://localhost:8080/CLIENT"; //Estes url sao fornecido pelos PCS quando se cria o cliente
         private String _serverUrl = "tcp://localhost:8086/SERVER";
+        private List<String> _otherClients;
 
         private ClientService _clientService;
 
         //serverService: interface to contact the server
-        private IServerService serverService;
+        private IServerService _serverService;
 
         Hashtable _clientMeetings = new Hashtable();
         
         //Client: create a client with the defined urls
         public Client() {
             connectServer();
+
+
         }
 
         //Client: create a client with the given urls
@@ -35,7 +38,7 @@ namespace Client {
             connectServer();
         }
 
-        //connectServer: we connect to the server given when creating the client and we save the ref to the server remote obj
+        //connectServer: connect to the server, save the ref to the server remote obj and asks for registered clients
 //???if there´s the necessity to connect to more than on server in each session the server url should be an argument of the function
         public void connectServer() {
             _channel = new TcpChannel();
@@ -44,7 +47,17 @@ namespace Client {
             _clientService = new ClientService();
             RemotingServices.Marshal(_clientService, "CLIENT", typeof(ClientService));
 
-            serverService = (IServerService) Activator.GetObject( typeof(IServerService), _serverUrl);
+            _serverService = (IServerService) Activator.GetObject( typeof(IServerService), _serverUrl);
+            _serverService.connect(_clientUrl);
+            getRegisteredClients();
+            
+        }
+
+        //getRegisteredClients: ask the server for registered clients
+        public void getRegisteredClients() {
+            _otherClients = _serverService.getRegisteredClients();
+            foreach (String s in _otherClients)
+                Console.WriteLine("Clients: " + s);
         }
 
         
@@ -58,11 +71,11 @@ namespace Client {
             List<String> changedStatusMt = new List<String>();
 
             foreach (DictionaryEntry m in _clientMeetings) {
-                if (serverService.checkMeetingStatus((Meeting)(m.Value)))
+                if (_serverService.checkMeetingStatus((Meeting)(m.Value)))
                     changedStatusMt.Add(((Meeting)(m.Value)).Topic);
             }
             foreach (String s in changedStatusMt) {
-                _clientMeetings[s] = serverService.getMeeting(s);
+                _clientMeetings[s] = _serverService.getMeeting(s);
             }
 
             foreach (DictionaryEntry m in _clientMeetings) {
@@ -75,7 +88,7 @@ namespace Client {
         public void createMeeting(String topic, int minAtt, int nSlots, int nInvits, List<String> slots, List<String> invits) {
             Meeting meeting = new Meeting(_clientUrl, topic, minAtt, nSlots, nInvits, slots, invits);
             _clientMeetings.Add(topic, meeting);
-            serverService.createMeeting(meeting);
+            _serverService.createMeeting(meeting);
 
             Console.WriteLine("Meeting Created");
         }
