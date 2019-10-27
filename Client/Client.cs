@@ -13,7 +13,7 @@ namespace Client {
     public class Client : ClientAPI {
 
         private String _clientUrl = "tcp://localhost:8080/CLIENT"; //Estes url sao fornecido pelos PCS quando se cria o cliente
-        private String _username;
+        private String _username = "Pedro";
        
         private String _serverUrl = "tcp://localhost:8086/SERVER";
         private TcpChannel _channel;
@@ -51,7 +51,7 @@ namespace Client {
 
             _serverService = (IServerService) Activator.GetObject( typeof(IServerService), _serverUrl);
             
-            _serverService.connect(_clientUrl);
+            _serverService.connect(_username, _clientUrl);
 
             getRegisteredClients();
             
@@ -64,8 +64,7 @@ namespace Client {
                 Console.WriteLine("Registered Clients: " + s);
         }
 
-        //listMeeting: the server contact the server to know about the status of the meetings he already knows
-        //?????check if there´s a beter way to do this
+        //listMeeting: contact the server to check the status of the known meetings
         public void listMeetings() {
             Console.WriteLine("|========== Meetings ==========|");
 
@@ -74,8 +73,9 @@ namespace Client {
 
             // Checks if Meeting Status is still the same as the server's
             foreach (Meeting m in _clientMeetings.Values) {
-                if (_serverService.checkMeetingStatusChange(m))
+                if (_serverService.checkMeetingStatusChange(m)) {
                     meetingStatusChanged.Add(m.Topic);
+                }
             }
 
             // If not updates it
@@ -86,8 +86,7 @@ namespace Client {
             foreach (Meeting m in _clientMeetings.Values) {
                 list += m.ToString(); 
             }
-            Console.WriteLine(list);
-           
+            Console.WriteLine(list);  
         }
 
         public void createMeeting(String topic, int minAtt, List<Slot> slots) {

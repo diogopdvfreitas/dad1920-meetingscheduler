@@ -4,7 +4,7 @@ using ObjectsLibrary;
 
 namespace RemotingServicesLibrary {
     public interface IServerService {
-        void connect(String clientUrl);
+        void connect(String username, String clientUrl);
 
         List<String> getRegisteredClients();
 
@@ -16,6 +16,7 @@ namespace RemotingServicesLibrary {
 
 
         void joinMeeting(String meetingTopic, Slot slot, String username);
+        
         //void closeMeeting(String topic);
     }
 }

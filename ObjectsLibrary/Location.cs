@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ObjectsLibrary {
     [Serializable]
@@ -23,8 +20,5 @@ namespace ObjectsLibrary {
             _rooms.Add(room);
         }
 
-        public override String ToString() {
-            return _name;
-        }
     }
 }

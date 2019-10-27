@@ -38,7 +38,7 @@ namespace ObjectsLibrary {
         }
 
         public override String ToString() {
-            return _location.ToString() + ", " + _date + ", Number of Interested Clients: " + NrOfInterested;
+            return _location.Name + ", " + _date + ", Number of Interested Clients: " + NrOfInterested;
         }
     }
 }

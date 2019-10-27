@@ -13,12 +13,17 @@ namespace Server {
             _clients = new List<String>();
         }
 
-        public void connect(String clientUrl) {
-            _clients.Add(clientUrl);
+        public void connect(String username, String clientUrl) {
+            String client = username + "-" + clientUrl;
+            _clients.Add(client);
         }
 
         public List<String> getRegisteredClients() {
             return _clients;
+        }
+
+        public Meeting getMeeting(String meetingTopic) {
+            return _meetings[meetingTopic];
         }
 
         //checkMeetingStatus: check if the meeting status has changed or not
@@ -26,10 +31,6 @@ namespace Server {
             return meeting.checkStatusChange(_meetings[meeting.Topic]);
         }
 
-        public Meeting getMeeting(String meetingTopic) {
-            return _meetings[meetingTopic];
-        }
-        
         public void createMeeting(Meeting meeting) {
             Console.WriteLine(meeting.ToString());
             _meetings.Add(meeting.Topic, meeting);
@@ -38,7 +39,5 @@ namespace Server {
         public void joinMeeting(String meetingTopic, Slot slot, String username) {
             _meetings[meetingTopic].joinSlot(slot, username);
         }
-
-
     }
 }

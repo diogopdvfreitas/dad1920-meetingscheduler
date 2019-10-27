@@ -5,7 +5,7 @@ using ObjectsLibrary;
 
 namespace Client {
     public class ClientScript {
-        private String _scriptName = "test";
+        private String _scriptName = "test.txt";
         Client client;
 
         public ClientScript() {
@@ -79,19 +79,17 @@ namespace Client {
                     break;
 
                 case "join":
+                    Console.WriteLine("Join Meeting");
                     String meetingTopic;
-                    int slots_count;
 
                     meetingTopic = commandAttr[1];
-                    slots_count = Int32.Parse(commandAttr[2]);
+                    nSlots = Int32.Parse(commandAttr[2]);
 
-                    for( int i = 0; i < slots_count; i++) {
-                        String[] slotAttr = commandAttr[i+2].Split(',');
+                    for( int i = 3; i < 3 + nSlots; i++) {
+                        String[] slotAttr = commandAttr[i].Split(',');
                         Slot slot = new Slot(new Location(slotAttr[0]), slotAttr[1]);
                         client.joinMeeting(meetingTopic, slot);
                     }
-
-                    Console.WriteLine("Join Meeting");
                     break;
 
                 case "close":
