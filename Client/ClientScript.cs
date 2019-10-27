@@ -5,7 +5,7 @@ using ObjectsLibrary;
 
 namespace Client {
     public class ClientScript {
-        private String _scriptName = "test"; //"test" is just a test file
+        private String _scriptName = "script.txt";
         Client client;
 
         public ClientScript() {
@@ -34,44 +34,52 @@ namespace Client {
         public void executeCommand(String command) {
             String[] commandAttr = command.Split(' ');
 
-            List<String> slots;
-            List<String> invits;
+            List<Slot> slots;
+            List<String> invitees;
             int nSlots;
-            int nInvits;
-            int limit1;
-            int limit2;
+            int nInvitees;
+            int slotsStartIndex;
+            int invtsStartIndex;
 
-            switch (commandAttr[0].ToString()) {
+            switch (commandAttr[0]) {
                 //TODO 
                 case "list":
-                    client.listMeeting();
+                    client.listMeetings();
                     break;
 
                 case "create":
-                    nSlots = Int32.Parse(commandAttr[3].ToString());
-                    nInvits = Int32.Parse(commandAttr[4].ToString());
+                    nSlots = Int32.Parse(commandAttr[3]);
+                    slots = new List<Slot>();
 
-                    slots = new List<String>();  //if we have the class slot this should be a list of slots instead of a list of Strings
-                    invits = new List<String>();
-
-                    //select the slots from the command
-                    limit1 = 5 + nSlots;
-                    for (int i = 5; i < limit1; i++) {
-                        slots.Add(commandAttr[i].ToString());
+                    // Select the slots from the command
+                    slotsStartIndex = 5 + nSlots;
+                    for (int i = 5; i < slotsStartIndex; i++) {
+                        String[] slotAttr = commandAttr[i].Split(',');
+                        Slot slot = new Slot(new Location(slotAttr[0]), slotAttr[1]);
+                        slots.Add(slot);
                     }
 
-                    //select the invitees from the command
-                    limit2 = limit1 + nInvits;
-                    for (int i = limit1; i < limit2; i++) {
-                        invits.Add(commandAttr[i].ToString());
-                    }
+                    // Invitees are optional
+                    try {
+                        nInvitees = Int32.Parse(commandAttr[4].ToString());
+                        invitees = new List<String>();
 
-                    client.createMeeting(commandAttr[1].ToString(), Int32.Parse(commandAttr[2].ToString()), nSlots, nInvits, slots, invits);
+                        // Select the invitees from the command
+                        invtsStartIndex = slotsStartIndex + nInvitees;
+                        for (int i = slotsStartIndex; i < invtsStartIndex; i++) {
+                            invitees.Add(commandAttr[i]);
+                        }
+                        client.createMeeting(commandAttr[1], Int32.Parse(commandAttr[2]), slots, invitees);
+                    }
+                    catch (FormatException) {
+                        nInvitees = 0;
+                        client.createMeeting(commandAttr[1], Int32.Parse(commandAttr[2]), slots);
+                    }
                     break;
 
                 case "join":
-                    nSlots = Int32.Parse(commandAttr[2].ToString());
-                    limit1 = 3 + nSlots;
+                    nSlots = Int32.Parse(commandAttr[2]);
+                    slotsStartIndex = 3 + nSlots;
                     Console.WriteLine("Join Meeting");
                     break;
 
@@ -80,7 +88,7 @@ namespace Client {
                     break;
 
                 case "wait":
-                    int time = Int32.Parse(commandAttr[1].ToString());
+                    int time = Int32.Parse(commandAttr[1]);
                     Console.WriteLine("Wait");
                     break;
             }
@@ -88,10 +96,8 @@ namespace Client {
 
         static void Main(string[] args) {
             Console.WriteLine("Ola");
-            Console.ReadLine();
             ClientScript clientScript = new ClientScript();
             clientScript.readClientScript();
-
             Console.ReadLine();
         }
     }

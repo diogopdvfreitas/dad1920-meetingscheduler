@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using ObjectsLibrary;
 
 namespace ClientLibrary{
     public interface ClientAPI{
-        void listMeeting();
+        void listMeetings();
 
-        void createMeeting(String topic, int minAtt, int nSlots, int nInvits, List<String> slots, List<String> invits);
+        void createMeeting(String topic, int minAtt, List<Slot> slots);
+        void createMeeting(String topic, int minAtt, List<Slot> slots, List<String> invitees);
     }
 }

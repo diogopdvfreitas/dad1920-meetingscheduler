@@ -24,16 +24,16 @@ namespace Server {
 
         //checkMeetingStatus: check if the meeting status has changed or not; if has not changed the received meeting is return
         //otherwise the changed meeting is return
-        public bool checkMeetingStatus(Meeting meeting) {
-            return meeting.checkStatus((Meeting)_meetings[meeting.Topic]);
+        public bool checkMeetingStatusChange(Meeting meeting) {
+            return meeting.checkStatusChange((Meeting)_meetings[meeting.Topic]);
         }
 
-        public Meeting getMeeting(String meetingTopic) {
-            return (Meeting) _meetings[meetingTopic];
+        public Meeting getMeeting(String topic) {
+            return (Meeting) _meetings[topic];
         }
         
         public void createMeeting(Meeting meeting) {
-            Console.WriteLine(meeting.print());
+            Console.WriteLine(meeting.ToString());
             _meetings.Add(meeting.Topic, meeting);
         }
 

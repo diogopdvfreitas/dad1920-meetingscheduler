@@ -27,8 +27,6 @@ namespace Client {
         //Client: create a client with the defined urls
         public Client() {
             connectServer();
-
-
         }
 
         //Client: create a client with the given urls
@@ -39,7 +37,7 @@ namespace Client {
         }
 
         //connectServer: connect to the server, save the ref to the server remote obj and asks for registered clients
-//???if there´s the necessity to connect to more than on server in each session the server url should be an argument of the function
+        //???if there´s the necessity to connect to more than on server in each session the server url should be an argument of the function
         public void connectServer() {
             _channel = new TcpChannel();
             ChannelServices.RegisterChannel(_channel, false);
@@ -60,41 +58,46 @@ namespace Client {
                 Console.WriteLine("Clients: " + s);
         }
 
-        
         //listMeeting: the server contact the server to know about the status of the meetings he already knows
- //?????check if there´s a beter way to do this
-        public void listMeeting() {
-            Console.WriteLine("ListMeeting");
+        //?????check if there´s a beter way to do this
+        public void listMeetings() {
+            Console.WriteLine("|========== Meetings ==========|");
 
             String list = "";
+            List<String> meetingStatusChanged = new List<String>();
 
-            List<String> changedStatusMt = new List<String>();
-
+            // Checks if Meeting Status is still the same as the server's
             foreach (DictionaryEntry m in _clientMeetings) {
-                if (_serverService.checkMeetingStatus((Meeting)(m.Value)))
-                    changedStatusMt.Add(((Meeting)(m.Value)).Topic);
-            }
-            foreach (String s in changedStatusMt) {
-                _clientMeetings[s] = _serverService.getMeeting(s);
+                if (_serverService.checkMeetingStatusChange((Meeting)(m.Value)))
+                    meetingStatusChanged.Add(((Meeting)(m.Value)).Topic);
             }
 
+            // If not updates it
+            foreach (String topic in meetingStatusChanged) {
+                _clientMeetings[topic] = _serverService.getMeeting(topic);
+            }
+
             foreach (DictionaryEntry m in _clientMeetings) {
-                list += ((Meeting)(m.Value)).print() + " "; 
+                list += ((Meeting)(m.Value)).ToString(); 
             }
             Console.WriteLine(list);
            
         }
 
-        public void createMeeting(String topic, int minAtt, int nSlots, int nInvits, List<String> slots, List<String> invits) {
-            Meeting meeting = new Meeting(_clientUrl, topic, minAtt, nSlots, nInvits, slots, invits);
+        public void createMeeting(String topic, int minAtt, List<Slot> slots) {
+            Meeting meeting = new Meeting(_clientUrl, topic, minAtt, slots);
             _clientMeetings.Add(topic, meeting);
             _serverService.createMeeting(meeting);
 
             Console.WriteLine("Meeting Created");
         }
 
+        public void createMeeting(String topic, int minAtt, List<Slot> slots, List<String> invitees) {
+            Meeting meeting = new Meeting(_clientUrl, topic, minAtt, slots, invitees);
+            _clientMeetings.Add(topic, meeting);
+            _serverService.createMeeting(meeting);
 
-
-
+            Console.WriteLine("Meeting Created");
         }
     }
+}

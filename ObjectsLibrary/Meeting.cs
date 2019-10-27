@@ -4,24 +4,38 @@ using System.Collections.Generic;
 namespace ObjectsLibrary {
     [Serializable]
     public class Meeting {
+        public enum Status {
+            OPEN = 1,
+            CLOSED = 0
+        }
+
         String _coord;
         String _topic;
         int _minAtt;
         int _nSlots;
-        int _nInvits;
-        List<String> _slots;
-        List<String> _invits;
-        bool _closed; //false: the meeting is still open; true: the meeting is closed;
+        int _nInvitees;
+        List<Slot> _slots;
+        List<String> _invitees;
+        Status _Status;
 
-        public Meeting(String coord, String topic, int minAtt, int nSlots, int nInvits, List<String> slots, List<String> invits) {
+        public Meeting(String coord, String topic, int minAtt, List<Slot> slots) {
             _coord = coord;
             _topic = topic;
             _minAtt = minAtt;
-            _nSlots = nSlots;
-            _nInvits = nInvits;
+            _nSlots = slots.Count;
             _slots = slots;
-            _invits = invits;
-            _closed = false;
+            _Status = Status.OPEN;
+        }
+
+        public Meeting(String coord, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
+            _coord = coord;
+            _topic = topic;
+            _minAtt = minAtt;
+            _nSlots = slots.Count;
+            _slots = slots;
+            _nInvitees = invitees.Count;
+            _invitees = invitees;
+            _Status = Status.OPEN;
         }
 
         public String Coord {
@@ -32,27 +46,17 @@ namespace ObjectsLibrary {
             get { return _topic; }
         }
 
-        public bool Closed {
-            get { return _closed; }
-            set { _closed = value; }
+        public Status MStatus {
+            get { return _Status; }
+            set { _Status = value; }
         }
 
-        public bool checkStatus(Meeting m) {
-            return _closed != m.Closed;
-        }
-        
-        public String printList(List<String> list) {
-            String stringList = "";
-            foreach (String s in list) {
-                stringList += s + " ";
-            }
-            return stringList;
+        public bool checkStatusChange(Meeting meeting) {
+            return _Status != meeting.MStatus;
         }
 
-        public String print() {
-            return "Meeting: Coordinator: " + _coord + ", Topic: " + _topic + ", Min Attendes: " + _minAtt + ", N Slots: " + _nSlots + ", N Invitees: " + _nInvits + ", Slots: " + printList(_slots) + ", Invitees: " + printList(_invits) + ";";
+        public override String ToString() {
+            return "Meeting:\n\tCoordinator: " + _coord + "\n\tTopic: " + _topic + "\n\tMin. Attendes: " + _minAtt + "\n\tNumber of Slots: " + _nSlots + "\n\tNumber of Invitees: " + _nInvitees + "\n\tSlots: " + _slots.ToString() + "\n\tInvitees: " + _invitees.ToString() + "\n";
         }
-
-
     }
 }

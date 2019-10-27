@@ -16,3 +16,6 @@ D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetings
 D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csproj.CopyComplete
 D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.dll
 D:\Instituto Superior Técnico\MEIC - 2019-\4.1 - 2019-2020\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.pdb
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\bin\Debug\ObjectsLibrary.dll
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\bin\Debug\ObjectsLibrary.pdb
+G:\My Drive\Documents\DAD\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csproj.CopyComplete

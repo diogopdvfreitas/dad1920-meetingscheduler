@@ -8,7 +8,7 @@ namespace RemotingServicesLibrary {
 
         List<String> getRegisteredClients();
 
-        bool checkMeetingStatus(Meeting meeting);
+        bool checkMeetingStatusChange(Meeting meeting);
 
         Meeting getMeeting(String meetingTopic);
 
