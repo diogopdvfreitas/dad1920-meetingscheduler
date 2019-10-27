@@ -6,11 +6,11 @@ using System.Collections.Generic;
 
 namespace Server {
     public class ServerService : MarshalByRefObject, IServerService {
-        private Hashtable _meetings;
+        private IDictionary<String, Meeting> _meetings;
         private List<String> _clients;
 
         public ServerService() {
-            _meetings = new Hashtable();
+            _meetings = new Dictionary<String, Meeting>();
             _clients = new List<String>();
         }
 

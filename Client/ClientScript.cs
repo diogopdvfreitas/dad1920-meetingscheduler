@@ -35,11 +35,8 @@ namespace Client {
             String[] commandAttr = command.Split(' ');
 
             List<Slot> slots;
-            List<String> invitees;
             int nSlots;
-            int nInvitees;
             int slotsStartIndex;
-            int invtsStartIndex;
 
             switch (commandAttr[0]) {
                 //TODO 
@@ -48,8 +45,12 @@ namespace Client {
                     break;
 
                 case "create":
-                    nSlots = Int32.Parse(commandAttr[3]);
+                    List<String> invitees;
+                    int nInvitees;
+                    int invtsStartIndex;
+
                     slots = new List<Slot>();
+                    nSlots = Int32.Parse(commandAttr[3]);
 
                     // Select the slots from the command
                     slotsStartIndex = 5 + nSlots;
@@ -61,8 +62,8 @@ namespace Client {
 
                     // Invitees are optional
                     try {
-                        nInvitees = Int32.Parse(commandAttr[4].ToString());
                         invitees = new List<String>();
+                        nInvitees = Int32.Parse(commandAttr[4].ToString());
 
                         // Select the invitees from the command
                         invtsStartIndex = slotsStartIndex + nInvitees;
@@ -78,8 +79,14 @@ namespace Client {
                     break;
 
                 case "join":
+                    slots = new List<Slot>();
                     nSlots = Int32.Parse(commandAttr[2]);
                     slotsStartIndex = 3 + nSlots;
+                    for (int i = 5; i < slotsStartIndex; i++) {
+                        String[] slotAttr = commandAttr[i].Split(',');
+                        Slot slot = new Slot(new Location(slotAttr[0]), slotAttr[1]);
+                        slots.Add(slot);
+                    }
                     Console.WriteLine("Join Meeting");
                     break;
 
