@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ObjectsLibrary {
 
+    [Serializable]
     public class Slot {
         private Location _location;
         private String _date;
@@ -14,7 +12,7 @@ namespace ObjectsLibrary {
         public Slot(Location location, String date) {
             _location = location;
             _date = date;
-            _interested = new List<String> {};
+            _interested = new List<String>();
         }
 
         public Location Location {
@@ -40,7 +38,7 @@ namespace ObjectsLibrary {
         }
 
         public override String ToString() {
-            return _location + "," + _date + "," + NrOfInterested;
+            return _location.ToString() + ", " + _date + ", Number of Interested Clients: " + NrOfInterested;
         }
     }
 }

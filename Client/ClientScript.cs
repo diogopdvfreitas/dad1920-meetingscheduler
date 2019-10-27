@@ -5,7 +5,7 @@ using ObjectsLibrary;
 
 namespace Client {
     public class ClientScript {
-        private String _scriptName = "script.txt";
+        private String _scriptName = "test";
         Client client;
 
         public ClientScript() {
@@ -106,7 +106,7 @@ namespace Client {
         }
 
         static void Main(string[] args) {
-            Console.WriteLine("Ola");
+            Console.WriteLine("ClientScript");
             ClientScript clientScript = new ClientScript();
             clientScript.readClientScript();
             Console.ReadLine();

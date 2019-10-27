@@ -1,7 +1,6 @@
 ﻿using System;
 using RemotingServicesLibrary;
 using ObjectsLibrary;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Server {
@@ -22,14 +21,13 @@ namespace Server {
             return _clients;
         }
 
-        //checkMeetingStatus: check if the meeting status has changed or not; if has not changed the received meeting is return
-        //otherwise the changed meeting is return
+        //checkMeetingStatus: check if the meeting status has changed or not
         public bool checkMeetingStatusChange(Meeting meeting) {
-            return meeting.checkStatusChange((Meeting)_meetings[meeting.Topic]);
+            return meeting.checkStatusChange(_meetings[meeting.Topic]);
         }
 
         public Meeting getMeeting(String meetingTopic) {
-            return (Meeting) _meetings[meetingTopic];
+            return _meetings[meetingTopic];
         }
         
         public void createMeeting(Meeting meeting) {

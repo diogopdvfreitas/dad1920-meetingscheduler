@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ObjectsLibrary {
+    [Serializable]
     public class Location {
         private String _name;
         private List<Room> _rooms;
@@ -20,6 +21,10 @@ namespace ObjectsLibrary {
 
         public void addRoom(Room room) {
             _rooms.Add(room);
+        }
+
+        public override String ToString() {
+            return _name;
         }
     }
 }

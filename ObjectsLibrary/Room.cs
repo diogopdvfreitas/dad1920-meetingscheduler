@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ObjectsLibrary {
+    [Serializable]
     public class Room {
         private String _name;
         private int _capacity;

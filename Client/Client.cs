@@ -12,19 +12,21 @@ using ClientLibrary;
 namespace Client {
     public class Client : ClientAPI {
 
-        private TcpChannel _channel;
         private String _clientUrl = "tcp://localhost:8080/CLIENT"; //Estes url sao fornecido pelos PCS quando se cria o cliente
-        private String _serverUrl = "tcp://localhost:8086/SERVER";
-        private List<String> _otherClients;
         private String _username;
-
+       
+        private String _serverUrl = "tcp://localhost:8086/SERVER";
+        private TcpChannel _channel;
         private ClientService _clientService;
 
         //serverService: interface to contact the server
         private IServerService _serverService;
 
-        Hashtable _clientMeetings = new Hashtable();
-        
+        private IDictionary<String, Meeting> _clientMeetings = new Dictionary<String, Meeting>();
+
+        private List<String> _otherClients;
+
+
         //Client: create a client with the defined urls
         public Client() {
             connectServer();
@@ -39,7 +41,7 @@ namespace Client {
         }
 
         //connectServer: connect to the server, save the ref to the server remote obj and asks for registered clients
-        //???if there´s the necessity to connect to more than on server in each session the server url should be an argument of the function
+  //???if there´s the necessity to connect to more than on server in each session the server url should be an argument of the function
         public void connectServer() {
             _channel = new TcpChannel();
             ChannelServices.RegisterChannel(_channel, false);
@@ -48,7 +50,9 @@ namespace Client {
             RemotingServices.Marshal(_clientService, "CLIENT", typeof(ClientService));
 
             _serverService = (IServerService) Activator.GetObject( typeof(IServerService), _serverUrl);
+            
             _serverService.connect(_clientUrl);
+
             getRegisteredClients();
             
         }
@@ -57,7 +61,7 @@ namespace Client {
         public void getRegisteredClients() {
             _otherClients = _serverService.getRegisteredClients();
             foreach (String s in _otherClients)
-                Console.WriteLine("Clients: " + s);
+                Console.WriteLine("Registered Clients: " + s);
         }
 
         //listMeeting: the server contact the server to know about the status of the meetings he already knows
@@ -69,9 +73,9 @@ namespace Client {
             List<String> meetingStatusChanged = new List<String>();
 
             // Checks if Meeting Status is still the same as the server's
-            foreach (DictionaryEntry m in _clientMeetings) {
-                if (_serverService.checkMeetingStatusChange((Meeting)(m.Value)))
-                    meetingStatusChanged.Add(((Meeting)(m.Value)).Topic);
+            foreach (Meeting m in _clientMeetings.Values) {
+                if (_serverService.checkMeetingStatusChange(m))
+                    meetingStatusChanged.Add(m.Topic);
             }
 
             // If not updates it
@@ -79,8 +83,8 @@ namespace Client {
                 _clientMeetings[topic] = _serverService.getMeeting(topic);
             }
 
-            foreach (DictionaryEntry m in _clientMeetings) {
-                list += ((Meeting)(m.Value)).ToString(); 
+            foreach (Meeting m in _clientMeetings.Values) {
+                list += m.ToString(); 
             }
             Console.WriteLine(list);
            
@@ -95,7 +99,7 @@ namespace Client {
         }
 
         public void createMeeting(String topic, int minAtt, List<Slot> slots, List<String> invitees) {
-            Meeting meeting = new Meeting(_clientUrl, topic, minAtt, slots, invitees);
+            Meeting meeting = new Meeting(_username, topic, minAtt, slots, invitees);
             _clientMeetings.Add(topic, meeting);
             _serverService.createMeeting(meeting);
 
