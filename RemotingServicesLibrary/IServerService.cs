@@ -15,7 +15,7 @@ namespace RemotingServicesLibrary {
         void createMeeting(Meeting meeting);
 
 
-        //void joinMeeting(String topic);
+        void joinMeeting(String meetingTopic, Slot slot, String username);
         //void closeMeeting(String topic);
     }
 }

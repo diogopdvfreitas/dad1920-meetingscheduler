@@ -55,6 +55,18 @@ namespace ObjectsLibrary {
             return _Status != meeting.MStatus;
         }
 
+        public List<Slot> getSlots{
+            get { return _slots; }
+        }
+
+        public void joinSlot(Slot chosenSlot, String username) {
+            foreach(Slot slot in _slots){
+                if(slot.Location.Equals(chosenSlot.Location) && slot.Date.Equals(chosenSlot.Date)) {
+                    slot.NewInterested(username);
+                }
+            }
+        }
+
         public override String ToString() {
             return "Meeting:\n\tCoordinator: " + _coord + "\n\tTopic: " + _topic + "\n\tMin. Attendes: " + _minAtt + "\n\tNumber of Slots: " + _nSlots + "\n\tNumber of Invitees: " + _nInvitees + "\n\tSlots: " + _slots.ToString() + "\n\tInvitees: " + _invitees.ToString() + "\n";
         }

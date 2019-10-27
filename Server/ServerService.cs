@@ -28,13 +28,17 @@ namespace Server {
             return meeting.checkStatusChange((Meeting)_meetings[meeting.Topic]);
         }
 
-        public Meeting getMeeting(String topic) {
-            return (Meeting) _meetings[topic];
+        public Meeting getMeeting(String meetingTopic) {
+            return (Meeting) _meetings[meetingTopic];
         }
         
         public void createMeeting(Meeting meeting) {
             Console.WriteLine(meeting.ToString());
             _meetings.Add(meeting.Topic, meeting);
+        }
+
+        public void joinMeeting(String meetingTopic, Slot slot, String username) {
+            _meetings[meetingTopic].joinSlot(slot, username);
         }
 
 

@@ -79,14 +79,18 @@ namespace Client {
                     break;
 
                 case "join":
-                    slots = new List<Slot>();
-                    nSlots = Int32.Parse(commandAttr[2]);
-                    slotsStartIndex = 3 + nSlots;
-                    for (int i = 5; i < slotsStartIndex; i++) {
-                        String[] slotAttr = commandAttr[i].Split(',');
+                    String meetingTopic;
+                    int slots_count;
+
+                    meetingTopic = commandAttr[1];
+                    slots_count = Int32.Parse(commandAttr[2]);
+
+                    for( int i = 0; i < slots_count; i++) {
+                        String[] slotAttr = commandAttr[i+2].Split(',');
                         Slot slot = new Slot(new Location(slotAttr[0]), slotAttr[1]);
-                        slots.Add(slot);
+                        client.joinMeeting(meetingTopic, slot);
                     }
+
                     Console.WriteLine("Join Meeting");
                     break;
 

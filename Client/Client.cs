@@ -16,6 +16,7 @@ namespace Client {
         private String _clientUrl = "tcp://localhost:8080/CLIENT"; //Estes url sao fornecido pelos PCS quando se cria o cliente
         private String _serverUrl = "tcp://localhost:8086/SERVER";
         private List<String> _otherClients;
+        private String _username;
 
         private ClientService _clientService;
 
@@ -30,9 +31,10 @@ namespace Client {
         }
 
         //Client: create a client with the given urls
-        public Client(String clientUrl, String serverUrl) {
+        public Client(String clientUrl, String serverUrl, String username) {
             _clientUrl = clientUrl;
             _serverUrl = serverUrl;
+            _username = username;
             connectServer();
         }
 
@@ -98,6 +100,16 @@ namespace Client {
             _serverService.createMeeting(meeting);
 
             Console.WriteLine("Meeting Created");
+        }
+
+        public Meeting getMeeting(String topic){
+            return _serverService.getMeeting(topic);
+        }
+               
+
+        public void joinMeeting(String topic, Slot chosenSlot){
+            _serverService.joinMeeting(topic, chosenSlot, _username);
+            Console.WriteLine(_username + " joined meeting " + topic + " in the slot " + chosenSlot);
         }
     }
 }
