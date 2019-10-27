@@ -7,12 +7,14 @@ namespace ObjectsLibrary {
     public class Slot {
         private Location _location;
         private String _date;
-        private List<String> _interested;
+        private List<String> _joined;
+        private Room _pickedRoom;
 
         public Slot(Location location, String date) {
             _location = location;
             _date = date;
-            _interested = new List<String>();
+            _joined = new List<String>();
+            _pickedRoom = null;
         }
 
         public Location Location {
@@ -25,20 +27,39 @@ namespace ObjectsLibrary {
             set { _date = value; }
         }
 
-        public int NrOfInterested {
-            get { return _interested.Count; }
+        public int NJoined {
+            get { return _joined.Count; }
         }
 
-        public List<String> Interested {
-            get { return _interested; }
+        public List<String> Joined {
+            get { return _joined; }
         }
 
-        public void NewInterested(String clientName) {
-            _interested.Add(clientName);
+        public Room PickedRoom {
+            get { return _pickedRoom; }
+        }
+
+        public void joinSlot(String clientName) {
+            _joined.Add(clientName);
+        }
+
+        public bool bookMeeting(Meeting meeting) {
+            List<Room> roomsOK = _location.getRoomsWithEnoughCapacity(this.NJoined);
+            bool bookingStatus = false;
+            while(!bookingStatus) {
+                Random rand = new Random();
+                _pickedRoom = roomsOK[rand.Next(roomsOK.Count)];
+                bookingStatus = _pickedRoom.bookMeeting(_date, meeting);
+                if(!bookingStatus)
+                    roomsOK.Remove(_pickedRoom);
+                if(roomsOK.Count == 0)
+                    break;
+            }
+            return bookingStatus;
         }
 
         public override String ToString() {
-            return _location.Name + ", " + _date + ", Number of Interested Clients: " + NrOfInterested;
+            return _location.Name + "," + _date + ": Number of Joins - " + NJoined;
         }
     }
 }

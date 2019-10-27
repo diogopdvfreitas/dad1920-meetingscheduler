@@ -22,13 +22,13 @@ namespace Client {
         //serverService: interface to contact the server
         private IServerService _serverService;
 
-        private IDictionary<String, Meeting> _clientMeetings = new Dictionary<String, Meeting>();
-
+        private IDictionary<String, Meeting> _clientMeetings;
         private List<String> _otherClients;
 
 
         //Client: create a client with the defined urls
         public Client() {
+            _clientMeetings = new Dictionary<String, Meeting>();
             connectServer();
         }
 
@@ -37,11 +37,12 @@ namespace Client {
             _clientUrl = clientUrl;
             _serverUrl = serverUrl;
             _username = username;
+            _clientMeetings = new Dictionary<String, Meeting>();
             connectServer();
         }
 
         //connectServer: connect to the server, save the ref to the server remote obj and asks for registered clients
-  //???if there´s the necessity to connect to more than on server in each session the server url should be an argument of the function
+        //???if there´s the necessity to connect to more than on server in each session the server url should be an argument of the function
         public void connectServer() {
             _channel = new TcpChannel();
             ChannelServices.RegisterChannel(_channel, false);
@@ -64,7 +65,6 @@ namespace Client {
                 Console.WriteLine("Registered Clients: " + s);
         }
 
-        //listMeeting: contact the server to check the status of the known meetings
         public void listMeetings() {
             Console.WriteLine("|========== Meetings ==========|");
 
@@ -72,9 +72,9 @@ namespace Client {
             List<String> meetingStatusChanged = new List<String>();
 
             // Checks if Meeting Status is still the same as the server's
-            foreach (Meeting m in _clientMeetings.Values) {
-                if (_serverService.checkMeetingStatusChange(m)) {
-                    meetingStatusChanged.Add(m.Topic);
+            foreach (Meeting meeting in _clientMeetings.Values) {
+                if (_serverService.checkMeetingStatusChange(meeting)) {
+                    meetingStatusChanged.Add(meeting.Topic);
                 }
             }
 
@@ -83,8 +83,8 @@ namespace Client {
                 _clientMeetings[topic] = _serverService.getMeeting(topic);
             }
 
-            foreach (Meeting m in _clientMeetings.Values) {
-                list += m.ToString(); 
+            foreach (Meeting meeting in _clientMeetings.Values) {
+                list += meeting.ToString(); 
             }
             Console.WriteLine(list);  
         }
@@ -94,7 +94,7 @@ namespace Client {
             _clientMeetings.Add(topic, meeting);
             _serverService.createMeeting(meeting);
 
-            Console.WriteLine("Meeting Created");
+            Console.WriteLine("Meeting " + topic + " Created");
         }
 
         public void createMeeting(String topic, int minAtt, List<Slot> slots, List<String> invitees) {
@@ -102,17 +102,20 @@ namespace Client {
             _clientMeetings.Add(topic, meeting);
             _serverService.createMeeting(meeting);
 
-            Console.WriteLine("Meeting Created");
+            Console.WriteLine("Meeting " + topic + " Created");
         }
 
         public Meeting getMeeting(String topic){
             return _serverService.getMeeting(topic);
         }
                
+        public void joinMeetingSlot(String topic, Slot chosenSlot){
+            _serverService.joinMeetingSlot(topic, chosenSlot, _username);
+            Console.WriteLine(_username + " joined meeting " + topic + " on slot " + chosenSlot);
+        }
 
-        public void joinMeeting(String topic, Slot chosenSlot){
-            _serverService.joinMeeting(topic, chosenSlot, _username);
-            Console.WriteLine(_username + " joined meeting " + topic + " in the slot " + chosenSlot);
+        public void closeMeeting(String topic) {
+            _serverService.closeMeeting(topic);
         }
     }
 }

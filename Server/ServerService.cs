@@ -22,8 +22,8 @@ namespace Server {
             return _clients;
         }
 
-        public Meeting getMeeting(String meetingTopic) {
-            return _meetings[meetingTopic];
+        public Meeting getMeeting(String topic) {
+            return _meetings[topic];
         }
 
         //checkMeetingStatus: check if the meeting status has changed or not
@@ -36,8 +36,12 @@ namespace Server {
             _meetings.Add(meeting.Topic, meeting);
         }
 
-        public void joinMeeting(String meetingTopic, Slot slot, String username) {
-            _meetings[meetingTopic].joinSlot(slot, username);
+        public void joinMeetingSlot(String topic, Slot slot, String username) {
+            _meetings[topic].joinSlot(slot, username);
+        }
+
+        public void closeMeeting(String topic) {
+           _meetings[topic].close();            
         }
     }
 }

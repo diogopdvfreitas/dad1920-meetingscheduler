@@ -80,20 +80,19 @@ namespace Client {
 
                 case "join":
                     Console.WriteLine("Join Meeting");
-                    String meetingTopic;
 
-                    meetingTopic = commandAttr[1];
                     nSlots = Int32.Parse(commandAttr[2]);
 
                     for( int i = 3; i < 3 + nSlots; i++) {
                         String[] slotAttr = commandAttr[i].Split(',');
                         Slot slot = new Slot(new Location(slotAttr[0]), slotAttr[1]);
-                        client.joinMeeting(meetingTopic, slot);
+                        client.joinMeetingSlot(commandAttr[1], slot);
                     }
                     break;
 
                 case "close":
                     Console.WriteLine("Close Meeting");
+                    client.closeMeeting(commandAttr[1]);
                     break;
 
                 case "wait":

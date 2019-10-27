@@ -9,7 +9,7 @@ namespace ObjectsLibrary {
     public class Room {
         private String _name;
         private int _capacity;
-        private IDictionary<String, String> _meetingSchedule; // Key - Meeting Topic; Value - Meeting Date
+        private IDictionary<String, String> _meetingSchedule; // Key - Meeting Date; Value - Meeting Topic
 
         public Room(String name, int capacity) {
             _name = name;
@@ -25,8 +25,12 @@ namespace ObjectsLibrary {
             get { return _capacity; }
         }
 
-        public void bookMeeting(Meeting meeting, String date) {
-            _meetingSchedule.Add(meeting.Topic, date);
+        public bool bookMeeting(String date, Meeting meeting) {
+            if (!_meetingSchedule.ContainsKey(date)) {
+                _meetingSchedule.Add(date, meeting.Topic);
+                return true;
+            }
+            return false;
         }
     }
 }
