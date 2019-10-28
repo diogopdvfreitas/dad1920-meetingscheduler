@@ -21,6 +21,9 @@ namespace PuppetMaster {
 
             switch (commandAttr[0]) {
                 case "Server":
+                    int max_faults = Int32.Parse(commandAttr[3]);//TODO
+                    Server server = new Server(commandAttr[1], commandAttr[2], commandAttr[4], commandAttr[5]); //srvr_id, url, min_delay, max_delay
+
                     break;
                 case "Client":
                     break;

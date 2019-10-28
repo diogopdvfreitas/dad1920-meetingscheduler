@@ -7,10 +7,19 @@ namespace Server {
     public class ServerService : MarshalByRefObject, IServerService {
         private IDictionary<String, Meeting> _meetings;
         private List<String> _clients;
+        private int _min_delay;
+        private int _max_delay;
 
         public ServerService() {
             _meetings = new Dictionary<String, Meeting>();
             _clients = new List<String>();
+        }
+
+        public ServerService(int min_delay, int max_delay) {
+            _meetings = new Dictionary<String, Meeting>();
+            _clients = new List<String>();
+            _min_delay = min_delay;
+            _max_delay = max_delay;
         }
 
         public void connect(String username, String clientUrl) {
