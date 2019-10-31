@@ -60,10 +60,12 @@ namespace Client {
                         slots.Add(slot);
                     }
 
+                    nInvitees = Int32.Parse(commandAttr[4].ToString());
                     // Invitees are optional
-                    try {
+                    if (nInvitees == 0) {
+                        client.createMeeting(commandAttr[1], Int32.Parse(commandAttr[2]), slots);
+                    }else {
                         invitees = new List<String>();
-                        nInvitees = Int32.Parse(commandAttr[4].ToString());
 
                         // Select the invitees from the command
                         invtsStartIndex = slotsStartIndex + nInvitees;
@@ -71,10 +73,6 @@ namespace Client {
                             invitees.Add(commandAttr[i]);
                         }
                         client.createMeeting(commandAttr[1], Int32.Parse(commandAttr[2]), slots, invitees);
-                    }
-                    catch (FormatException) {
-                        nInvitees = 0;
-                        client.createMeeting(commandAttr[1], Int32.Parse(commandAttr[2]), slots);
                     }
                     break;
 

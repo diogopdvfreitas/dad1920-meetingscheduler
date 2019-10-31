@@ -52,11 +52,10 @@ namespace Client {
             RemotingServices.Marshal(_clientService, "CLIENT", typeof(ClientService));
 
             _serverService = (IServerService) Activator.GetObject( typeof(IServerService), _serverUrl);
-            
-            _serverService.connect(_username, _clientUrl);
 
             getRegisteredClients();
-            
+
+            _serverService.connect(_username, _clientUrl);
         }
 
         //getRegisteredClients: ask the server for registered clients
@@ -101,7 +100,7 @@ namespace Client {
 
         //createMeeting: create meeting without invitees
         public void createMeeting(String topic, int minAtt, List<Slot> slots) {
-            Meeting meeting = new Meeting(_clientUrl, topic, minAtt, slots);
+            Meeting meeting = new Meeting(_username, topic, minAtt, slots);
             _clientMeetings.Add(topic, meeting);
             _serverService.createMeeting(meeting);
 
