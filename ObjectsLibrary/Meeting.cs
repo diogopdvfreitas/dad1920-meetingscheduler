@@ -29,6 +29,7 @@ namespace ObjectsLibrary {
             _status = Status.OPEN;
             _nJoined = 0;
             _pickedSlot = null;
+            _invitees = null;
         }
 
         public Meeting(String coord, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
@@ -58,6 +59,10 @@ namespace ObjectsLibrary {
 
         public List<Slot> Slots {
             get { return _slots; }
+        }
+
+        public List<String> Invitees {
+            get { return _invitees; }
         }
 
         public int NJoined {

@@ -6,28 +6,27 @@ using System.Collections.Generic;
 namespace Server {
     public class ServerService : MarshalByRefObject, IServerService {
         private IDictionary<String, Meeting> _meetings;
-        private List<String> _clients;
+        private Dictionary<String, String> _clients;
         private int _min_delay;
         private int _max_delay;
 
         public ServerService() {
             _meetings = new Dictionary<String, Meeting>();
-            _clients = new List<String>();
+            _clients = new Dictionary<String, String>();
         }
 
         public ServerService(int min_delay, int max_delay) {
             _meetings = new Dictionary<String, Meeting>();
-            _clients = new List<String>();
+            _clients = new Dictionary<String, String>();
             _min_delay = min_delay;
             _max_delay = max_delay;
         }
 
         public void connect(String username, String clientUrl) {
-            String client = username + "-" + clientUrl;
-            _clients.Add(client);
+            _clients.Add(username, clientUrl);
         }
 
-        public List<String> getRegisteredClients() {
+        public Dictionary<String, String> getRegisteredClients() {
             return _clients;
         }
 

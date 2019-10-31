@@ -1,11 +1,17 @@
 ﻿using System;
 using RemotingServicesLibrary;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ObjectsLibrary;
 
 namespace Client {
     public class ClientService : MarshalByRefObject, IClientService {
+        private Client _client;
+
+        public ClientService(Client client) {
+            _client = client; 
+        }
+        //receiveInvite: receive meeting invitee
+        public void receiveInvite(Meeting meeting) {
+            _client.receiveInvite(meeting);
+        }
     }
 }
