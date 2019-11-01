@@ -1,0 +1,1 @@
+Client Rita tcp://localhost:8080/CLIENT tcp://localhost:8086/SERVER testClient.txt

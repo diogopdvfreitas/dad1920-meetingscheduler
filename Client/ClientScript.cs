@@ -5,7 +5,7 @@ using ObjectsLibrary;
 
 namespace Client {
     public class ClientScript {
-        private String _scriptName;
+        private String _scriptName = "testClient.txt";
         Client _client;
 
         public ClientScript() {
@@ -22,7 +22,7 @@ namespace Client {
             Console.WriteLine("Read Script");
             StreamReader script;
             try {
-                script = File.OpenText(_scriptName);
+                script = File.OpenText("../../../" + _scriptName);
             }
             catch (FileNotFoundException) {
                 Console.WriteLine("File: " + _scriptName +  " Not Found");
@@ -108,13 +108,16 @@ namespace Client {
 
         static void Main(string[] args) {
             Console.WriteLine("ClientScript");
+            string logsDirectory = Path.Combine(Environment.CurrentDirectory, "logs");
+            Console.WriteLine("DIR: " + logsDirectory);
             ClientScript clientScript;
             if (args.Length == 0)
                 clientScript = new ClientScript();
             else {
                 clientScript = new ClientScript(args[0], args[1], args[2], args[3]);
-                clientScript.readClientScript(); 
             }
+            clientScript.readClientScript();
+            Console.WriteLine("Executou o script");
             Console.ReadLine();
         }
     }

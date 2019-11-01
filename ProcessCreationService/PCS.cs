@@ -1,4 +1,5 @@
-﻿using System.Runtime.Remoting;
+﻿using System;
+using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
 
@@ -14,6 +15,9 @@ namespace ProcessCreationService {
             RemotingServices.Marshal(_pcService, "PCSERVICE", typeof(PCService));
         }
         static void Main(string[] args) {
+            Console.WriteLine("PCS");
+            PCS pcs = new PCS();
+            Console.ReadLine(); 
         }
     }
 }

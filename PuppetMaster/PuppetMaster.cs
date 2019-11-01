@@ -17,14 +17,17 @@ namespace PuppetMaster {
             _scriptName = scriptName;
             _channel = new TcpChannel(10001);
             ChannelServices.RegisterChannel(_channel, false);
+            
 
             pcsList = new Dictionary<String, IPCService>();
+            PCSConfig();
         }
 
         public void PCSConfig() {
             foreach (String pcsUrl in ConfigurationManager.AppSettings) {
                 String[] urlAttributes = pcsUrl.Split(new Char[] { ':', '/' }, StringSplitOptions.RemoveEmptyEntries);
-                IPCService pcServ = (IPCService) Activator.GetObject(typeof(IPCService), "PCSERVICE", pcsUrl);
+                Console.WriteLine(pcsUrl);
+                IPCService pcServ = (IPCService) Activator.GetObject(typeof(IPCService), pcsUrl);
                 pcsList.Add(urlAttributes[1], pcServ);
             }
         }
@@ -76,7 +79,7 @@ namespace PuppetMaster {
             }
         }
 
-        public void readClientScript() {
+        public void readPuppetMasterScript() {
             Console.WriteLine("Read Script");
             StreamReader script;
             try {
@@ -96,9 +99,12 @@ namespace PuppetMaster {
         }
 
         static void Main(string[] args) {
-            String scriptName= Console.ReadLine();
+            Console.WriteLine("PuppetMaster");
+            String scriptName = "../../../" + Console.ReadLine();
+            Console.WriteLine("ScriptFile: " + scriptName );
             PuppetMaster puppetMaster = new PuppetMaster(scriptName);
-
+            puppetMaster.readPuppetMasterScript();
+            Console.ReadLine();
         }
     }
 }

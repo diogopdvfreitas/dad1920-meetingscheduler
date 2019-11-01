@@ -56,10 +56,6 @@
       <Project>{3af0299b-b2aa-4d05-a240-ab1dc52844cc}</Project>
       <Name>CreationServiceLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Server\Server.csproj">
-      <Project>{a33ecefb-0969-44e9-a0e9-e0806ee9ad14}</Project>
-      <Name>Server</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
