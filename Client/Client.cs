@@ -33,12 +33,13 @@ namespace Client {
             connectServer();
         }
 
-        //Client: create a client with the given urls
+        //Client: create a client with the given username and urls
         public Client(String username, String clientUrl, String serverUrl) {
             _clientUrl = clientUrl;
             _serverUrl = serverUrl;
             _username = username;
             _clientMeetings = new Dictionary<String, Meeting>();
+            _otherClients = new Dictionary<String, IClientService>();
             connectServer();
         }
 
