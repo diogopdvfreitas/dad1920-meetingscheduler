@@ -44,13 +44,6 @@ namespace Server {
             else{
                 Server server = new Server(args[0], args[1], Int32.Parse(args[2]), Int32.Parse(args[3]));
             }
-            /*TcpChannel channel = new TcpChannel(_port);
-            ChannelServices.RegisterChannel(channel, false);
-
-            ServerService serverService = new ServerService();
-            RemotingServices.Marshal(serverService, "SERVER", typeof(ServerService));
-            */
-
             Console.ReadLine();
 
         }
