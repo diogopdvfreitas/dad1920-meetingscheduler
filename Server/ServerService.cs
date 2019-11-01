@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 namespace Server {
     public class ServerService : MarshalByRefObject, IServerService {
+
+        private Server _server;
         private IDictionary<String, Meeting> _meetings;
         private Dictionary<String, String> _clients;
         private int _min_delay;
@@ -15,9 +17,10 @@ namespace Server {
             _clients = new Dictionary<String, String>();
         }
 
-        public ServerService(int min_delay, int max_delay) {
+        public ServerService(Server server, int min_delay, int max_delay) {
             _meetings = new Dictionary<String, Meeting>();
             _clients = new Dictionary<String, String>();
+            _server = server;
             _min_delay = min_delay;
             _max_delay = max_delay;
         }
