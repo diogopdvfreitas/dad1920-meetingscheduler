@@ -5,6 +5,8 @@ using ObjectsLibrary;
 
 namespace Client {
     public class ClientScript {
+
+        //default scriptName
         private String _scriptName = "testClient.txt";
         Client _client;
 
@@ -107,7 +109,6 @@ namespace Client {
         }
 
         static void Main(string[] args) {
-            Console.WriteLine("ClientScript");
             ClientScript clientScript;
             if (args.Length == 0)
                 clientScript = new ClientScript();
@@ -115,8 +116,14 @@ namespace Client {
                 clientScript = new ClientScript(args[0], args[1], args[2], args[3]);
             }
             clientScript.readClientScript();
-            Console.WriteLine("Executou o script");
-            Console.ReadLine();
+            Console.WriteLine("QUIT to exit");
+            while (true) {
+                String line = Console.ReadLine();
+                if (line == "QUIT")
+                    break;
+                else
+                    clientScript.executeCommand(line);
+            }
         }
     }
 }

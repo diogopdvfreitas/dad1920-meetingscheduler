@@ -13,11 +13,11 @@ namespace Client {
     public class Client : ClientAPI {
 
         //default values
-        private String _username;
-        private String _clientUrl;
-        private int _clientPort;
+        private String _username = "Rita";
+        private String _clientUrl = "tcp://localhost:8080/CLIENT";
+        private int _clientPort = 8080;
        
-        private String _serverUrl;
+        private String _serverUrl = "tcp://localhost:8086/SERVER";
 
         private TcpChannel _channel;
         private ClientService _clientService;
@@ -29,8 +29,10 @@ namespace Client {
         private Dictionary<String,IClientService> _otherClients;
 
 
-        //Client: create a client with the defined urls
+        //Client: create a client with the default values
         public Client() {
+            Console.WriteLine("Client " + _username + " at " + _clientUrl);
+
             _clientMeetings = new Dictionary<String, Meeting>();
             _otherClients = new Dictionary<String, IClientService>();
             connectServer();
@@ -38,12 +40,13 @@ namespace Client {
 
         //Client: create a client with the given username and urls
         public Client(String username, String clientUrl, String serverUrl) {
-            Console.WriteLine("Client " + username + " at " + clientUrl);
             _clientUrl = clientUrl;
             String[] clientUrlSplit = clientUrl.Split(new Char[] { ':', '/'}, StringSplitOptions.RemoveEmptyEntries);
             _clientPort = Int32.Parse(clientUrlSplit[2]);
             _serverUrl = serverUrl;
             _username = username;
+            Console.WriteLine("Client " + _username + " at " + _clientUrl);
+
             _clientMeetings = new Dictionary<String, Meeting>();
             _otherClients = new Dictionary<String, IClientService>();
             connectServer();
@@ -141,7 +144,6 @@ namespace Client {
                         getRegisteredClients();
                         if (_otherClients.ContainsKey(invitee)) {
                             _otherClients[invitee].receiveInvite(meeting);
-                            sendInvite(meeting);
                         }
                         Console.WriteLine(invitee + " is not registered in the system.");
                     }
