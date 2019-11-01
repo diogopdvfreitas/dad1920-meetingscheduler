@@ -65,7 +65,7 @@ namespace Client {
 
             getRegisteredClients();
 
-            _serverService.connect(_username, _clientUrl);
+            _serverService.clientConnect(_username, _clientUrl);
         }
 
         //getRegisteredClients: ask the server for registered clients

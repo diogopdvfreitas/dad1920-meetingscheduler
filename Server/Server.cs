@@ -9,14 +9,14 @@ using System.Runtime.Remoting.Channels.Tcp;
 namespace Server {
     public class Server {
 
-        private Dictionary<String, IServerService> _otherServers;
-
+        //default values
         private String _id = "SERVER";
         private String _url = "tcp://localhost:8086/SERVER";
         private int _port = 8086;
         private int _max_faults = 0;
         private int _min_delay = 0;
         private int _max_delay = 0;
+        TcpChannel _channel;
         
         public Server() {
             setServer();
@@ -30,13 +30,16 @@ namespace Server {
             _max_faults = max_faults;
             _min_delay = min_delay;
             _max_delay = max_delay;
-            _otherServers = new Dictionary<String, IServerService>();
             setServer();
         }
 
+        public String Url { 
+            get { return _url; }
+        }
+
         private void setServer() {
-            TcpChannel channel = new TcpChannel(_port);
-            ChannelServices.RegisterChannel(channel, false);
+            _channel = new TcpChannel(_port);
+            ChannelServices.RegisterChannel(_channel, false);
 
             ServerService serverService = new ServerService(this, _min_delay, _max_delay);
             RemotingServices.Marshal(serverService, _id, typeof(ServerService));
