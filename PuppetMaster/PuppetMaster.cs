@@ -36,6 +36,7 @@ namespace PuppetMaster {
 
             //createServer: srvr_id, url, min_delay, max_delay
             pcsList[server_IP].createServer(server_port, commandAttr[1], commandAttr[2], commandAttr[3], commandAttr[4], commandAttr[5]);
+
         }
 
         //createClient: contact the PCS with the client ip in order to create the pretend client

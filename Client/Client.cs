@@ -12,10 +12,12 @@ using ClientLibrary;
 namespace Client {
     public class Client : ClientAPI {
 
-        private String _clientUrl = "tcp://localhost:8080/CLIENT"; //Estes url sao fornecido pelos PCS quando se cria o cliente
+        //default values
         private String _username = "Pedro";
+        private String _clientUrl = "tcp://localhost:8080/CLIENT";
        
         private String _serverUrl = "tcp://localhost:8086/SERVER";
+
         private TcpChannel _channel;
         private ClientService _clientService;
 

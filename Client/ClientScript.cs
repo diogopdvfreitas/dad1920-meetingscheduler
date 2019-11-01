@@ -5,12 +5,18 @@ using ObjectsLibrary;
 
 namespace Client {
     public class ClientScript {
-        private String _scriptName = "test.txt";
-        Client client;
+        private String _scriptName;
+        Client _client;
 
         public ClientScript() {
-            client = new Client();
+            _client = new Client();
         }
+
+        public ClientScript(String username, String clientUrl, String serverUrl, String scriptName) {
+            _scriptName = scriptName;
+            _client = new Client(username, clientUrl, serverUrl);
+        }
+
 
         public void readClientScript() {
             Console.WriteLine("Read Script");
@@ -41,7 +47,7 @@ namespace Client {
             switch (commandAttr[0]) {
                 //TODO 
                 case "list":
-                    client.listMeetings();
+                    _client.listMeetings();
                     break;
 
                 case "create":
@@ -63,7 +69,7 @@ namespace Client {
                     nInvitees = Int32.Parse(commandAttr[4].ToString());
                     // Invitees are optional
                     if (nInvitees == 0) {
-                        client.createMeeting(commandAttr[1], Int32.Parse(commandAttr[2]), slots);
+                        _client.createMeeting(commandAttr[1], Int32.Parse(commandAttr[2]), slots);
                     }else {
                         invitees = new List<String>();
 
@@ -72,7 +78,7 @@ namespace Client {
                         for (int i = slotsStartIndex; i < invtsStartIndex; i++) {
                             invitees.Add(commandAttr[i]);
                         }
-                        client.createMeeting(commandAttr[1], Int32.Parse(commandAttr[2]), slots, invitees);
+                        _client.createMeeting(commandAttr[1], Int32.Parse(commandAttr[2]), slots, invitees);
                     }
                     break;
 
@@ -84,13 +90,13 @@ namespace Client {
                     for( int i = 3; i < 3 + nSlots; i++) {
                         String[] slotAttr = commandAttr[i].Split(',');
                         Slot slot = new Slot(new Location(slotAttr[0]), slotAttr[1]);
-                        client.joinMeetingSlot(commandAttr[1], slot);
+                        _client.joinMeetingSlot(commandAttr[1], slot);
                     }
                     break;
 
                 case "close":
                     Console.WriteLine("Close Meeting");
-                    client.closeMeeting(commandAttr[1]);
+                    _client.closeMeeting(commandAttr[1]);
                     break;
 
                 case "wait":
@@ -102,8 +108,13 @@ namespace Client {
 
         static void Main(string[] args) {
             Console.WriteLine("ClientScript");
-            ClientScript clientScript = new ClientScript();
-            clientScript.readClientScript();
+            ClientScript clientScript;
+            if (args.Length == 0)
+                clientScript = new ClientScript();
+            else {
+                clientScript = new ClientScript(args[0], args[1], args[2], args[3]);
+                clientScript.readClientScript(); 
+            }
             Console.ReadLine();
         }
     }
