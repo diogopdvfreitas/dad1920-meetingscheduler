@@ -31,7 +31,10 @@ namespace PuppetMaster {
 
         public void createServer(String[] commandAttr) {
             String[] server_url = commandAttr[2].Split(new char[] { '/', ':' }, StringSplitOptions.RemoveEmptyEntries);
+            String server_IP = server_url[1];
 
+            //createServer: //srvr_id, url, max_faults, min_delay, max_delay
+            pcsList[server_IP].createServer(commandAttr[1], commandAttr[2], commandAttr[3], commandAttr[4], commandAttr[5]);
         }
 
         //createClient: contact the PCS with the client ip in order to create the pretend client

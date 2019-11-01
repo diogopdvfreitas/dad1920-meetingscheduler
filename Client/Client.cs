@@ -34,7 +34,7 @@ namespace Client {
         }
 
         //Client: create a client with the given urls
-        public Client(String clientUrl, String serverUrl, String username) {
+        public Client(String username, String clientUrl, String serverUrl) {
             _clientUrl = clientUrl;
             _serverUrl = serverUrl;
             _username = username;
