@@ -45,7 +45,6 @@ namespace Client {
             int slotsStartIndex;
 
             switch (commandAttr[0]) {
-                //TODO 
                 case "list":
                     _client.listMeetings();
                     break;
@@ -101,6 +100,7 @@ namespace Client {
 
                 case "wait":
                     int time = Int32.Parse(commandAttr[1]);
+                    System.Threading.Thread.Sleep(time);
                     Console.WriteLine("Wait");
                     break;
             }
@@ -108,8 +108,6 @@ namespace Client {
 
         static void Main(string[] args) {
             Console.WriteLine("ClientScript");
-            string logsDirectory = Path.Combine(Environment.CurrentDirectory, "logs");
-            Console.WriteLine("DIR: " + logsDirectory);
             ClientScript clientScript;
             if (args.Length == 0)
                 clientScript = new ClientScript();

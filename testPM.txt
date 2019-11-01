@@ -1,1 +1,3 @@
-Client Rita tcp://localhost:8080/CLIENT tcp://localhost:8086/SERVER testClient.txt
+Client Rita tcp://localhost:8080/CLIENT tcp://localhost:8086/SERVER testClient2.txt
+Client Maria tcp://localhost:8081/CLIENT tcp://localhost:8086/SERVER testClient1.txt
+Client Jo tcp://localhost:8082/CLIENT tcp://localhost:8086/SERVER testClient.txt
