@@ -11,6 +11,7 @@ namespace Server {
         private IDictionary<String, Meeting> _meetings;
         private Dictionary<String, String> _clients;
         private Dictionary<String, IServerService> _otherServers;
+        private List<String> _sentMessageServers;
 
         private int _min_delay;
         private int _max_delay;
@@ -38,34 +39,39 @@ namespace Server {
         //serversConfig: gets a proxy for each known server
         public void serversConfig() {
             foreach (String serverUrl in ConfigurationManager.AppSettings) {
+                Console.WriteLine("Servers:" + serverUrl);
+                Console.WriteLine(_server.Url);
                 if (serverUrl != _server.Url) {
-                    String[] urlAttributes = serverUrl.Split(new Char[] { ':', '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    //String[] urlAttributes = serverUrl.Split(new Char[] { ':', '/' }, StringSplitOptions.RemoveEmptyEntries);
                     IServerService serverServ = (IServerService)Activator.GetObject(typeof(IServerService), serverUrl);
                     _otherServers.Add(serverUrl, serverServ); //neste momento a key é o url, mas acho que nao vai ser, provavelmente vai ser o id
                 }
             }
         }
-
         public void informServers(String command, List<Object> args) {
-            foreach (IServerService serverServ in _otherServers.Values) {
-                serverServ.executeCommand(command, args);
+            _sentMessageServers = new List<String>();
+            foreach (KeyValuePair<String,IServerService> serverServ in _otherServers) {
+                    _sentMessageServers.Add(serverServ.Key);
+                    serverServ.Value.executeCommand(_server.Url, command, args);
             }
         }
 
-        public void executeCommand(String command, List<Object> args) {
+        public void executeCommand(String senderServer, String command, List<Object> args) {
+            if (!_sentMessageServers.Contains(senderServer)) {
 
-            switch (command) {
-                case "create":
-                    createMeeting((Meeting)args[0]);
-                    break;
+                switch (command) {
+                    case "create":
+                        createMeeting((Meeting)args[0]);
+                        break;
 
-                case "join":
-                    joinMeetingSlot((String)args[0], (Slot) args[1], (String)args[2]);
-                    break;
+                    case "join":
+                        joinMeetingSlot((String)args[0], (Slot)args[1], (String)args[2]);
+                        break;
 
-                case "close":
-                    closeMeeting((String)args[0]);
-                    break;
+                    case "close":
+                        closeMeeting((String)args[0]);
+                        break;
+                }
             }
         }
 
@@ -90,19 +96,19 @@ namespace Server {
             Console.WriteLine(meeting.ToString());
             _meetings.Add(meeting.Topic, meeting);
             List<Object> args = new List<Object>(){ meeting };
-            //informServers("create", args);
+            informServers("create", args);
         }
 
         public void joinMeetingSlot(String topic, Slot slot, String username) {
             _meetings[topic].joinSlot(slot, username);
             List<Object> args = new List<Object>() { topic, slot, username };
-            //informServers("join", args);
+            informServers("join", args);
         }
 
         public void closeMeeting(String topic) {
            _meetings[topic].close();
             List<Object> args = new List<Object>() { topic };
-           // informServers("close", args);
+            informServers("close", args);
         }
     }
 }

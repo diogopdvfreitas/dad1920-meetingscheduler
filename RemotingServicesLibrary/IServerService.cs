@@ -4,7 +4,7 @@ using ObjectsLibrary;
 
 namespace RemotingServicesLibrary {
     public interface IServerService {
-        void executeCommand(String command, List<Object> args);
+        void executeCommand(String senderServer, String command, List<Object> args);
         void clientConnect(String username, String clientUrl);
         Dictionary<String, String> getRegisteredClients();
         bool checkMeetingStatusChange(Meeting meeting);
