@@ -44,7 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PCService.cs" />
+    <Compile Include="PCSService.cs" />
     <Compile Include="PCS.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

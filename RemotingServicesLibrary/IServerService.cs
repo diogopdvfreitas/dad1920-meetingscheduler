@@ -4,13 +4,16 @@ using ObjectsLibrary;
 
 namespace RemotingServicesLibrary {
     public interface IServerService {
-        void executeCommand(String senderServer, String command, List<Object> args);
+        //void executeCommand(String senderServer, String command, List<Object> args);
         void clientConnect(String username, String clientUrl);
-        Dictionary<String, String> getRegisteredClients();
-        bool checkMeetingStatusChange(Meeting meeting);
+        IDictionary<String, String> getRegisteredClients();
+        Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots);
+        Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees);
         Meeting getMeeting(String topic);
-        void createMeeting(Meeting meeting);
-        void joinMeetingSlot(String topic, Slot slot, String username);
+        bool checkMeetingStatusChange(Meeting meeting);
+        bool joinMeetingSlot(String topic, Slot slot, String username);
         void closeMeeting(String topic);
+        void addRoom(String location, int capacity, String name);
+        void receiveReplica(ServerSnapshot replica);
     }
 }

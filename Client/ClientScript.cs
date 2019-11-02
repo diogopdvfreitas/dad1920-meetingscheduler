@@ -6,9 +6,9 @@ using ObjectsLibrary;
 namespace Client {
     public class ClientScript {
 
-        //default scriptName
-        private String _scriptName = "testClient.txt";
         Client _client;
+
+        private String _scriptName = "testClient.txt";      // Default script name
 
         public ClientScript() {
             _client = new Client();
@@ -18,7 +18,6 @@ namespace Client {
             _scriptName = scriptName;
             _client = new Client(username, clientUrl, serverUrl);
         }
-
 
         public void readClientScript() {
             Console.WriteLine("Read Script");

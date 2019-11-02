@@ -5,8 +5,9 @@ namespace ObjectsLibrary {
     [Serializable]
     public class Meeting {
         public enum Status {
-            OPEN = 1,
-            CLOSED = 0
+            OPEN = 0,
+            BOOKED = 1,
+            CANCELLED = -1
         }
 
         String _coord;
@@ -17,7 +18,7 @@ namespace ObjectsLibrary {
         List<Slot> _slots;
         List<String> _invitees;
         Status _status;
-        int _nJoined; //added the number of clients interested in the meeting in order to facilitate the check of the change of status
+        int _nJoined;
         Slot _pickedSlot;
 
         public Meeting(String coord, String topic, int minAtt, List<Slot> slots) {
@@ -69,44 +70,56 @@ namespace ObjectsLibrary {
             get { return _nJoined; } 
         }
 
-        public List<Slot> getSlotsWithEnoughAttendency() {
-            List<Slot> slots = new List<Slot>();
-            foreach(Slot slot in _slots) {
-                if(slot.NJoined >= _minAtt) {
-                    slots.Add(slot);
-                }
-            }
-            return slots;
-        }
-
         public bool checkStatusChange(Meeting meeting) {
             return _nJoined != meeting.NJoined || _status != meeting.MStatus;
         }
 
-        public void joinSlot(Slot chosenSlot, String username) {
-            foreach(Slot slot in _slots){
-                if(slot.Location.Name.Equals(chosenSlot.Location.Name) && slot.Date.Equals(chosenSlot.Date)) { 
-                    slot.joinSlot(username);
-                    _nJoined++;
+        public bool joinSlot(Slot chosenSlot, String username) {
+            if (_invitees == null || _invitees.Contains(username)) {
+                foreach (Slot slot in _slots) {
+                    if (slot.Location.Name.Equals(chosenSlot.Location.Name) && slot.Date.Equals(chosenSlot.Date)) {
+                        slot.joinSlot(username);
+                        _nJoined++;
+                    }
                 }
+                return true;
             }
+            return false;
         }
 
         public void close() {
-            if(_nJoined >= _minAtt) {
-                List<Slot> slotsOK = getSlotsWithEnoughAttendency();
-                bool bookingStatus = false;
-                while (!bookingStatus) {
-                    Random rand = new Random();
-                    _pickedSlot = slotsOK[rand.Next(slotsOK.Count)];
-                    bookingStatus = _pickedSlot.bookMeeting(this);
-                    if (!bookingStatus)
-                        slotsOK.Remove(_pickedSlot);
-                    if (slotsOK.Count == 0)
+            if (_nJoined >= _minAtt) {
+                foreach (Slot slot in _slots) {
+                    foreach (Room room in slot.Location.Rooms) {
+                        if (room.Capacity >= slot.NJoined && room.checkRoomFree(slot.Date)) {
+                            if (slot.bookMeeting(this, room)) {
+                                _pickedSlot = slot;
+                                _status = Status.BOOKED;
+                                break;
+                            }
+                        }
+                    }
+                    if (_status == Status.BOOKED)
                         break;
                 }
             }
-            _status = Status.CLOSED;
+            if (_status == Status.OPEN) {
+                int mostCapacity = -1;
+                Slot mostCapacitySlot = null;
+                Room mostCapacityRoom = null;
+                foreach (Slot slot in _slots) {
+                    foreach (Room room in slot.Location.Rooms) {
+                        if (room.Capacity > mostCapacity) {
+                            mostCapacity = room.Capacity;
+                            mostCapacityRoom = room;
+                            mostCapacitySlot = slot;
+                        }
+                    }
+                }
+                mostCapacitySlot.bookMeeting(this, mostCapacityRoom);
+
+            }
+            _status = Status.CANCELLED;
         }
 
         public String slotsToString(List<Slot> slotsList) {

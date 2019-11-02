@@ -16,19 +16,12 @@ namespace ObjectsLibrary {
             get { return _name; }
         }
 
+        public List<Room> Rooms {
+            get { return _rooms; }
+        }
+
         public void addRoom(Room room) {
             _rooms.Add(room);
         }
-
-        public List<Room> getRoomsWithEnoughCapacity(int minCapacity) {
-            List<Room> rooms = new List<Room>();
-            foreach(Room room in _rooms) {
-                if(room.Capacity >= minCapacity) {
-                    rooms.Add(room);
-                }
-            }
-            return rooms;
-        }
-
     }
 }

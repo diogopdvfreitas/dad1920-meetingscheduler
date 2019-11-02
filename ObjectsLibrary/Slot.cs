@@ -43,19 +43,12 @@ namespace ObjectsLibrary {
             _joined.Add(clientName);
         }
 
-        public bool bookMeeting(Meeting meeting) {
-            List<Room> roomsOK = _location.getRoomsWithEnoughCapacity(this.NJoined);
-            bool bookingStatus = false;
-            while(!bookingStatus) {
-                Random rand = new Random();
-                _pickedRoom = roomsOK[rand.Next(roomsOK.Count)];
-                bookingStatus = _pickedRoom.bookMeeting(_date, meeting);
-                if(!bookingStatus)
-                    roomsOK.Remove(_pickedRoom);
-                if(roomsOK.Count == 0)
-                    break;
+        public bool bookMeeting(Meeting meeting, Room room) {
+            if (room.bookMeeting(_date, meeting)) {
+                _pickedRoom = room;
+                return true;
             }
-            return bookingStatus;
+            return false;
         }
 
         public override String ToString() {

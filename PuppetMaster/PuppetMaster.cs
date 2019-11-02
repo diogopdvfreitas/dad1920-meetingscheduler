@@ -5,12 +5,14 @@ using System.Collections.Generic;
 using CreationServiceLibrary;
 using System.Configuration;
 using System.IO;
+using RemotingServicesLibrary;
+using System.Diagnostics;
 
 namespace PuppetMaster {
     public class PuppetMaster {
 
         private TcpChannel _channel;
-        private Dictionary<String, IPCService> pcsList;     // <ip, IPCService>
+        private Dictionary<String, IPCSService> pcsList;     // <IP, IPCService>
         private String _scriptName = "testPM.txt";
 
         public PuppetMaster(String scriptName) {
@@ -19,7 +21,7 @@ namespace PuppetMaster {
             ChannelServices.RegisterChannel(_channel, false);
             
 
-            pcsList = new Dictionary<String, IPCService>();
+            pcsList = new Dictionary<String, IPCSService>();
             PCSConfig();
         }
 
@@ -27,7 +29,7 @@ namespace PuppetMaster {
             foreach (String pcsUrl in ConfigurationManager.AppSettings) {
                 String[] urlAttributes = pcsUrl.Split(new Char[] { ':', '/' }, StringSplitOptions.RemoveEmptyEntries);
                 Console.WriteLine(pcsUrl);
-                IPCService pcServ = (IPCService) Activator.GetObject(typeof(IPCService), pcsUrl);
+                IPCSService pcServ = (IPCSService) Activator.GetObject(typeof(IPCSService), pcsUrl);
                 pcsList.Add(urlAttributes[1], pcServ);
             }
         }
@@ -50,6 +52,66 @@ namespace PuppetMaster {
             pcsList[clientIp].createClient(commandAttr[1], commandAttr[2], commandAttr[3], commandAttr[4]);
         }
 
+        public void addRoom(String[] commandAttr) { // we implemented this considering that there is already a server created, at least
+            foreach(IPCSService pcservice in pcsList.Values) {
+                foreach(String serverURL in pcservice.ServerURLs.Values) {
+                    IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), serverURL);
+                    serverService.addRoom(commandAttr[1], Int32.Parse(commandAttr[2]), commandAttr[3]); // location, capacity, room_name
+                }
+            }
+        }
+
+        public void status() {
+            foreach (IPCSService pcservice in pcsList.Values) {
+                foreach (KeyValuePair<String, Process> processDct in pcservice.Processes) {
+                    bool processResponding = processDct.Value.Responding;
+                    String response = "";
+                    if (pcservice.ServerURLs.ContainsKey(processDct.Key)) {
+                        response += "Server " + processDct.Key;
+                        if (processResponding)
+                            response += " is present.";
+                        else
+                            response += " has failed!";
+                    }
+                    else {
+                        if (processResponding)
+                            response += "Client " + processDct.Key + " is connected.";
+                    }
+                    Console.WriteLine(response);
+                }
+            }
+        }
+
+        public void crash(String processId) {
+            foreach (IPCSService pcservice in pcsList.Values) {
+                pcservice.Processes[processId].Kill();
+                pcservice.Processes.Remove(processId);
+                if (pcservice.ServerURLs.ContainsKey(processId)) {
+                    pcservice.ServerURLs.Remove(processId);
+                }
+                else {
+                    pcservice.ClientURLs.Remove(processId);
+                }
+            }
+        }
+
+        public void freeze(String processId) {
+            foreach (IPCSService pcservice in pcsList.Values) {
+                if (pcservice.ServerURLs.ContainsKey(processId)) {
+                    IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processId]);
+                    //serverService.freeze();
+                }
+            }
+        }
+
+        public void unfreeze(String processId) {
+            foreach (IPCSService pcservice in pcsList.Values) {
+                if (pcservice.ServerURLs.ContainsKey(processId)) {
+                    IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processId]);
+                    //serverService.unfreeze();
+                }
+            }
+        }
 
         public void executeCommand(String command) {
             String[] commandAttr = command.Split(' ');
@@ -57,24 +119,32 @@ namespace PuppetMaster {
             switch (commandAttr[0]) {
                 case "Server":
                     createServer(commandAttr);
-
                     break;
+
                 case "Client":
                     createClient(commandAttr);
-
-
                     break;
+
                 case "AddRoom":
+                    addRoom(commandAttr);
                     break;
+
                 case "Status":
+                    status();
                     break;
+
                 case "Crash":
+                    crash(commandAttr[1]);
                     break;
-                case "Freeze":
+
+                case "Freeze"://TODO
+                    freeze(commandAttr[1]);
                     break;
-                case "Unfreeze":
+
+                case "Unfreeze"://TODO
                     break;
                 case "Wait":
+                    //wait(commandAttr[1]);
                     break;
             }
         }

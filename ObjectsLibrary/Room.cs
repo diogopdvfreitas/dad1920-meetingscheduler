@@ -25,6 +25,10 @@ namespace ObjectsLibrary {
             get { return _capacity; }
         }
 
+        public bool checkRoomFree(String date) {
+            return !_meetingSchedule.ContainsKey(date);
+        }
+
         public bool bookMeeting(String date, Meeting meeting) {
             if (!_meetingSchedule.ContainsKey(date)) {
                 _meetingSchedule.Add(date, meeting.Topic);
