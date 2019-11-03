@@ -46,3 +46,16 @@ C:\Users\marac\Documents\GitHub\dad1920-meetingscheduler\Client\bin\Debug\Client
 C:\Users\marac\Documents\GitHub\dad1920-meetingscheduler\Client\bin\Debug\ObjectsLibrary.pdb
 C:\Users\marac\Documents\GitHub\dad1920-meetingscheduler\Client\bin\Debug\RemotingServicesLibrary.pdb
 C:\Users\marac\Documents\GitHub\dad1920-meetingscheduler\Client\obj\Debug\Client.csproj.CopyComplete
+C:\dad1920-meetingscheduler\Client\bin\Debug\Client.exe.config
+C:\dad1920-meetingscheduler\Client\bin\Debug\Client.exe
+C:\dad1920-meetingscheduler\Client\bin\Debug\Client.pdb
+C:\dad1920-meetingscheduler\Client\bin\Debug\ClientLibrary.dll
+C:\dad1920-meetingscheduler\Client\bin\Debug\ObjectsLibrary.dll
+C:\dad1920-meetingscheduler\Client\bin\Debug\RemotingServicesLibrary.dll
+C:\dad1920-meetingscheduler\Client\bin\Debug\ClientLibrary.pdb
+C:\dad1920-meetingscheduler\Client\bin\Debug\ObjectsLibrary.pdb
+C:\dad1920-meetingscheduler\Client\bin\Debug\RemotingServicesLibrary.pdb
+C:\dad1920-meetingscheduler\Client\obj\Debug\Client.csprojAssemblyReference.cache
+C:\dad1920-meetingscheduler\Client\obj\Debug\Client.csproj.CopyComplete
+C:\dad1920-meetingscheduler\Client\obj\Debug\Client.exe
+C:\dad1920-meetingscheduler\Client\obj\Debug\Client.pdb

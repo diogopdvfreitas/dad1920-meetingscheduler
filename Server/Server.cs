@@ -13,7 +13,7 @@ namespace Server {
 
         // Default values
         private String _id = "SERVER";
-        private String _url = "tcp://localhost:8086/SERVER";
+        private String _url = "tcp://localhost:8086/LISBOA";
         private int _port = 8086;
         private int _max_faults = 0;
         private int _min_delay = 0;
@@ -103,14 +103,14 @@ namespace Server {
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
             Meeting meeting = new Meeting(username, topic, minAtt, slots);
-            Console.WriteLine(meeting.ToString());
+            Console.WriteLine("Meeting " + topic + " created by " + username);
             _meetings.Add(meeting.Topic, meeting);
             return meeting;
         }
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
             Meeting meeting = new Meeting(username, topic, minAtt, slots, invitees);
-            Console.WriteLine(meeting.ToString());
+            Console.WriteLine("Meeting " + topic + " created by " + username);
             _meetings.Add(meeting.Topic, meeting);
             return meeting;
         }

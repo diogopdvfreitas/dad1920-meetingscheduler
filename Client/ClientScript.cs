@@ -39,6 +39,7 @@ namespace Client {
         }
 
         public void executeCommand(String command) {
+            Console.WriteLine("[COMMAND] " + command);
             String[] commandAttr = command.Split(' ');
 
             List<Slot> slots;

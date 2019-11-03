@@ -113,7 +113,12 @@ namespace PuppetMaster {
             }
         }
 
+        public void wait(String miliseconds) {
+            System.Threading.Thread.Sleep(int.Parse(miliseconds));
+        }
+
         public void executeCommand(String command) {
+            Console.WriteLine("[COMMAND] " + command);
             String[] commandAttr = command.Split(' ');
 
             switch (commandAttr[0]) {
@@ -144,7 +149,7 @@ namespace PuppetMaster {
                 case "Unfreeze"://TODO
                     break;
                 case "Wait":
-                    //wait(commandAttr[1]);
+                    wait(commandAttr[1]);
                     break;
             }
         }
@@ -169,7 +174,7 @@ namespace PuppetMaster {
         }
 
         static void Main(string[] args) {
-            Console.WriteLine("PuppetMaster");
+            Console.WriteLine("Meeting Scheduler PuppetMaster");
             String scriptName = "../../../" + Console.ReadLine();
             Console.WriteLine("ScriptFile: " + scriptName );
             PuppetMaster puppetMaster = new PuppetMaster(scriptName);

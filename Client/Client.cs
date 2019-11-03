@@ -72,9 +72,11 @@ namespace Client {
         public void getRegisteredClients() {
             IDictionary<String, String> registeredClients = _serverService.getRegisteredClients();
             foreach (KeyValuePair<String, String> client in registeredClients) {
-                IClientService clientServ = (IClientService)Activator.GetObject(typeof(IClientService), client.Value);
-                _otherClients.Add(client.Key, clientServ);
-                Console.WriteLine("Registered Clients: username " + client.Key + " url: " + client.Value);
+                if (client.Key != _username) {
+                    IClientService clientServ = (IClientService)Activator.GetObject(typeof(IClientService), client.Value);
+                    _otherClients.Add(client.Key, clientServ);
+                    Console.WriteLine("Registered Clients: username " + client.Key + " url: " + client.Value);
+                }
             }
         }
 
@@ -105,7 +107,7 @@ namespace Client {
             Meeting meeting = _serverService.createMeeting(_username, topic, minAtt, slots);
             _clientMeetings.Add(meeting.Topic, meeting);
 
-            Console.WriteLine("Meeting " + topic + " Created");
+            Console.WriteLine("Meeting " + topic + " created");
 
             sendInvite(meeting);
         }

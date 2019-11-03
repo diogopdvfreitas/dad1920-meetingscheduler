@@ -27,3 +27,11 @@ C:\Users\marac\Documents\GitHub\dad1920-meetingscheduler\RemotingServicesLibrary
 C:\Users\marac\Documents\GitHub\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csproj.CopyComplete
 C:\Users\marac\Documents\GitHub\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.dll
 C:\Users\marac\Documents\GitHub\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.pdb
+C:\dad1920-meetingscheduler\RemotingServicesLibrary\bin\Debug\RemotingServicesLibrary.dll
+C:\dad1920-meetingscheduler\RemotingServicesLibrary\bin\Debug\RemotingServicesLibrary.pdb
+C:\dad1920-meetingscheduler\RemotingServicesLibrary\bin\Debug\ObjectsLibrary.dll
+C:\dad1920-meetingscheduler\RemotingServicesLibrary\bin\Debug\ObjectsLibrary.pdb
+C:\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csprojAssemblyReference.cache
+C:\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csproj.CopyComplete
+C:\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.dll
+C:\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.pdb

@@ -1,2 +1,3 @@
-create OLA 1 2 1 Lisboa,22-01-01 Porto,23-01-01 Maria
+create testMeeting 1 2 0 Lisboa,22-01-2019 Porto,23-01-2019
+join testMeeting 1 Lisboa,22-01-2019
 list
