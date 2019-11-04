@@ -131,6 +131,10 @@ namespace Server {
             return null;
         }
 
+        public void closeMeeting(String topic) {
+            _meetings[topic].close();
+        }
+
         public void addRoom(String roomLocation, int capacity, String name) {
             _locations[roomLocation].addRoom(new Room(name, capacity));
         }
