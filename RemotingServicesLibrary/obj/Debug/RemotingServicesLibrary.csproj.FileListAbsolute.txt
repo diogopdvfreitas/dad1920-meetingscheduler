@@ -35,3 +35,11 @@ C:\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLi
 C:\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csproj.CopyComplete
 C:\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.dll
 C:\dad1920-meetingscheduler\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.pdb
+G:\My Drive\Documents\DAD\msdad\RemotingServicesLibrary\bin\Debug\RemotingServicesLibrary.dll
+G:\My Drive\Documents\DAD\msdad\RemotingServicesLibrary\bin\Debug\RemotingServicesLibrary.pdb
+G:\My Drive\Documents\DAD\msdad\RemotingServicesLibrary\bin\Debug\ObjectsLibrary.dll
+G:\My Drive\Documents\DAD\msdad\RemotingServicesLibrary\bin\Debug\ObjectsLibrary.pdb
+G:\My Drive\Documents\DAD\msdad\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csprojAssemblyReference.cache
+G:\My Drive\Documents\DAD\msdad\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.csproj.CopyComplete
+G:\My Drive\Documents\DAD\msdad\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.dll
+G:\My Drive\Documents\DAD\msdad\RemotingServicesLibrary\obj\Debug\RemotingServicesLibrary.pdb

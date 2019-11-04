@@ -70,19 +70,35 @@ namespace ObjectsLibrary {
             get { return _nJoined; } 
         }
 
+        public Slot getSlot(String slot) {
+            String[] slotAttr = slot.Split(',');
+            foreach(Slot slt in _slots) {
+                if (slt.Location.Name.Equals(slotAttr[0]) && slt.Date.Equals(slotAttr[1]))
+                    return slt;
+            }
+            return null;
+        }
+
         public bool checkStatusChange(Meeting meeting) {
             return _nJoined != meeting.NJoined || _status != meeting.MStatus;
         }
 
-        public bool joinSlot(Slot chosenSlot, String username) {
+        public bool checkInvitation(String username) {
+            if (_invitees == null || _invitees.Contains(username))
+                return true;
+            return false;
+        }
+
+        public bool joinSlot(String chosenSlot, String username) {
+            String[] slotAttr = chosenSlot.Split(',');
             if (_invitees == null || _invitees.Contains(username)) {
                 foreach (Slot slot in _slots) {
-                    if (slot.Location.Name.Equals(chosenSlot.Location.Name) && slot.Date.Equals(chosenSlot.Date)) {
+                    if (slot.Location.Name.Equals(slotAttr[0]) && slot.Date.Equals(slotAttr[1])) {
                         slot.joinSlot(username);
                         _nJoined++;
+                        return true;
                     }
                 }
-                return true;
             }
             return false;
         }

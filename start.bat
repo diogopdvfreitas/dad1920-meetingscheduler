@@ -1,0 +1,2 @@
+START ProcessCreationService/bin/Debug/ProcessCreationService.exe
+START PuppetMaster/bin/Debug/PuppetMaster.exe

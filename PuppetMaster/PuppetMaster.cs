@@ -7,6 +7,7 @@ using System.Configuration;
 using System.IO;
 using RemotingServicesLibrary;
 using System.Diagnostics;
+using System.Collections.Specialized;
 
 namespace PuppetMaster {
     public class PuppetMaster {
@@ -15,23 +16,27 @@ namespace PuppetMaster {
         private Dictionary<String, IPCSService> pcsList;     // <IP, IPCService>
         private String _scriptName = "testPM.txt";
 
-        public PuppetMaster(String scriptName) {
-            _scriptName = scriptName;
+        public PuppetMaster() {
             _channel = new TcpChannel(10001);
             ChannelServices.RegisterChannel(_channel, false);
             
-
             pcsList = new Dictionary<String, IPCSService>();
             PCSConfig();
         }
 
         public void PCSConfig() {
-            foreach (String pcsUrl in ConfigurationManager.AppSettings) {
+            NameValueCollection appSettings = ConfigurationManager.AppSettings;
+            foreach (String key in ConfigurationManager.AppSettings) {
+                String pcsUrl = appSettings.Get(key);
                 String[] urlAttributes = pcsUrl.Split(new Char[] { ':', '/' }, StringSplitOptions.RemoveEmptyEntries);
-                Console.WriteLine(pcsUrl);
                 IPCSService pcServ = (IPCSService) Activator.GetObject(typeof(IPCSService), pcsUrl);
+                Console.WriteLine("[" + key + "] " + pcsUrl);
                 pcsList.Add(urlAttributes[1], pcServ);
             }
+        }
+
+        public String Script {
+            set { _scriptName = value; }
         }
 
         public void createServer(String[] commandAttr) {
@@ -174,10 +179,11 @@ namespace PuppetMaster {
         }
 
         static void Main(string[] args) {
-            Console.WriteLine("Meeting Scheduler PuppetMaster");
+            Console.WriteLine("|========== Meeting Scheduler PuppetMaster ==========|");
+            PuppetMaster puppetMaster = new PuppetMaster();
+            Console.Write("Please write the script filename: ");
             String scriptName = "../../../" + Console.ReadLine();
-            Console.WriteLine("ScriptFile: " + scriptName );
-            PuppetMaster puppetMaster = new PuppetMaster(scriptName);
+            puppetMaster.Script = scriptName;
             puppetMaster.readPuppetMasterScript();
             Console.ReadLine();
         }

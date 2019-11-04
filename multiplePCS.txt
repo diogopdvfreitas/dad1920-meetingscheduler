@@ -1,0 +1,9 @@
+Server LISBOA tcp://127.0.0.1:8086/LISBOA 0 0 0
+Wait 5000
+Server PORTO tcp://127.0.0.2:8086/PORTO 0 0 0
+Wait 5000
+Client Rita tcp://127.0.0.1:8080/CLIENT tcp://127.0.0.1:8086/LISBOA testClient.txt
+Wait 5000
+Client Mara tcp://127.0.0.2:8080/CLIENT tcp://127.0.0.1:8086/PORTO testClient1.txt
+Wait 5000
+Client Diogo tcp://127.0.0.1:8081/CLIENT tcp://127.0.0.1:8086/LISBOA testClient1.txt

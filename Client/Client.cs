@@ -27,26 +27,30 @@ namespace Client {
         private IDictionary<String, IClientService> _otherClients;      // <Client 
 
         public Client() {
-            Console.WriteLine("Client " + _username + " at " + _url);
-
             _clientMeetings = new Dictionary<String, Meeting>();
             _otherClients = new Dictionary<String, IClientService>();
+
             setClient();
             connectToServer();
+
+            Console.WriteLine("[CLIENT:" + _username + "] " + _url);
         }
 
         public Client(String username, String clientUrl, String serverUrl) {
             _url = clientUrl;
-            String[] clientUrlSplit = clientUrl.Split(new Char[] { ':', '/'}, StringSplitOptions.RemoveEmptyEntries);
+            String[] clientUrlSplit = clientUrl.Split(new Char[] {':', '/'}, StringSplitOptions.RemoveEmptyEntries);
             _port = Int32.Parse(clientUrlSplit[2]);
             _serverUrl = serverUrl;
             _username = username;
-            Console.WriteLine("Client " + _username + " at " + _url);
+            
 
             _clientMeetings = new Dictionary<String, Meeting>();
             _otherClients = new Dictionary<String, IClientService>();
+
             setClient();
             connectToServer();
+
+            Console.WriteLine("[CLIENT:" + _username + "] " + _url);
         }
 
         public void setClient() {
@@ -55,14 +59,12 @@ namespace Client {
 
             _clientService = new ClientService(this);
             RemotingServices.Marshal(_clientService, "CLIENT", typeof(ClientService));
-
-            Console.WriteLine("Client " + _username + " created at port " + _port);
         }
 
         // connectServer: connect to the server, save the ref to the server remote obj and asks for registered clients
         // ???if there´s the necessity to connect to more than on server in each session the server url should be an argument of the function
         public void connectToServer() {
-            _serverService = (IServerService) Activator.GetObject( typeof(IServerService), _serverUrl);
+            _serverService = (IServerService) Activator.GetObject(typeof(IServerService), _serverUrl);
 
             getRegisteredClients();
 
@@ -108,7 +110,7 @@ namespace Client {
             _clientMeetings.Add(meeting.Topic, meeting);
 
             Console.WriteLine("Meeting " + topic + " created");
-
+            Console.WriteLine(meeting.ToString());
             sendInvite(meeting);
         }
 
@@ -117,7 +119,7 @@ namespace Client {
             _clientMeetings.Add(meeting.Topic, meeting);
 
             Console.WriteLine("Meeting " + topic + " Created");
-
+            Console.WriteLine(meeting.ToString());
             sendInvite(meeting);
         }
 
@@ -125,9 +127,20 @@ namespace Client {
             return _serverService.getMeeting(topic);
         }
 
-        public void joinMeetingSlot(String topic, Slot chosenSlot){
-            _serverService.joinMeetingSlot(topic, chosenSlot, _username);
-            Console.WriteLine(_username + " joined meeting " + topic + " on slot " + chosenSlot);
+        public void joinMeetingSlot(String topic, String slot){
+            Meeting meeting = _serverService.getMeeting(topic);
+            if (!meeting.checkInvitation(_username)) {
+                Console.WriteLine("You were not invited to this meeting!");
+                return;
+            }
+            meeting = _serverService.joinMeetingSlot(topic, slot, _username);
+            if (meeting != null) {
+                Console.WriteLine("Joined meeting " + topic + " on slot " + slot);
+                Console.WriteLine(meeting.ToString());
+            }
+            else {
+                Console.WriteLine("Couldn't find desired slot!");
+            }
         }
 
         public void closeMeeting(String topic) {

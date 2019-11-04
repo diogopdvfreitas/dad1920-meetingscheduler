@@ -4,7 +4,7 @@ using System.Diagnostics;
 using CreationServiceLibrary;
 
 namespace ProcessCreationService {
-    public class PCSService :MarshalByRefObject, IPCSService {
+    public class PCSService : MarshalByRefObject, IPCSService {
 
         private IDictionary<String, Process> _processes;        // <ID, Process>
         private IDictionary<String, String> _serverUrls;        // <Server ID, Server URL>
@@ -22,7 +22,7 @@ namespace ProcessCreationService {
             int minDelay = Int32.Parse(min_delay);
             int maxDelay = Int32.Parse(max_delay);
 
-            Console.WriteLine("Launching new server process with id " + server_id);
+            Console.WriteLine("[SERVER:" + server_id + "] " + server_url);
             Process process = new Process();
             process.StartInfo.FileName = "..\\..\\..\\Server\\bin\\Debug\\Server";
             process.StartInfo.Arguments = serverPort + " " + server_id + " " + server_url + " " + maxFaults + " " + minDelay + " " + maxDelay;
@@ -32,7 +32,7 @@ namespace ProcessCreationService {
         }
 
         public void createClient(String clientUsername, String clientUrl, String serverUrl, String scriptFile) {
-            Console.WriteLine("Client Username: " +clientUsername);
+            Console.WriteLine("[CLIENT:" + clientUsername + "] " + clientUrl);
             Process process = new Process();
             process.StartInfo.FileName = "..\\..\\..\\Client\\bin\\Debug\\Client";
             process.StartInfo.Arguments = clientUsername + " " + clientUrl + " " + serverUrl + " " + scriptFile;

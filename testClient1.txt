@@ -1,2 +1,2 @@
 list
-join testMeeting 1 Lisboa,22-01-2019
+join test 1 Lisboa,22-01-2019

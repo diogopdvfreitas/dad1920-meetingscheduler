@@ -48,7 +48,7 @@ namespace Server {
             return _server.checkMeetingStatusChange(meeting);
         }
 
-        public bool joinMeetingSlot(String topic, Slot slot, String username) {
+        public Meeting joinMeetingSlot(String topic, String slot, String username) {
             return _server.joinMeetingSlot(topic, slot, username);
         }
 
@@ -58,10 +58,6 @@ namespace Server {
 
         public void addRoom(String roomLocation, int capacity, String name) {
             _server.addRoom(roomLocation, capacity, name);
-        }
-
-        public void receiveReplica(ServerSnapshot replica) {
-            _server.receiveReplica(replica);
         }
     }
 }

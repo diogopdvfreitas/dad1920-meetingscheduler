@@ -46,7 +46,6 @@
   <ItemGroup>
     <Compile Include="Location.cs" />
     <Compile Include="Room.cs" />
-    <Compile Include="ServerSnapshot.cs" />
     <Compile Include="Slot.cs" />
     <Compile Include="Meeting.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

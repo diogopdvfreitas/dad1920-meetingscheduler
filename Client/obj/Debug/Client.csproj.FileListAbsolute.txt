@@ -59,3 +59,16 @@ C:\dad1920-meetingscheduler\Client\obj\Debug\Client.csprojAssemblyReference.cach
 C:\dad1920-meetingscheduler\Client\obj\Debug\Client.csproj.CopyComplete
 C:\dad1920-meetingscheduler\Client\obj\Debug\Client.exe
 C:\dad1920-meetingscheduler\Client\obj\Debug\Client.pdb
+G:\My Drive\Documents\DAD\msdad\Client\bin\Debug\Client.exe.config
+G:\My Drive\Documents\DAD\msdad\Client\bin\Debug\Client.exe
+G:\My Drive\Documents\DAD\msdad\Client\bin\Debug\Client.pdb
+G:\My Drive\Documents\DAD\msdad\Client\bin\Debug\ClientLibrary.dll
+G:\My Drive\Documents\DAD\msdad\Client\bin\Debug\ObjectsLibrary.dll
+G:\My Drive\Documents\DAD\msdad\Client\bin\Debug\RemotingServicesLibrary.dll
+G:\My Drive\Documents\DAD\msdad\Client\bin\Debug\ClientLibrary.pdb
+G:\My Drive\Documents\DAD\msdad\Client\bin\Debug\ObjectsLibrary.pdb
+G:\My Drive\Documents\DAD\msdad\Client\bin\Debug\RemotingServicesLibrary.pdb
+G:\My Drive\Documents\DAD\msdad\Client\obj\Debug\Client.csprojAssemblyReference.cache
+G:\My Drive\Documents\DAD\msdad\Client\obj\Debug\Client.csproj.CopyComplete
+G:\My Drive\Documents\DAD\msdad\Client\obj\Debug\Client.exe
+G:\My Drive\Documents\DAD\msdad\Client\obj\Debug\Client.pdb

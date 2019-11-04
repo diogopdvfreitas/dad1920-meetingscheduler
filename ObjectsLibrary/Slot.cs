@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 namespace ObjectsLibrary {
-
     [Serializable]
     public class Slot {
         private Location _location;

@@ -1,7 +1,9 @@
-Server LISBOA tcp://localhost:8086/LISBOA 0 0 0
-Server PORTO tcp://localhost:8087/PORTO 0 0 0
-Client Rita tcp://localhost:8080/CLIENT tcp://localhost:8086/LISBOA testClient.txt
+Server LISBOA tcp://127.0.0.1:8086/LISBOA 0 0 0
 Wait 5000
-Client Mara tcp://localhost:8081/CLIENT tcp://localhost:8086/LISBOA testClient1.txt
+Server PORTO tcp://127.0.0.1:8087/PORTO 0 0 0
 Wait 5000
-Client Diogo tcp://localhost:8082/CLIENT tcp://localhost:8086/LISBOA testClient1.txt
+Client Rita tcp://127.0.0.1:8080/CLIENT tcp://127.0.0.1:8086/LISBOA testClient.txt
+Wait 5000
+Client Mara tcp://127.0.0.1:8081/CLIENT tcp://127.0.0.1:8087/PORTO testClient1.txt
+Wait 5000
+Client Diogo tcp://127.0.0.1:8082/CLIENT tcp://127.0.0.1:8086/LISBOA testClient1.txt

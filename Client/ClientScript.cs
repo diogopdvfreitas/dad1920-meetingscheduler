@@ -20,7 +20,6 @@ namespace Client {
         }
 
         public void readClientScript() {
-            Console.WriteLine("Read Script");
             StreamReader script;
             try {
                 script = File.OpenText("../../../" + _scriptName);
@@ -32,6 +31,7 @@ namespace Client {
 
             String scriptLine = script.ReadLine();
             while (scriptLine != null) {
+                Console.WriteLine("[COMMAND] " + scriptLine);
                 executeCommand(scriptLine);
                 scriptLine = script.ReadLine();
             }
@@ -39,7 +39,6 @@ namespace Client {
         }
 
         public void executeCommand(String command) {
-            Console.WriteLine("[COMMAND] " + command);
             String[] commandAttr = command.Split(' ');
 
             List<Slot> slots;
@@ -84,14 +83,10 @@ namespace Client {
                     break;
 
                 case "join":
-                    Console.WriteLine("Join Meeting");
-
                     nSlots = Int32.Parse(commandAttr[2]);
 
-                    for( int i = 3; i < 3 + nSlots; i++) {
-                        String[] slotAttr = commandAttr[i].Split(',');
-                        Slot slot = new Slot(new Location(slotAttr[0]), slotAttr[1]);
-                        _client.joinMeetingSlot(commandAttr[1], slot);
+                    for (int i = 3; i < 3 + nSlots; i++) {
+                        _client.joinMeetingSlot(commandAttr[1], commandAttr[i]);
                     }
                     break;
 
@@ -118,6 +113,7 @@ namespace Client {
             clientScript.readClientScript();
             Console.WriteLine("QUIT to exit");
             while (true) {
+                Console.Write("[COMMAND] ");
                 String line = Console.ReadLine();
                 if (line == "QUIT")
                     break;

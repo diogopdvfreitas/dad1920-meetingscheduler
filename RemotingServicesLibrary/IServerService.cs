@@ -11,9 +11,8 @@ namespace RemotingServicesLibrary {
         Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees);
         Meeting getMeeting(String topic);
         bool checkMeetingStatusChange(Meeting meeting);
-        bool joinMeetingSlot(String topic, Slot slot, String username);
+        Meeting joinMeetingSlot(String topic, String slot, String username);
         void closeMeeting(String topic);
         void addRoom(String location, int capacity, String name);
-        void receiveReplica(ServerSnapshot replica);
     }
 }

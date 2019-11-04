@@ -23,9 +23,9 @@ namespace Server {
 
         private IDictionary<String, Location> _locations;               // <Location Name, Location>
         private IDictionary<String, Meeting> _meetings;                 // <Meeting Topic, Meeting>
+        private IDictionary<String, bool> _meetingsLockStatus;           // <Meeting Topic, Meeting Lock>
         private IDictionary<String, String> _clients;                   // <Client Username, Client URL>
         private IDictionary<String, IServerService> _otherServers;      // <Server URL, Server Service>
-        private IDictionary<String, ServerSnapshot> _replicas;          // <Server URL, Server Snapshot>
         private List<String> _delayedMessages;                          // msgs delayed while frozen 
         private List<String> _sentMessageServers;
 
@@ -35,9 +35,9 @@ namespace Server {
         public Server() {
             _locations = new Dictionary<String, Location>();
             _meetings = new Dictionary<String, Meeting>();
+            _meetingsLockStatus = new Dictionary<String, bool>();
             _clients = new Dictionary<String, String>();
             _otherServers = new Dictionary<String, IServerService>();
-            _replicas = new Dictionary<String, ServerSnapshot>();
             _delayedMessages = new List<String>();
 
             setServer();
@@ -54,9 +54,9 @@ namespace Server {
 
             _locations = new Dictionary<String, Location>();
             _meetings = new Dictionary<String, Meeting>();
+            _meetingsLockStatus = new Dictionary<String, bool>();
             _clients = new Dictionary<String, String>();
             _otherServers = new Dictionary<String, IServerService>();
-            _replicas = new Dictionary<String, ServerSnapshot>();
             _delayedMessages = new List<String>();
 
             setServer();
@@ -78,15 +78,15 @@ namespace Server {
             ServerService serverService = new ServerService(this);
             RemotingServices.Marshal(serverService, _id, typeof(ServerService));
             
-            Console.WriteLine("Server " + _id + " created at port " + _port + " with delay from " + _min_delay + " to " + _max_delay);
+            Console.WriteLine("[SERVER:" + _id + "] " + _url + " Delay: " + _min_delay + "ms to " + _max_delay + "ms");
         }
 
         public void serversConfig() {
+            Console.WriteLine("|========== Servers ==========|");
+            Console.WriteLine(_url + " [THIS SERVER]");
             foreach (String serverUrl in ConfigurationManager.AppSettings) {
-                Console.WriteLine("Servers:" + serverUrl);
-                Console.WriteLine(_url);
-                if (serverUrl != _url) {
-                    //String[] urlAttributes = serverUrl.Split(new Char[] { ':', '/' }, StringSplitOptions.RemoveEmptyEntries);
+                if (!serverUrl.Equals(_url)) {
+                    Console.WriteLine(serverUrl);
                     IServerService serverServ = (IServerService)Activator.GetObject(typeof(IServerService), serverUrl);
                     _otherServers.Add(serverUrl, serverServ); //neste momento a key é o url, mas acho que nao vai ser, provavelmente vai ser o id
                 }
@@ -103,15 +103,15 @@ namespace Server {
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
             Meeting meeting = new Meeting(username, topic, minAtt, slots);
-            Console.WriteLine("Meeting " + topic + " created by " + username);
             _meetings.Add(meeting.Topic, meeting);
+            Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
             return meeting;
         }
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
             Meeting meeting = new Meeting(username, topic, minAtt, slots, invitees);
-            Console.WriteLine("Meeting " + topic + " created by " + username);
             _meetings.Add(meeting.Topic, meeting);
+            Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
             return meeting;
         }
 
@@ -123,36 +123,16 @@ namespace Server {
             return meeting.checkStatusChange(_meetings[meeting.Topic]);
         }
 
-        public bool joinMeetingSlot(String topic, Slot slot, String username) {
-            if (_meetings[topic].joinSlot(slot, username))
-                return true;
-            return false;
-        }
-
-        public void closeMeeting(String topic) {
-            _meetings[topic].close();
+        public Meeting joinMeetingSlot(String topic, String slot, String username) { // TODO Como funciona uma chamada remota, é apenas uma chamade e depois executa as outras ou espera pelo resultado da chamada remota. Devemos utilizar Threads para fazer as alterações remotas concorrentemente o mais depressa possível?
+            if (_meetings[topic].joinSlot(slot, username)) {
+                Console.WriteLine("[CLIENT:" + username + "] Joined meeting " + topic + " on slot " + slot);
+                return _meetings[topic];
+            }
+            return null;
         }
 
         public void addRoom(String roomLocation, int capacity, String name) {
             _locations[roomLocation].addRoom(new Room(name, capacity));
-        }
-
-        public void initReplication() {
-            _replicationTimer = new Timer(new TimerCallback(sendReplica), null, 5000, 500);
-        }
-
-        public void sendReplica(object state) {
-            ServerSnapshot replica = new ServerSnapshot(_id, _meetings);
-            foreach (IServerService serverService in _otherServers.Values) {
-                receiveReplica(replica);
-            }
-        }
-
-        public void receiveReplica(ServerSnapshot replica) {
-            if (_meetings.Count != replica.Meetings.Count) {
-                _meetings = replica.Meetings;
-                Console.WriteLine("Current Server State doesn't correspond to Server Snapshot from server " + replica.OriginServerId + ".\nUpdating server state.");
-            }
         }
 
         public void freeze() {
@@ -179,7 +159,6 @@ namespace Server {
                 Server server = new Server(Int32.Parse(args[0]), args[1], args[2], Int32.Parse(args[3]), Int32.Parse(args[4]), Int32.Parse(args[5]));
             }
             Console.ReadLine();
-
         }
     }
 }
