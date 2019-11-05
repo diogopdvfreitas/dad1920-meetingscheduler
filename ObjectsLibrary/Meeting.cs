@@ -107,6 +107,7 @@ namespace ObjectsLibrary {
             if (_nJoined >= _minAtt) {
                 foreach (Slot slot in _slots) {
                     foreach (Room room in slot.Location.Rooms) {
+                        //there is a free room that has space for all joined participants
                         if (room.Capacity >= slot.NJoined && room.checkRoomFree(slot.Date)) {
                             if (slot.bookMeeting(this, room)) {
                                 _pickedSlot = slot;
@@ -118,24 +119,28 @@ namespace ObjectsLibrary {
                     if (_status == Status.BOOKED)
                         break;
                 }
-            }
-            if (_status == Status.OPEN) {
-                int mostCapacity = -1;
-                Slot mostCapacitySlot = null;
-                Room mostCapacityRoom = null;
-                foreach (Slot slot in _slots) {
-                    foreach (Room room in slot.Location.Rooms) {
-                        if (room.Capacity > mostCapacity) {
-                            mostCapacity = room.Capacity;
-                            mostCapacityRoom = room;
-                            mostCapacitySlot = slot;
+                //if there are more participants than the capacity of the selected meeting
+                if (_status == Status.OPEN) {
+                    int mostCapacity = 0;
+                    Slot mostCapacitySlot = null;
+                    Room mostCapacityRoom = null;
+                    foreach (Slot slot in _slots) {
+                        foreach (Room room in slot.Location.Rooms) {
+                            if (room.Capacity > mostCapacity) {
+                                mostCapacity = room.Capacity;
+                                mostCapacityRoom = room;
+                                mostCapacitySlot = slot;
+                            }
                         }
                     }
+                    if (mostCapacitySlot.bookMeeting(this, mostCapacityRoom)) {
+                        _pickedSlot = mostCapacitySlot;
+                        _status = Status.BOOKED;
+                    }
+                    else
+                        _status = Status.CANCELLED;
                 }
-                mostCapacitySlot.bookMeeting(this, mostCapacityRoom);
-
-            }
-            _status = Status.CANCELLED;
+            }   
         }
 
         public String slotsToString(List<Slot> slotsList) {

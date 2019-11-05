@@ -97,7 +97,7 @@ namespace Client {
 
                 case "wait":
                     int time = Int32.Parse(commandAttr[1]);
-                    System.Threading.Thread.Sleep(time);
+                    _client.wait(time);
                     Console.WriteLine("Wait");
                     break;
             }

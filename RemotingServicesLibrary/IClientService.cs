@@ -3,6 +3,6 @@ using ObjectsLibrary;
 
 namespace RemotingServicesLibrary {
     public interface IClientService {
-        void receiveInvite(Meeting m);
+        void receiveInvitee(Meeting meeting);
     }
 }

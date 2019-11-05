@@ -30,8 +30,8 @@ namespace PuppetMaster {
                 String pcsUrl = appSettings.Get(key);
                 String[] urlAttributes = pcsUrl.Split(new Char[] { ':', '/' }, StringSplitOptions.RemoveEmptyEntries);
                 IPCSService pcServ = (IPCSService) Activator.GetObject(typeof(IPCSService), pcsUrl);
-                Console.WriteLine("[" + key + "] " + pcsUrl);
                 pcsList.Add(urlAttributes[1], pcServ);
+                Console.WriteLine("[" + key + "] " + pcsUrl);
             }
         }
 
@@ -160,10 +160,10 @@ namespace PuppetMaster {
         }
 
         public void readPuppetMasterScript() {
-            Console.WriteLine("Read Script");
+            Console.WriteLine("Read Script " + _scriptName);
             StreamReader script;
             try {
-                script = File.OpenText(_scriptName);
+                script = File.OpenText("../../../" + _scriptName);
             }
             catch (FileNotFoundException) {
                 Console.WriteLine("File: " + _scriptName + " Not Found");
@@ -182,7 +182,7 @@ namespace PuppetMaster {
             Console.WriteLine("|========== Meeting Scheduler PuppetMaster ==========|");
             PuppetMaster puppetMaster = new PuppetMaster();
             Console.Write("Please write the script filename: ");
-            String scriptName = "../../../" + Console.ReadLine();
+            String scriptName = Console.ReadLine();
             puppetMaster.Script = scriptName;
             puppetMaster.readPuppetMasterScript();
             Console.ReadLine();

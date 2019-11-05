@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Collections;
 using ObjectsLibrary;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Runtime.Remoting.Channels;
@@ -16,7 +14,7 @@ namespace Client {
         private String _username = "Rita";
         private String _url = "tcp://localhost:8080/CLIENT";
         private int _port = 8080;
-        private String _serverUrl = "tcp://localhost:8086/SERVER";
+        private String _serverUrl = "tcp://localhost:8086/LISBOA";
 
         private TcpChannel _channel;
 
@@ -62,11 +60,8 @@ namespace Client {
         }
 
         // connectServer: connect to the server, save the ref to the server remote obj and asks for registered clients
-        // ???if there´s the necessity to connect to more than on server in each session the server url should be an argument of the function
         public void connectToServer() {
             _serverService = (IServerService) Activator.GetObject(typeof(IServerService), _serverUrl);
-
-            getRegisteredClients();
 
             _serverService.clientConnect(_username, _url);
         }
@@ -123,10 +118,6 @@ namespace Client {
             sendInvite(meeting);
         }
 
-        public Meeting getMeeting(String topic) {
-            return _serverService.getMeeting(topic);
-        }
-
         public void joinMeetingSlot(String topic, String slot){
             Meeting meeting = _serverService.getMeeting(topic);
             if (!meeting.checkInvitation(_username)) {
@@ -147,24 +138,32 @@ namespace Client {
             _serverService.closeMeeting(topic);
         }
 
+        public Meeting getMeeting(String topic) {
+            return _serverService.getMeeting(topic);
+        }
+
         public void sendInvite(Meeting meeting) {
             getRegisteredClients();
             if (meeting.Invitees == null) {
                 foreach (IClientService clientServ in _otherClients.Values)
-                    clientServ.receiveInvite(meeting);
+                    clientServ.receiveInvitee(meeting);
             }
             else {
-                foreach (String invitee in meeting.Invitees) {
+                foreach (String invitee in meeting.Invitees) {  //send to only the invited clients
                     if (_otherClients.ContainsKey(invitee))
-                        _otherClients[invitee].receiveInvite(meeting);
+                        _otherClients[invitee].receiveInvitee(meeting);
                     else
                         Console.WriteLine(invitee + " is not registered in the system.");
                 }
             }
         }
 
-        public void receiveInvite(Meeting meeting) {
+        public void receiveInvitee(Meeting meeting) {
             _clientMeetings.Add(meeting.Topic, meeting);
+        }
+
+        public void wait(int time) {
+            System.Threading.Thread.Sleep(time);
         }
     }
 }

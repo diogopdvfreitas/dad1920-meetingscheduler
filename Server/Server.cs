@@ -12,7 +12,7 @@ namespace Server {
     public class Server {
 
         // Default values
-        private String _id = "SERVER";
+        private String _id = "LISBOA";
         private String _url = "tcp://localhost:8086/LISBOA";
         private int _port = 8086;
         private int _max_faults = 0;
@@ -25,11 +25,11 @@ namespace Server {
         private IDictionary<String, Meeting> _meetings;                 // <Meeting Topic, Meeting>
         private IDictionary<String, bool> _meetingsLockStatus;           // <Meeting Topic, Meeting Lock>
         private IDictionary<String, String> _clients;                   // <Client Username, Client URL>
-        private IDictionary<String, IServerService> _otherServers;      // <Server URL, Server Service>
+        private IDictionary<String, IServerService> _otherServers;      // <Server URL, IServerService>
         private List<String> _delayedMessages;                          // msgs delayed while frozen 
-        private List<String> _sentMessageServers;
+       // private List<String> _sentMessageServers;
 
-        private Timer _replicationTimer;
+       //private Timer _replicationTimer;
         private Boolean _freeze = false;
         
         public Server() {
@@ -83,22 +83,21 @@ namespace Server {
 
         public void serversConfig() {
             Console.WriteLine("|========== Servers ==========|");
-            Console.WriteLine(_url + " [THIS SERVER]");
+            Console.WriteLine(" [THIS SERVER]  " + _url);
             foreach (String serverUrl in ConfigurationManager.AppSettings) {
                 if (!serverUrl.Equals(_url)) {
                     Console.WriteLine(serverUrl);
                     IServerService serverServ = (IServerService)Activator.GetObject(typeof(IServerService), serverUrl);
-                    _otherServers.Add(serverUrl, serverServ); //neste momento a key é o url, mas acho que nao vai ser, provavelmente vai ser o id
+                    _otherServers.Add(serverUrl, serverServ);
                 }
             }
         }
 
-        public void clientConnect(String username, String clientUrl) {
-            _clients.Add(username, clientUrl);
-        }
-
         public IDictionary<String, String> Clients {
             get { return _clients; }
+        }
+        public void clientConnect(String username, String clientUrl) {
+            _clients.Add(username, clientUrl);
         }
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
