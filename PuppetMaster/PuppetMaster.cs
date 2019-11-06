@@ -74,13 +74,13 @@ namespace PuppetMaster {
                     if (pcservice.ServerURLs.ContainsKey(processDct.Key)) {
                         response += "Server " + processDct.Key;
                         if (processResponding)
-                            response += " is present.";
+                            response += " is present.\n";
                         else
-                            response += " has failed!";
+                            response += " has failed! \n";
                     }
                     else {
                         if (processResponding)
-                            response += "Client " + processDct.Key + " is connected.";
+                            response += "Client " + processDct.Key + " is connected.\n";
                     }
                     Console.WriteLine(response);
                 }

@@ -13,6 +13,7 @@ namespace RemotingServicesLibrary {
         bool checkMeetingStatusChange(Meeting meeting);
         Meeting joinMeetingSlot(String topic, String slot, String username);
         void closeMeeting(String topic);
+        void receiveMeeting(String originServer, IDictionary<String, int> vectorTimeStamp, Meeting meeting);
         void addRoom(String location, int capacity, String name);
     }
 }
