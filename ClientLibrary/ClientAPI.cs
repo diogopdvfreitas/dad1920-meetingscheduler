@@ -9,6 +9,7 @@ namespace ClientLibrary{
         void createMeeting(String topic, int minAtt, List<Slot> slots, List<String> invitees);
         void joinMeetingSlot(String topic, String chosenSlot);
         void closeMeeting(String topic);
+        void printStatus();
 
     }
 }

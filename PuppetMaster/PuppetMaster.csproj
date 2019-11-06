@@ -55,9 +55,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ClientLibrary\ClientLibrary.csproj">
+      <Project>{e0e06ccb-01b8-453c-ba93-6dfcbaec8d17}</Project>
+      <Name>ClientLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CreationServiceLibrary\CreationServiceLibrary.csproj">
       <Project>{3af0299b-b2aa-4d05-a240-ab1dc52844cc}</Project>
       <Name>CreationServiceLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ObjectsLibrary\ObjectsLibrary.csproj">
+      <Project>{ee1d1785-a995-48cd-9ca1-baf08d3c894e}</Project>
+      <Name>ObjectsLibrary</Name>
     </ProjectReference>
     <ProjectReference Include="..\RemotingServicesLibrary\RemotingServicesLibrary.csproj">
       <Project>{C1D5BB12-AEB8-4743-B1BC-81C478BB2E73}</Project>

@@ -212,6 +212,19 @@ namespace Server {
             _locations[roomLocation].addRoom(new Room(name, capacity));
         }
 
+        public void printStatus() {
+            String s = "[SERVER: " + _id + "] has the following meetings and locations: ";
+            foreach(Meeting meeting in _meetings.Values) {
+                s += meeting.ToString();
+            }
+
+            foreach(Location location in _locations.Values){
+                s += location.ToString();
+            }
+
+            Console.WriteLine(s);
+        }
+
         public void freeze() {
             _freeze = true;
         }

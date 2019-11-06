@@ -36,5 +36,15 @@ namespace ObjectsLibrary {
             }
             return false;
         }
+
+        public override String ToString() {
+            String s = "[ROOM: " + _name + "] has a capacity of: " + _capacity + " and the following schedules: \n";
+
+            foreach(KeyValuePair<String, String> meetingScheduled in _meetingSchedule) {
+                s += "[TOPIC: " + meetingScheduled.Value + "] Scheduled for " + meetingScheduled.Key + "\n";
+            }
+
+            return s;
+        }
     }
 }

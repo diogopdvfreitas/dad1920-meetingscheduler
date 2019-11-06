@@ -23,5 +23,15 @@ namespace ObjectsLibrary {
         public void addRoom(Room room) {
             _rooms.Add(room);
         }
+
+        public override String ToString() {
+            String s = "[LOCATION: " + _name + "] has the following rooms: \n";
+
+            foreach(Room room in _rooms) {
+                s += room.ToString();
+            }
+
+            return s;
+        }
     }
 }
