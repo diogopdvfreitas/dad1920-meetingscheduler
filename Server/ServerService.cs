@@ -22,6 +22,10 @@ namespace Server {
             _server.clientConnect(username, clientUrl);
         }
 
+        public void receiveNewClient(String username, String clientUrl) {
+            _server.receiveNewClient(username, clientUrl);
+        }
+
         public IDictionary<String, String> getRegisteredClients() {
             return _server.Clients;
         }

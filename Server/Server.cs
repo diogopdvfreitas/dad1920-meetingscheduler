@@ -108,6 +108,17 @@ namespace Server {
         }
         public void clientConnect(String username, String clientUrl) {
             _clients.Add(username, clientUrl);
+            informNewClient(username, clientUrl);
+        }
+
+        public void informNewClient(String username, String clientUrl) {
+            foreach (IServerService serverServ in _otherServers.Values)
+                serverServ.receiveNewClient(username, clientUrl);
+
+        }
+
+        public void receiveNewClient(String username, String clientUrl) {
+            _clients.Add(username, clientUrl);
         }
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
@@ -188,7 +199,7 @@ namespace Server {
 
         //receiveMeeting: receives the meeting new status and the send server vectorTimeStamp
         public void receiveMeeting(String originServer, IDictionary<String, int> receivedVectorTimeStamp, Meeting meeting) {
-            Console.WriteLine("timestamp from origin ");
+            Console.WriteLine("timestamp from origin " + receivedVectorTimeStamp[originServer]);
             Console.WriteLine("Received meeting " + meeting.Topic + " from " + originServer + ".");
             if (checkVectorsTimeStamp(originServer, receivedVectorTimeStamp)) {
                 _meetings[meeting.Topic] = meeting;

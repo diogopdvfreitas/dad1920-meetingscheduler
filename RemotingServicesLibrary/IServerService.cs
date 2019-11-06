@@ -6,6 +6,7 @@ namespace RemotingServicesLibrary {
     public interface IServerService {
         //void executeCommand(String senderServer, String command, List<Object> args);
         void clientConnect(String username, String clientUrl);
+        void receiveNewClient(String username, String clientUrl);
         IDictionary<String, String> getRegisteredClients();
         Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots);
         Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees);
