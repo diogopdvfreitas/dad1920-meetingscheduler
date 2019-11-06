@@ -165,5 +165,14 @@ namespace Client {
         public void wait(int time) {
             System.Threading.Thread.Sleep(time);
         }
+
+        public void printStatus() {
+            String s = "[CLIENT: " + _username + "] has the following meetings: ";
+            foreach (Meeting meeting in _clientMeetings.Values) {
+                s += meeting.ToString();
+            }
+            
+            Console.WriteLine(s);
+        }
     }
 }

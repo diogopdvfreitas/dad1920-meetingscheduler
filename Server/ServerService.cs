@@ -63,5 +63,9 @@ namespace Server {
         public void addRoom(String roomLocation, int capacity, String name) {
             _server.addRoom(roomLocation, capacity, name);
         }
+
+        public void printStatus() {
+            _server.printStatus();
+        }
     }
 }

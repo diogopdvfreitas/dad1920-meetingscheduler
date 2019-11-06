@@ -8,19 +8,24 @@ using System.IO;
 using RemotingServicesLibrary;
 using System.Diagnostics;
 using System.Collections.Specialized;
+using ClientLibrary;
+using ObjectsLibrary;
 
 namespace PuppetMaster {
     public class PuppetMaster {
 
         private TcpChannel _channel;
-        private Dictionary<String, IPCSService> pcsList;     // <IP, IPCService>
+        private Dictionary<String, IPCSService> _pcsList;     // <IP, IPCService>
         private String _scriptName = "testPM.txt";
+        private List<Location> _locations;
 
         public PuppetMaster() {
             _channel = new TcpChannel(10001);
             ChannelServices.RegisterChannel(_channel, false);
             
-            pcsList = new Dictionary<String, IPCSService>();
+            _pcsList = new Dictionary<String, IPCSService>();
+            _locations = new List<Location>();
+
             PCSConfig();
         }
 
@@ -30,7 +35,7 @@ namespace PuppetMaster {
                 String pcsUrl = appSettings.Get(key);
                 String[] urlAttributes = pcsUrl.Split(new Char[] { ':', '/' }, StringSplitOptions.RemoveEmptyEntries);
                 IPCSService pcServ = (IPCSService) Activator.GetObject(typeof(IPCSService), pcsUrl);
-                pcsList.Add(urlAttributes[1], pcServ);
+                _pcsList.Add(urlAttributes[1], pcServ);
                 Console.WriteLine("[" + key + "] " + pcsUrl);
             }
         }
@@ -45,7 +50,7 @@ namespace PuppetMaster {
             String server_port = server_url[2];
 
             //createServer: srvr_port, srvr_id, url, max_faults, min_delay, max_delay
-            pcsList[server_IP].createServer(server_port, commandAttr[1], commandAttr[2], commandAttr[3], commandAttr[4], commandAttr[5]);
+           _pcsList[server_IP].createServer(server_port, commandAttr[1], commandAttr[2], commandAttr[3], commandAttr[4], commandAttr[5]);
 
         }
 
@@ -54,41 +59,54 @@ namespace PuppetMaster {
             String[] clientUrl = commandAttr[2].Split(new Char[] { '/', ':'}, StringSplitOptions.RemoveEmptyEntries);
             String clientIp = clientUrl[1];
             //createClient, args: username, clientUrl, serverUrl, scriptFile
-            pcsList[clientIp].createClient(commandAttr[1], commandAttr[2], commandAttr[3], commandAttr[4]);
+            _pcsList[clientIp].createClient(commandAttr[1], commandAttr[2], commandAttr[3], commandAttr[4]);
         }
 
-        public void addRoom(String[] commandAttr) { // we implemented this considering that there is already a server created, at least
-            foreach(IPCSService pcservice in pcsList.Values) {
-                foreach(String serverURL in pcservice.ServerURLs.Values) {
-                    IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), serverURL);
-                    serverService.addRoom(commandAttr[1], Int32.Parse(commandAttr[2]), commandAttr[3]); // location, capacity, room_name
-                }
-            }
+        public void addRoom(String[] commandAttr) {
+            Location location = new Location(commandAttr[1]);
+            location.addRoom(new Room(commandAttr[3], Int32.Parse(commandAttr[2]))); // room_name, capacity
+            _locations.Add(location);
+
+
         }
 
         public void status() {
-            foreach (IPCSService pcservice in pcsList.Values) {
+            foreach (IPCSService pcservice in _pcsList.Values) {
                 foreach (KeyValuePair<String, Process> processDct in pcservice.Processes) {
                     bool processResponding = processDct.Value.Responding;
                     String response = "";
                     if (pcservice.ServerURLs.ContainsKey(processDct.Key)) {
                         response += "Server " + processDct.Key;
-                        if (processResponding)
+                        if (processResponding) {
+                            IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processDct.Key]);
+
                             response += " is present.\n";
-                        else
+
+                            Console.WriteLine(response);
+                            serverService.printStatus();
+                        }
+                        else {
                             response += " has failed! \n";
+                            Console.WriteLine(response);
+                        }
                     }
                     else {
-                        if (processResponding)
+                        if (processResponding) {
+                            ClientAPI client = (ClientAPI)Activator.GetObject(typeof(ClientAPI), pcservice.ClientURLs[processDct.Key]);
+
                             response += "Client " + processDct.Key + " is connected.\n";
+
+                            Console.WriteLine(response);
+                            client.printStatus();
+                        }
                     }
-                    Console.WriteLine(response);
+                    
                 }
             }
         }
 
         public void crash(String processId) {
-            foreach (IPCSService pcservice in pcsList.Values) {
+            foreach (IPCSService pcservice in _pcsList.Values) {
                 pcservice.Processes[processId].Kill();
                 pcservice.Processes.Remove(processId);
                 if (pcservice.ServerURLs.ContainsKey(processId)) {
@@ -101,7 +119,7 @@ namespace PuppetMaster {
         }
 
         public void freeze(String processId) {
-            foreach (IPCSService pcservice in pcsList.Values) {
+            foreach (IPCSService pcservice in _pcsList.Values) {
                 if (pcservice.ServerURLs.ContainsKey(processId)) {
                     IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processId]);
                     //serverService.freeze();
@@ -110,7 +128,7 @@ namespace PuppetMaster {
         }
 
         public void unfreeze(String processId) {
-            foreach (IPCSService pcservice in pcsList.Values) {
+            foreach (IPCSService pcservice in _pcsList.Values) {
                 if (pcservice.ServerURLs.ContainsKey(processId)) {
                     IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processId]);
                     //serverService.unfreeze();
