@@ -51,6 +51,10 @@ namespace Client {
             Console.WriteLine("[CLIENT:" + _username + "] " + _url);
         }
 
+        public String getUsername() {
+            return _username; 
+        }
+
         public void setClient() {
             _channel = new TcpChannel(_port);
             ChannelServices.RegisterChannel(_channel, false);
@@ -166,13 +170,13 @@ namespace Client {
             System.Threading.Thread.Sleep(time);
         }
 
-        public void printStatus() {
+        /*public void printStatus() {
             String s = "[CLIENT: " + _username + "] has the following meetings: ";
             foreach (Meeting meeting in _clientMeetings.Values) {
                 s += meeting.ToString();
             }
             
             Console.WriteLine(s);
-        }
+        }*/
     }
 }

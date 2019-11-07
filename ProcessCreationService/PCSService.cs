@@ -38,7 +38,7 @@ namespace ProcessCreationService {
             process.StartInfo.Arguments = clientUsername + " " + clientUrl + " " + serverUrl + " " + scriptFile;
             process.Start();
             _processes.Add(clientUsername, process);
-            _serverUrls.Add(clientUsername, clientUrl);
+            _clientUrls.Add(clientUsername, clientUrl);
         }
 
         public IDictionary<String, Process> Processes {

@@ -11,8 +11,16 @@ namespace Client {
         }
         //receiveInvite: receive meeting invitee
         public void receiveInvitee(Meeting meeting) {
-            Console.WriteLine("Recebeu o convite da reuniao " + meeting.Topic);
+            Console.WriteLine("Received an invitation to the meeting " + meeting.Topic);
             _client.receiveInvitee(meeting);
+        }
+
+        public void listMeetings() {
+            _client.listMeetings();
+        }
+
+        public String getUsername() {
+           return _client.getUsername();
         }
     }
 }

@@ -28,7 +28,6 @@ namespace Server {
         private IDictionary<String, IServerService> _otherServers;      // <Server URL, IServerService>
         private IDictionary<String, int> _vectorTimeStamp;              //<ServerUrl, timeStamp> //??? key tbm podera ser o id
 
-        private List<String> _delayedMessages;                          // msgs delayed while frozen 
         private IDictionary<String, IDictionary<int, DelayedMessage>> _delayedMessagesFromServers; //<Server Url,<Future TimeStamp, Delayed Message>>
        // private List<String> _sentMessageServers;
 
@@ -40,7 +39,6 @@ namespace Server {
             _meetings = new Dictionary<String, Meeting>();
             _meetingsLockStatus = new Dictionary<String, bool>();
             _clients = new Dictionary<String, String>();
-            _delayedMessages = new List<String>();
 
             setServer();
             serversConfig();
@@ -58,7 +56,6 @@ namespace Server {
             _meetings = new Dictionary<String, Meeting>();
             _meetingsLockStatus = new Dictionary<String, bool>();
             _clients = new Dictionary<String, String>();
-            _delayedMessages = new List<String>();
 
             setServer();
             serversConfig();
@@ -95,10 +92,9 @@ namespace Server {
         public void serversConfig() {
             _otherServers = new Dictionary<String, IServerService>();
             _vectorTimeStamp = new Dictionary<String, int>();
-            _delayedMessagesFromServers = new Dictionary<String, IDictionary<int, DelayedMessage>>();
 
             Console.WriteLine("|========== Servers ==========|");
-            Console.WriteLine(" [THIS SERVER]  " + _url);
+            Console.WriteLine("[THIS SERVER]  " + _url);
             foreach (String serverUrl in ConfigurationManager.AppSettings) {
                 if (!serverUrl.Equals(_url)) {
                     Console.WriteLine(serverUrl);
@@ -169,7 +165,7 @@ namespace Server {
 
         //sendMeeting: sends the meeting new state to the other servers with url and vectorTimeStamp 
         public void sendMeetings() {
-            Console.WriteLine("Sent meetings ");
+            Console.WriteLine("Meetings sent");
             foreach (IServerService serverServ in _otherServers.Values) {
                 serverServ.receiveMeeting(_vectorTimeStamp, _meetings);
             }
@@ -203,8 +199,8 @@ namespace Server {
             _locations.Add(location_name, location);
         }
 
-        public void printStatus() {
-            String s = "[SERVER: " + _id + "] has the following meetings and locations: ";
+        public String status() {
+            String s = "[SERVER: " + _id + "] has the following meetings and locations: \n";
             foreach(Meeting meeting in _meetings.Values) {
                 s += meeting.ToString();
             }
@@ -213,7 +209,7 @@ namespace Server {
                 s += location.ToString();
             }
 
-            Console.WriteLine(s);
+            return s;
         }
 
         public void freeze() {
@@ -222,14 +218,6 @@ namespace Server {
 
         public Boolean Freeze {
             get { return _freeze; }
-        }
-
-        public List<String> DelayedMessages {
-            get { return _delayedMessages; }
-        }
-
-        public void addDelayedMessage() {
-            //_delayedMessages.Add();
         }
 
         public void checkDelay() {

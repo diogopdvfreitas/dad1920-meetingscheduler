@@ -83,9 +83,9 @@ namespace Server {
             _server.addLocation(location_name, location);
         }
 
-        public void printStatus() {
+        public String status() {
             _server.checkDelay();
-            _server.printStatus();
+            return _server.status();
         }
     }
 }
