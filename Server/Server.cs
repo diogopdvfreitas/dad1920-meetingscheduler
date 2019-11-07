@@ -23,17 +23,15 @@ namespace Server {
 
         private IDictionary<String, Location> _locations;               // <Location Name, Location>
         private IDictionary<String, Meeting> _meetings;                 // <Meeting Topic, Meeting>
-        private IDictionary<String, bool> _meetingsLockStatus;           // <Meeting Topic, Meeting Lock>
         private IDictionary<String, String> _clients;                   // <Client Username, Client URL>
         private IDictionary<String, IServerService> _otherServers;      // <Server URL, IServerService>
-        private IDictionary<String, int> _vectorTimeStamp;              //<ServerUrl, timeStamp> //??? key tbm podera ser o id
+        private IDictionary<String, int> _vectorTimeStamp;              // <ServerUrl, timeStamp> //??? key tbm podera ser o id
 
         private Boolean _freeze = false;
         
         public Server() {
             _locations = new Dictionary<String, Location>();
             _meetings = new Dictionary<String, Meeting>();
-            _meetingsLockStatus = new Dictionary<String, bool>();
             _clients = new Dictionary<String, String>();
 
             setServer();
@@ -50,7 +48,6 @@ namespace Server {
 
             _locations = new Dictionary<String, Location>();
             _meetings = new Dictionary<String, Meeting>();
-            _meetingsLockStatus = new Dictionary<String, bool>();
             _clients = new Dictionary<String, String>();
 
             setServer();
@@ -186,6 +183,10 @@ namespace Server {
             }
         }
 
+        public void addLocation(String location_name, Location location) {
+            _locations.Add(location_name, location);
+        }
+
         public void addRoom(String roomLocation, int capacity, String name) {
             _locations[roomLocation].addRoom(new Room(name, capacity));
         }
@@ -209,6 +210,12 @@ namespace Server {
 
         public Boolean Freeze {
             get { return _freeze; }
+        }
+
+        public void checkDelay() {
+            Random random = new Random();
+            int delay = random.Next(_min_delay, _max_delay);
+            Thread.Sleep(delay);
         }
 
         static void Main(string[] args) {
