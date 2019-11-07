@@ -29,6 +29,7 @@ namespace Server {
         private IDictionary<String, int> _vectorTimeStamp;              //<ServerUrl, timeStamp> //??? key tbm podera ser o id
 
         private List<String> _delayedMessages;                          // msgs delayed while frozen 
+        private IDictionary<String, IDictionary<int, DelayedMessage>> _delayedMessagesFromServers; //<Server Url,<Future TimeStamp, Delayed Message>>
        // private List<String> _sentMessageServers;
 
        //private Timer _replicationTimer;
@@ -94,6 +95,7 @@ namespace Server {
         public void serversConfig() {
             _otherServers = new Dictionary<String, IServerService>();
             _vectorTimeStamp = new Dictionary<String, int>();
+            _delayedMessagesFromServers = new Dictionary<String, IDictionary<int, DelayedMessage>>();
 
             Console.WriteLine("|========== Servers ==========|");
             Console.WriteLine(" [THIS SERVER]  " + _url);
@@ -126,7 +128,7 @@ namespace Server {
             _meetings.Add(meeting.Topic, meeting);
             Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
             incrementTimeStamp();
-            sendMeeting(meeting);
+            sendMeetings();
             return meeting;
         }
 
@@ -135,7 +137,7 @@ namespace Server {
             _meetings.Add(meeting.Topic, meeting);
             Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
             incrementTimeStamp();
-            sendMeeting(meeting);
+            sendMeetings();
             return meeting;
         }
 
@@ -151,7 +153,7 @@ namespace Server {
             if (_meetings[topic].joinSlot(slot, username)) {
                 Console.WriteLine("[CLIENT:" + username + "] Joined meeting " + topic + " on slot " + slot);
                 incrementTimeStamp();
-                sendMeeting(_meetings[topic]);
+                sendMeetings();
                 return _meetings[topic];
             }
             return null;
@@ -165,46 +167,31 @@ namespace Server {
             _vectorTimeStamp[_url] += 1;
         }
 
-        public bool checkVectorsTimeStamp(String originServer, IDictionary<String, int> receivedVectorTimeStamp) {
-            if (receivedVectorTimeStamp[originServer] == (_vectorTimeStamp[originServer] + 1)) {
-                foreach (KeyValuePair<String, int> servertimeStamp in receivedVectorTimeStamp) {
-                    if (servertimeStamp.Key != originServer) {
-                        if (_vectorTimeStamp[servertimeStamp.Key] == servertimeStamp.Value) {
-                            _vectorTimeStamp[originServer] = receivedVectorTimeStamp[originServer];
-                            return true;
-                        }
-                        else {
-
-                            //falta me receber uma mensagem de um dos outros servidores
-                            //talvez adicionar este estado a uma lista para ser processado mais tarde
-                            return false;
-                        }
-                    }
-                }
-            }else {
-                //falta me receber uma mensagem do servidor de origem
-                //talvez adicionar este estado a uma lista para ser processado mais tarde
+        //sendMeeting: sends the meeting new state to the other servers with url and vectorTimeStamp 
+        public void sendMeetings() {
+            Console.WriteLine("Sent meetings ");
+            foreach (IServerService serverServ in _otherServers.Values) {
+                serverServ.receiveMeeting(_vectorTimeStamp, _meetings);
             }
-            return false;
         }
 
-        //sendMeeting: sends the meeting new state to the other servers with "my"  url and "my" vectorTimeStamp 
-        public void sendMeeting(Meeting meeting) {
-            Console.WriteLine("Sent meeting " + meeting.Topic);
-            foreach (IServerService serverServ in _otherServers.Values) {
-                serverServ.receiveMeeting(_url, _vectorTimeStamp, meeting);
+        public bool checkVectorTimeStamp(IDictionary<String, int> vectorTimeStamp) {
+            foreach (KeyValuePair<String, int> serverTimeStamp in vectorTimeStamp) {
+                if (serverTimeStamp.Key != _url & _vectorTimeStamp[serverTimeStamp.Key] > serverTimeStamp.Value) {
+                    return false;
+                }
             }
-
+            return true;
         }
 
         //receiveMeeting: receives the meeting new status and the send server vectorTimeStamp
-        public void receiveMeeting(String originServer, IDictionary<String, int> receivedVectorTimeStamp, Meeting meeting) {
-            Console.WriteLine("timestamp from origin " + receivedVectorTimeStamp[originServer]);
-            Console.WriteLine("Received meeting " + meeting.Topic + " from " + originServer + ".");
-            if (checkVectorsTimeStamp(originServer, receivedVectorTimeStamp)) {
-                _meetings[meeting.Topic] = meeting;
+        public void receiveMeeting(IDictionary<String, int> vectorTimeStamp, IDictionary<String, Meeting> meetings) {
+            if (checkVectorTimeStamp(vectorTimeStamp)) {
+                int timeStamp = _vectorTimeStamp[_url];
+                _vectorTimeStamp = vectorTimeStamp;
+
+                _vectorTimeStamp[_url] = timeStamp;
             }
-            
         }
 
 
