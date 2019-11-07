@@ -60,8 +60,8 @@ namespace Server {
             _server.closeMeeting(topic);
         }
 
-        public void receiveMeeting(String originServer, IDictionary<String, int> vectorTimeStamp, Meeting meeting) {
-            _server.receiveMeeting(originServer, vectorTimeStamp, meeting);
+        public void receiveMeeting(IDictionary<String, int> vectorTimeStamp, IDictionary<String, Meeting> meetings) {
+            _server.receiveMeeting(vectorTimeStamp, meetings);
         }
 
         public void addRoom(String roomLocation, int capacity, String name) {
