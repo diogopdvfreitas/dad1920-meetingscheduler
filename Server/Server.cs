@@ -28,11 +28,6 @@ namespace Server {
         private IDictionary<String, IServerService> _otherServers;      // <Server URL, IServerService>
         private IDictionary<String, int> _vectorTimeStamp;              //<ServerUrl, timeStamp> //??? key tbm podera ser o id
 
-        private List<String> _delayedMessages;                          // msgs delayed while frozen 
-        private IDictionary<String, IDictionary<int, DelayedMessage>> _delayedMessagesFromServers; //<Server Url,<Future TimeStamp, Delayed Message>>
-       // private List<String> _sentMessageServers;
-
-       //private Timer _replicationTimer;
         private Boolean _freeze = false;
         
         public Server() {
@@ -40,7 +35,6 @@ namespace Server {
             _meetings = new Dictionary<String, Meeting>();
             _meetingsLockStatus = new Dictionary<String, bool>();
             _clients = new Dictionary<String, String>();
-            _delayedMessages = new List<String>();
 
             setServer();
             serversConfig();
@@ -58,7 +52,6 @@ namespace Server {
             _meetings = new Dictionary<String, Meeting>();
             _meetingsLockStatus = new Dictionary<String, bool>();
             _clients = new Dictionary<String, String>();
-            _delayedMessages = new List<String>();
 
             setServer();
             serversConfig();
@@ -95,7 +88,6 @@ namespace Server {
         public void serversConfig() {
             _otherServers = new Dictionary<String, IServerService>();
             _vectorTimeStamp = new Dictionary<String, int>();
-            _delayedMessagesFromServers = new Dictionary<String, IDictionary<int, DelayedMessage>>();
 
             Console.WriteLine("|========== Servers ==========|");
             Console.WriteLine(" [THIS SERVER]  " + _url);
@@ -194,13 +186,8 @@ namespace Server {
             }
         }
 
-
         public void addRoom(String roomLocation, int capacity, String name) {
             _locations[roomLocation].addRoom(new Room(name, capacity));
-        }
-
-        public void addLocation(String location_name, Location location) {
-            _locations.Add(location_name, location);
         }
 
         public void printStatus() {
@@ -222,20 +209,6 @@ namespace Server {
 
         public Boolean Freeze {
             get { return _freeze; }
-        }
-
-        public List<String> DelayedMessages {
-            get { return _delayedMessages; }
-        }
-
-        public void addDelayedMessage() {
-            //_delayedMessages.Add();
-        }
-
-        public void checkDelay() {
-            Random random = new Random();
-            int delay = random.Next(_min_delay, _max_delay);
-            Thread.Sleep(delay);
         }
 
         static void Main(string[] args) {
