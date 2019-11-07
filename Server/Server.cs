@@ -27,6 +27,11 @@ namespace Server {
         private IDictionary<String, IServerService> _otherServers;      // <Server URL, IServerService>
         private IDictionary<String, int> _vectorTimeStamp;              // <ServerUrl, timeStamp> //??? key tbm podera ser o id
 
+        private IDictionary<String, IDictionary<int, DelayedMessage>> _delayedMessagesFromServers; //<Server Url,<Future TimeStamp, Delayed Message>>
+       // private List<String> _sentMessageServers;
+
+       //private Timer _replicationTimer;
+
         private Boolean _freeze = false;
         
         public Server() {
@@ -87,7 +92,7 @@ namespace Server {
             _vectorTimeStamp = new Dictionary<String, int>();
 
             Console.WriteLine("|========== Servers ==========|");
-            Console.WriteLine(" [THIS SERVER]  " + _url);
+            Console.WriteLine("[THIS SERVER]  " + _url);
             foreach (String serverUrl in ConfigurationManager.AppSettings) {
                 if (!serverUrl.Equals(_url)) {
                     Console.WriteLine(serverUrl);
@@ -203,7 +208,7 @@ namespace Server {
 
         //sendMeeting: sends the meeting new state to the other servers with url and vectorTimeStamp 
         public void sendMeetings() {
-            Console.WriteLine("Sent meetings ");
+            Console.WriteLine("Meetings sent");
             foreach (IServerService serverServ in _otherServers.Values) {
                 serverServ.receiveMeeting(_vectorTimeStamp, _meetings);
             }
@@ -236,8 +241,13 @@ namespace Server {
             _locations[roomLocation].addRoom(new Room(name, capacity));
         }
 
-        public void printStatus() {
-            String s = "[SERVER: " + _id + "] has the following meetings and locations: ";
+        public void addLocation(String location_name, Location location) {
+            _locations.Add(location_name, location);
+        }
+
+        public String status() {
+            String s = "[SERVER: " + _id + "] has the following meetings and locations: \n";
+
             foreach(Meeting meeting in _meetings.Values) {
                 s += meeting.ToString();
             }
@@ -246,7 +256,7 @@ namespace Server {
                 s += location.ToString();
             }
 
-            Console.WriteLine(s);
+            return s;
         }
 
         public void freeze() {

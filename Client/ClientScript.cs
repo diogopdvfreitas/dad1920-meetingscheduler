@@ -113,7 +113,7 @@ namespace Client {
             clientScript.readClientScript();
             Console.WriteLine("QUIT to exit");
             while (true) {
-                Console.Write("[COMMAND] ");
+                Console.Write("[INSERT NEW COMMAND:] ");
                 String line = Console.ReadLine();
                 if (line == "QUIT")
                     break;

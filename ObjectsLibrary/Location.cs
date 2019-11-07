@@ -37,6 +37,7 @@ namespace ObjectsLibrary {
 
             foreach(Room room in _rooms) {
                 s += room.ToString();
+                s += "\n";
             }
 
             return s;

@@ -19,6 +19,15 @@ namespace PuppetMaster {
         private String _scriptName = "testPM.txt";
         private List<Location> _locations;
 
+        public delegate void createServerDelegate(String[] commandAttr);
+        public delegate void createClientDelegate(String[] commandAttr);
+        public delegate void addRoomDelegate(String[] commandAttr);
+        public delegate void statusDelegate();
+        public delegate void crashDelegate(String commandAttr1);
+        public delegate void freezeDelegate(String commandAttr1);
+        public delegate void unfreezeDelegate(String commandAttr1);
+
+
         public PuppetMaster() {
             _channel = new TcpChannel(10001);
             ChannelServices.RegisterChannel(_channel, false);
@@ -75,37 +84,40 @@ namespace PuppetMaster {
         }
 
         public void status() {
-            foreach (IPCSService pcservice in _pcsList.Values) {
-                foreach (KeyValuePair<String, Process> processDct in pcservice.Processes) {
-                    bool processResponding = processDct.Value.Responding;
-                    String response = "";
-                    if (pcservice.ServerURLs.ContainsKey(processDct.Key)) {
-                        response += "Server " + processDct.Key;
-                        if (processResponding) {
-                            IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processDct.Key]);
+            var e = _pcsList.GetEnumerator();
+            e.MoveNext();
+            var pcservice = e.Current.Value;
+            foreach (KeyValuePair<String, Process> processDct in pcservice.Processes) {
+                bool processResponding = processDct.Value.Responding;
+                String response = "";
+                if (pcservice.ServerURLs.ContainsKey(processDct.Key)) {
+                    response += "Server " + processDct.Key;
+                    if (processResponding) {
+                        IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processDct.Key]);
 
-                            response += " is present.\n";
+                        response += " is present.\n";
 
-                            Console.WriteLine(response);
-                            serverService.printStatus();
-                        }
-                        else {
-                            response += " has failed! \n";
-                            Console.WriteLine(response);
-                        }
+                        Console.WriteLine("|========== STATUS ==========|");
+                        Console.WriteLine(response);
+                        Console.WriteLine(serverService.status());
                     }
                     else {
-                        if (processResponding) {
-                            ClientAPI client = (ClientAPI)Activator.GetObject(typeof(ClientAPI), pcservice.ClientURLs[processDct.Key]);
-
-                            response += "Client " + processDct.Key + " is connected.\n";
-
+                            response += " has failed! \n";
                             Console.WriteLine(response);
-                            client.printStatus();
-                        }
                     }
-                    
                 }
+                else {
+                    if (processResponding) {
+                        IClientService client = (IClientService)Activator.GetObject(typeof(IClientService), pcservice.ClientURLs[processDct.Key]);
+
+                        response += "Client " + processDct.Key + " is connected.\n";
+
+                        Console.WriteLine("|========== STATUS ==========|");
+                        Console.WriteLine(response);
+                        Console.WriteLine("[CLIENT: " + client.getUsername() + "] has the following meetings: ");
+                        //client.listMeetings();
+                    }
+                }       
             }
         }
 
@@ -123,21 +135,21 @@ namespace PuppetMaster {
         }
 
         public void freeze(String processId) {
-            foreach (IPCSService pcservice in _pcsList.Values) {
+            /*foreach (IPCSService pcservice in _pcsList.Values) {
                 if (pcservice.ServerURLs.ContainsKey(processId)) {
                     IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processId]);
                     //serverService.freeze();
                 }
-            }
+            }*/
         }
 
         public void unfreeze(String processId) {
-            foreach (IPCSService pcservice in _pcsList.Values) {
+            /*foreach (IPCSService pcservice in _pcsList.Values) {
                 if (pcservice.ServerURLs.ContainsKey(processId)) {
                     IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processId]);
                     //serverService.unfreeze();
                 }
-            }
+            }*/
         }
 
         public void wait(String miliseconds) {
@@ -150,30 +162,38 @@ namespace PuppetMaster {
 
             switch (commandAttr[0]) {
                 case "Server":
-                    createServer(commandAttr);
+                    createServerDelegate createServer_Del = new createServerDelegate(createServer);
+                    createServer_Del.BeginInvoke(commandAttr, null, null);
                     break;
 
                 case "Client":
-                    createClient(commandAttr);
+                    createClientDelegate createClient_Del = new createClientDelegate(createClient);
+                    createClient_Del.BeginInvoke(commandAttr, null, null);
                     break;
 
                 case "AddRoom":
-                    addRoom(commandAttr);
+                    addRoomDelegate addRoom_Del = new addRoomDelegate(addRoom);
+                    addRoom_Del.BeginInvoke(commandAttr, null, null);
                     break;
 
                 case "Status":
-                    status();
+                    statusDelegate status_Del = new statusDelegate(status);
+                    status_Del.BeginInvoke(null, null);
                     break;
 
                 case "Crash":
-                    crash(commandAttr[1]);
+                    crashDelegate crash_Del = new crashDelegate(crash);
+                    crash_Del.BeginInvoke(commandAttr[1], null, null);
                     break;
 
                 case "Freeze"://TODO
-                    freeze(commandAttr[1]);
+                    freezeDelegate freeze_Del = new freezeDelegate(freeze);
+                    freeze_Del.BeginInvoke(commandAttr[1], null, null);
                     break;
 
                 case "Unfreeze"://TODO
+                    unfreezeDelegate unfreeze_Del = new unfreezeDelegate(unfreeze);
+                    unfreeze_Del.BeginInvoke(commandAttr[1], null, null);
                     break;
                 case "Wait":
                     wait(commandAttr[1]);
