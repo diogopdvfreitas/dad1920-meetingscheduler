@@ -179,7 +179,8 @@ namespace Server {
                     }
                 }
                 //theres no available room so we need to exclude some clients
-                /*if (meeting.MStatus == Meeting.Status.OPEN) {
+                if (meeting.MStatus == Meeting.Status.OPEN) {
+                    meeting.cleanInvalidSlots();
                     while (meeting.MStatus != Meeting.Status.BOOKED) {
                         Slot slot = meeting.mostCapacitySlot();
                         if (slot == null)
@@ -192,17 +193,35 @@ namespace Server {
                                     meeting.PickedSlot = slot;
                                     meeting.MStatus = Meeting.Status.BOOKED;
                                     meeting.cleanInvalidSlots();
+
+                                    if (room.Capacity < meeting.PickedSlot.NJoined)
+                                        meeting.PickedSlot.Joined = excludeClients(room.Capacity, meeting.PickedSlot);
                                     return;
                                 }
                             }
                         }
-                        if (meeting.MStatus == Meeting.Status.OPEN) {
-                            meeting.invalidSlot(slot);
-                        }
-                    }
 
-                }*/
+                    }
+                }
+                if (meeting.MStatus == Meeting.Status.OPEN) {
+                    meeting.MStatus = Meeting.Status.CANCELLED;
+                }
             }
+        }
+
+        public List<String> excludeClients(int roomCapacity, Slot pickedSlot) {
+            List<String> joinedClients = pickedSlot.Joined;
+            List<String> finalClients = new List<String>();
+            int counter = 0;
+            foreach (String client in joinedClients) {
+                if (counter <= roomCapacity) {
+                    finalClients.Add(client);
+                    counter += 1;
+                }
+                else
+                    break;
+            }
+            return finalClients;
         }
 
         public void incrementTimeStamp() {
@@ -238,6 +257,10 @@ namespace Server {
 
         public void addRoom(String roomLocation, int capacity, String name) {
             _locations[roomLocation].addRoom(new Room(name, capacity));
+        }
+
+        public void addLocation(String location_name, Location location) {
+            _locations.Add(location_name, location);
         }
 
         public String status() {

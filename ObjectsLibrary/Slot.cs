@@ -32,6 +32,7 @@ namespace ObjectsLibrary {
 
         public List<String> Joined {
             get { return _joined; }
+            set { _joined = value; }
         }
 
         public Room PickedRoom {
