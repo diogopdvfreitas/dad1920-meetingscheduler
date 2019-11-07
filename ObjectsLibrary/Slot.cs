@@ -4,19 +4,19 @@ using System.Collections.Generic;
 namespace ObjectsLibrary {
     [Serializable]
     public class Slot {
-        private Location _location;
+        private String _location;
         private String _date;
         private List<String> _joined;
         private Room _pickedRoom;
 
-        public Slot(Location location, String date) {
+        public Slot(String location, String date) {
             _location = location;
             _date = date;
             _joined = new List<String>();
             _pickedRoom = null;
         }
 
-        public Location Location {
+        public String Location {
             get { return _location; }
             set { _location = value; }
         }
@@ -36,22 +36,23 @@ namespace ObjectsLibrary {
 
         public Room PickedRoom {
             get { return _pickedRoom; }
+            set { _pickedRoom = value; }
         }
 
         public void joinSlot(String clientName) {
             _joined.Add(clientName);
         }
 
-        public bool bookMeeting(Meeting meeting, Room room) {
+        /*public bool bookMeeting(Meeting meeting, Room room) {
             if (room.bookMeeting(_date, meeting)) {
                 _pickedRoom = room;
                 return true;
             }
             return false;
-        }
+        }*/
 
         public override String ToString() {
-            return _location.Name + "," + _date + ": Number of Joins - " + NJoined;
+            return _location + "," + _date + ": Number of Joins - " + NJoined;
         }
     }
 }

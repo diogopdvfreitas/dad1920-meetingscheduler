@@ -20,6 +20,14 @@ namespace ObjectsLibrary {
             get { return _rooms; }
         }
 
+        public List<Room> roomWithCapacity(int capacity) {
+            List<Room> roomsWithCapacity = new List<Room>();
+            foreach (Room room in _rooms)
+                if (room.Capacity >= capacity)
+                    roomsWithCapacity.Add(room);
+            return roomsWithCapacity;
+        }
+
         public void addRoom(Room room) {
             _rooms.Add(room);
         }

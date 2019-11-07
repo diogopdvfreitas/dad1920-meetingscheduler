@@ -149,7 +149,52 @@ namespace Server {
         }
 
         public void closeMeeting(String topic) {
-            _meetings[topic].close();
+            Meeting meeting = _meetings[topic];
+            if (meeting.checkClose()) {
+                while(meeting.MStatus != Meeting.Status.BOOKED) { 
+                    Slot slot = meeting.mostCapacitySlot();
+                    if (slot == null) {
+                        break;
+                    }else {
+                        foreach (Room room in _locations[slot.Location].roomWithCapacity(slot.NJoined)) {
+                            if (room.checkRoomFree(slot.Date)) {
+                                if (room.bookMeeting(slot.Date, meeting)) {
+                                    slot.PickedRoom = room;
+                                    meeting.PickedSlot = slot;
+                                    meeting.MStatus = Meeting.Status.BOOKED;
+                                    return;
+                                }
+                            }
+                        }
+                        if (meeting.MStatus == Meeting.Status.OPEN) {
+                            meeting.invalidSlot(slot);
+                        }
+                    }
+                }
+                if (meeting.MStatus != Meeting.Status.BOOKED) {
+                    while (meeting.MStatus != Meeting.Status.BOOKED) {
+                        Slot slot = meeting.mostCapacitySlot();
+                        if (slot == null) {
+                            break;
+                        }
+                        else {
+                            foreach (Room room in _locations[slot.Location].Rooms) {
+                                if (room.checkRoomFree(slot.Date)) {
+                                    if (room.bookMeeting(slot.Date, meeting)) {
+                                        slot.PickedRoom = room;
+                                        meeting.PickedSlot = slot;
+                                        meeting.MStatus = Meeting.Status.BOOKED;
+                                        return;
+                                    }
+                                }
+                            }
+                            if (meeting.MStatus == Meeting.Status.OPEN) {
+                                meeting.invalidSlot(slot);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public void incrementTimeStamp() {

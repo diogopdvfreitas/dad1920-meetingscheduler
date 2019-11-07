@@ -62,7 +62,7 @@ namespace Client {
                     slotsStartIndex = 5 + nSlots;
                     for (int i = 5; i < slotsStartIndex; i++) {
                         String[] slotAttr = commandAttr[i].Split(',');
-                        Slot slot = new Slot(new Location(slotAttr[0]), slotAttr[1]);
+                        Slot slot = new Slot(slotAttr[0], slotAttr[1]);
                         slots.Add(slot);
                     }
 

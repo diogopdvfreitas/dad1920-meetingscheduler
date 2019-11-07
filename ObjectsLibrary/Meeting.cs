@@ -20,6 +20,7 @@ namespace ObjectsLibrary {
         Status _status;
         int _nJoined;
         Slot _pickedSlot;
+        List<Slot> _invalidSlots;
 
         public Meeting(String coord, String topic, int minAtt, List<Slot> slots) {
             _coord = coord;
@@ -31,6 +32,7 @@ namespace ObjectsLibrary {
             _nJoined = 0;
             _pickedSlot = null;
             _invitees = null;
+            _invalidSlots = new List<Slot>();
         }
 
         public Meeting(String coord, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
@@ -70,10 +72,15 @@ namespace ObjectsLibrary {
             get { return _nJoined; } 
         }
 
+        public Slot PickedSlot {
+            get { return _pickedSlot; }
+            set { _pickedSlot = value; }
+        }
+
         public Slot getSlot(String slot) {
             String[] slotAttr = slot.Split(',');
             foreach(Slot slt in _slots) {
-                if (slt.Location.Name.Equals(slotAttr[0]) && slt.Date.Equals(slotAttr[1]))
+                if (slt.Location.Equals(slotAttr[0]) && slt.Date.Equals(slotAttr[1]))
                     return slt;
             }
             return null;
@@ -93,7 +100,7 @@ namespace ObjectsLibrary {
             String[] slotAttr = chosenSlot.Split(',');
             if (_invitees == null || _invitees.Contains(username)) {
                 foreach (Slot slot in _slots) {
-                    if (slot.Location.Name.Equals(slotAttr[0]) && slot.Date.Equals(slotAttr[1])) {
+                    if (slot.Location.Equals(slotAttr[0]) && slot.Date.Equals(slotAttr[1])) {
                         slot.joinSlot(username);
                         _nJoined++;
                         return true;
@@ -103,9 +110,35 @@ namespace ObjectsLibrary {
             return false;
         }
 
-        public void close() {
+        public bool checkClose() {
+            if (_nJoined >= _minAtt)
+                return true;
+            return false;
+        }
+
+        //maybe order the slots list
+        public Slot mostCapacitySlot() {
+            int mostCapacity = -1;
+            Slot mostCapacitySlot = null;
+            foreach (Slot slot in _slots) {
+                if (!_invalidSlots.Contains(slot)) {
+                    if (slot.NJoined > mostCapacity) {
+                        mostCapacity = slot.NJoined;
+                        mostCapacitySlot = slot;
+                    }
+                }
+            }
+            return mostCapacitySlot;
+        }
+
+        public void invalidSlot(Slot slot) {
+            _invalidSlots.Add(slot);
+        }
+
+        /*public void close() {
             if (_nJoined >= _minAtt) {
                 foreach (Slot slot in _slots) {
+
                     foreach (Room room in slot.Location.Rooms) {
                         //there is a free room that has space for all joined participants
                         if (room.Capacity >= slot.NJoined && room.checkRoomFree(slot.Date)) {
@@ -141,7 +174,7 @@ namespace ObjectsLibrary {
                         _status = Status.CANCELLED;
                 }
             }   
-        }
+        }*/
 
         public String slotsToString(List<Slot> slotsList) {
             String s = "";
