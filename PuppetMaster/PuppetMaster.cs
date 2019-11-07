@@ -51,6 +51,12 @@ namespace PuppetMaster {
 
             //createServer: srvr_port, srvr_id, url, max_faults, min_delay, max_delay
            _pcsList[server_IP].createServer(server_port, commandAttr[1], commandAttr[2], commandAttr[3], commandAttr[4], commandAttr[5]);
+            if(_locations != null) {
+                IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), _pcsList[server_IP].ServerURLs[commandAttr[1]]);
+                foreach (Location location in _locations) {
+                    serverService.addLocation(location.Name, location);
+                }
+            }
 
         }
 
@@ -66,8 +72,6 @@ namespace PuppetMaster {
             Location location = new Location(commandAttr[1]);
             location.addRoom(new Room(commandAttr[3], Int32.Parse(commandAttr[2]))); // room_name, capacity
             _locations.Add(location);
-
-
         }
 
         public void status() {

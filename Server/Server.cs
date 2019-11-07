@@ -199,6 +199,10 @@ namespace Server {
             _locations[roomLocation].addRoom(new Room(name, capacity));
         }
 
+        public void addLocation(String location_name, Location location) {
+            _locations.Add(location_name, location);
+        }
+
         public void printStatus() {
             String s = "[SERVER: " + _id + "] has the following meetings and locations: ";
             foreach(Meeting meeting in _meetings.Values) {
@@ -226,6 +230,12 @@ namespace Server {
 
         public void addDelayedMessage() {
             //_delayedMessages.Add();
+        }
+
+        public void checkDelay() {
+            Random random = new Random();
+            int delay = random.Next(_min_delay, _max_delay);
+            Thread.Sleep(delay);
         }
 
         static void Main(string[] args) {
