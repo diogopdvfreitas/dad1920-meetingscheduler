@@ -16,6 +16,7 @@ namespace RemotingServicesLibrary {
         void closeMeeting(String topic);
         void receiveMeeting(String originServer, IDictionary<String, int> vectorTimeStamp, Meeting meeting);
         void addRoom(String location, int capacity, String name);
+        void addLocation(String location_name, Location location);
         void printStatus();
     }
 }
