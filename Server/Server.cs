@@ -240,10 +240,6 @@ namespace Server {
             _locations[roomLocation].addRoom(new Room(name, capacity));
         }
 
-        public void addLocation(String location_name, Location location) {
-            _locations.Add(location_name, location);
-        }
-
         public String status() {
             String s = "[SERVER: " + _id + "] has the following meetings and locations: \n";
 

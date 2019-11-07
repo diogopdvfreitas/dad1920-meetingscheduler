@@ -22,5 +22,9 @@ namespace Client {
         public String getUsername() {
            return _client.getUsername();
         }
+
+        public String status() {
+            return _client.status();
+        }
     }
 }
