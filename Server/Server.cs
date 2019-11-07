@@ -12,8 +12,8 @@ namespace Server {
     public class Server {
 
         // Default values
-        private String _id = "LISBOA";
-        private String _url = "tcp://localhost:8086/LISBOA";
+        private String _id = "server1";
+        private String _url = "tcp://localhost:8086/server1";
         private int _port = 8086;
         private int _max_faults = 0;
         private int _min_delay = 0;
@@ -27,7 +27,6 @@ namespace Server {
         private IDictionary<String, IServerService> _otherServers;      // <Server URL, IServerService>
         private IDictionary<String, int> _vectorTimeStamp;              // <ServerUrl, timeStamp> //??? key tbm podera ser o id
 
-        private IDictionary<String, IDictionary<int, DelayedMessage>> _delayedMessagesFromServers; //<Server Url,<Future TimeStamp, Delayed Message>>
        // private List<String> _sentMessageServers;
 
        //private Timer _replicationTimer;
@@ -39,11 +38,11 @@ namespace Server {
             _meetings = new Dictionary<String, Meeting>();
             _clients = new Dictionary<String, String>();
 
-            setServer();
+            setServer(_id);
             serversConfig();
         }
 
-        public Server(int port, String id, String url, int max_faults, int min_delay, int max_delay) {
+        public Server(int port, String id, String url, int max_faults, int min_delay, int max_delay, String obj) {
             _id = id;
             _url = url;
             _port = port;
@@ -55,7 +54,8 @@ namespace Server {
             _meetings = new Dictionary<String, Meeting>();
             _clients = new Dictionary<String, String>();
 
-            setServer();
+            setServer(obj);
+
             serversConfig();
         }
 
@@ -77,12 +77,12 @@ namespace Server {
         }
 
 
-        private void setServer() {
+        private void setServer(String obj) {
             _channel = new TcpChannel(_port);
             ChannelServices.RegisterChannel(_channel, false);
 
             ServerService serverService = new ServerService(this);
-            RemotingServices.Marshal(serverService, _id, typeof(ServerService));
+            RemotingServices.Marshal(serverService, obj, typeof(ServerService));
             
             Console.WriteLine("[SERVER:" + _id + "] " + _url + " Delay: " + _min_delay + "ms to " + _max_delay + "ms");
         }
@@ -154,19 +154,44 @@ namespace Server {
         }
 
         public void closeMeeting(String topic) {
+            Console.WriteLine("Close Meeting" + topic);
             Meeting meeting = _meetings[topic];
+
             if (meeting.checkClose()) {
-                while(meeting.MStatus != Meeting.Status.BOOKED) { 
+                while (meeting.MStatus != Meeting.Status.BOOKED) {
                     Slot slot = meeting.mostCapacitySlot();
-                    if (slot == null) {
+                    if (slot == null)
                         break;
-                    }else {
-                        foreach (Room room in _locations[slot.Location].roomWithCapacity(slot.NJoined)) {
+                    foreach (Room room in _locations[slot.Location].roomWithCapacity(slot.NJoined)) {
+                        if (room.checkRoomFree(slot.Date)) {
+                            if (room.bookMeeting(slot.Date, meeting)) {
+                                Console.WriteLine("Room " + room.Name);
+                                slot.PickedRoom = room;
+                                meeting.PickedSlot = slot;
+                                meeting.MStatus = Meeting.Status.BOOKED;
+                                meeting.cleanInvalidSlots();
+                                return;
+                            }
+                        }
+                    }
+                    if (meeting.MStatus == Meeting.Status.OPEN) {
+                        meeting.invalidSlot(slot);
+                    }
+                }
+                //theres no available room so we need to exclude some clients
+                /*if (meeting.MStatus == Meeting.Status.OPEN) {
+                    while (meeting.MStatus != Meeting.Status.BOOKED) {
+                        Slot slot = meeting.mostCapacitySlot();
+                        if (slot == null)
+                            break;
+                        foreach (Room room in _locations[slot.Location].Rooms) {
                             if (room.checkRoomFree(slot.Date)) {
                                 if (room.bookMeeting(slot.Date, meeting)) {
+                                    Console.WriteLine("Room " + room.Name);
                                     slot.PickedRoom = room;
                                     meeting.PickedSlot = slot;
                                     meeting.MStatus = Meeting.Status.BOOKED;
+                                    meeting.cleanInvalidSlots();
                                     return;
                                 }
                             }
@@ -175,30 +200,8 @@ namespace Server {
                             meeting.invalidSlot(slot);
                         }
                     }
-                }
-                if (meeting.MStatus != Meeting.Status.BOOKED) {
-                    while (meeting.MStatus != Meeting.Status.BOOKED) {
-                        Slot slot = meeting.mostCapacitySlot();
-                        if (slot == null) {
-                            break;
-                        }
-                        else {
-                            foreach (Room room in _locations[slot.Location].Rooms) {
-                                if (room.checkRoomFree(slot.Date)) {
-                                    if (room.bookMeeting(slot.Date, meeting)) {
-                                        slot.PickedRoom = room;
-                                        meeting.PickedSlot = slot;
-                                        meeting.MStatus = Meeting.Status.BOOKED;
-                                        return;
-                                    }
-                                }
-                            }
-                            if (meeting.MStatus == Meeting.Status.OPEN) {
-                                meeting.invalidSlot(slot);
-                            }
-                        }
-                    }
-                }
+
+                }*/
             }
         }
 
@@ -231,10 +234,6 @@ namespace Server {
 
                 _vectorTimeStamp[_url] = timeStamp;
             }
-        }
-
-        public void addLocation(String location_name, Location location) {
-            _locations.Add(location_name, location);
         }
 
         public void addRoom(String roomLocation, int capacity, String name) {
@@ -278,7 +277,7 @@ namespace Server {
                 Server server = new Server();
             }
             else{
-                Server server = new Server(Int32.Parse(args[0]), args[1], args[2], Int32.Parse(args[3]), Int32.Parse(args[4]), Int32.Parse(args[5]));
+                Server server = new Server(Int32.Parse(args[0]), args[1], args[2], Int32.Parse(args[3]), Int32.Parse(args[4]), Int32.Parse(args[5]), args[6]);
             }
             Console.ReadLine();
         }

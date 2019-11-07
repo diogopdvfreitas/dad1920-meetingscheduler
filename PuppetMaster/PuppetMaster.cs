@@ -57,22 +57,23 @@ namespace PuppetMaster {
             String[] server_url = commandAttr[2].Split(new char[] { '/', ':' }, StringSplitOptions.RemoveEmptyEntries);
             String server_IP = server_url[1];
             String server_port = server_url[2];
+            String server_obj = server_url[3];
 
-            //createServer: srvr_port, srvr_id, url, max_faults, min_delay, max_delay
-           _pcsList[server_IP].createServer(server_port, commandAttr[1], commandAttr[2], commandAttr[3], commandAttr[4], commandAttr[5]);
+            //createServer: srvr_port, srvr_id, url, max_faults, min_delay, max_delay, server_obj
+           _pcsList[server_IP].createServer(server_port, commandAttr[1], commandAttr[2], commandAttr[3], commandAttr[4], commandAttr[5], server_obj);
             if(_locations != null) {
                 IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), _pcsList[server_IP].ServerURLs[commandAttr[1]]);
                 foreach (Location location in _locations) {
                     serverService.addLocation(location.Name, location);
                 }
             }
-
         }
 
         //createClient: contact the PCS with the client ip in order to create the pretend client
         public void createClient(String[] commandAttr) {
             String[] clientUrl = commandAttr[2].Split(new Char[] { '/', ':'}, StringSplitOptions.RemoveEmptyEntries);
             String clientIp = clientUrl[1];
+ 
             //createClient, args: username, clientUrl, serverUrl, scriptFile
             _pcsList[clientIp].createClient(commandAttr[1], commandAttr[2], commandAttr[3], commandAttr[4]);
         }

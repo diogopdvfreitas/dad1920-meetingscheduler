@@ -46,6 +46,7 @@ namespace ObjectsLibrary {
             _status = Status.OPEN;
             _nJoined = 0;
             _pickedSlot = null;
+            _invalidSlots = new List<Slot>();
         }
 
         public String Coord {
@@ -133,6 +134,11 @@ namespace ObjectsLibrary {
 
         public void invalidSlot(Slot slot) {
             _invalidSlots.Add(slot);
+        }
+
+        public void cleanInvalidSlots() {
+            _invalidSlots = new List<Slot>();
+
         }
 
         /*public void close() {

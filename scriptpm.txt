@@ -2,5 +2,4 @@ AddRoom Lisboa 10 room1
 AddRoom Porto 20 room2
 Server s1 tcp://localhost:3000/server1 0 100 200
 Client c1 tcp://localhost:4000/client1 tcp://localhost:3000/server1 scriptclient.txt
-Status
-Wait 20000
+Client c2 tcp://localhost:4001/client2 tcp://localhost:3000/server1 testClient2.txt

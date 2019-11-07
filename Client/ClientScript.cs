@@ -8,7 +8,7 @@ namespace Client {
 
         Client _client;
 
-        private String _scriptName = "testClient.txt";      // Default script name
+        private String _scriptName = "scriptclient.txt";      // Default script name
 
         public ClientScript() {
             _client = new Client();
@@ -104,6 +104,7 @@ namespace Client {
         }
 
         static void Main(string[] args) {
+            Console.WriteLine("[CLIENT SCRIPT]");
             ClientScript clientScript;
             if (args.Length == 0)
                 clientScript = new ClientScript();

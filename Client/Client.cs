@@ -14,7 +14,7 @@ namespace Client {
         private String _username = "Rita";
         private String _url = "tcp://localhost:8080/CLIENT";
         private int _port = 8080;
-        private String _serverUrl = "tcp://localhost:8086/LISBOA";
+        private String _serverUrl = "tcp://localhost:8086/server1";
 
         private TcpChannel _channel;
 
@@ -28,7 +28,7 @@ namespace Client {
             _clientMeetings = new Dictionary<String, Meeting>();
             _otherClients = new Dictionary<String, IClientService>();
 
-            setClient();
+            setClient("CLIENT");
             connectToServer();
 
             Console.WriteLine("[CLIENT:" + _username + "] " + _url);
@@ -45,7 +45,8 @@ namespace Client {
             _clientMeetings = new Dictionary<String, Meeting>();
             _otherClients = new Dictionary<String, IClientService>();
 
-            setClient();
+            Console.WriteLine("CLIENTOBJ " + clientUrlSplit[3]);
+            setClient(clientUrlSplit[3]);
             connectToServer();
 
             Console.WriteLine("[CLIENT:" + _username + "] " + _url);
@@ -55,17 +56,18 @@ namespace Client {
             return _username; 
         }
 
-        public void setClient() {
+        public void setClient(String obj) {
             _channel = new TcpChannel(_port);
             ChannelServices.RegisterChannel(_channel, false);
 
             _clientService = new ClientService(this);
-            RemotingServices.Marshal(_clientService, "CLIENT", typeof(ClientService));
+            RemotingServices.Marshal(_clientService, obj, typeof(ClientService));
         }
 
         // connectServer: connect to the server, save the ref to the server remote obj and asks for registered clients
         public void connectToServer() {
             _serverService = (IServerService) Activator.GetObject(typeof(IServerService), _serverUrl);
+            Console.WriteLine("[SERVER URL: " + _serverUrl + " ]");
 
             _serverService.clientConnect(_username, _url);
         }
@@ -73,7 +75,7 @@ namespace Client {
         public void getRegisteredClients() {
             IDictionary<String, String> registeredClients = _serverService.getRegisteredClients();
             foreach (KeyValuePair<String, String> client in registeredClients) {
-                if (client.Key != _username) {
+                if (client.Key != _username & !registeredClients.ContainsKey(client.Key)) {
                     IClientService clientServ = (IClientService)Activator.GetObject(typeof(IClientService), client.Value);
                     _otherClients.Add(client.Key, clientServ);
                     Console.WriteLine("Registered Clients: username " + client.Key + " url: " + client.Value);
