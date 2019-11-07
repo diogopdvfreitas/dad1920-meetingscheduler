@@ -114,8 +114,7 @@ namespace PuppetMaster {
 
                         Console.WriteLine("|========== STATUS ==========|");
                         Console.WriteLine(response);
-                        Console.WriteLine("[CLIENT: " + client.getUsername() + "] has the following meetings: ");
-                        //client.listMeetings();
+                        Console.WriteLine(client.status());
                     }
                 }       
             }

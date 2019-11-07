@@ -6,5 +6,7 @@ namespace RemotingServicesLibrary {
         void receiveInvitee(Meeting meeting);
         void listMeetings();
         String getUsername();
+
+        String status();
     }
 }

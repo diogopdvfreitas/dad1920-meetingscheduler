@@ -170,13 +170,13 @@ namespace Client {
             System.Threading.Thread.Sleep(time);
         }
 
-        /*public void printStatus() {
-            String s = "[CLIENT: " + _username + "] has the following meetings: ";
+        public String status() {
+            String s = "[CLIENT: " + _username + "] has the following meetings: \n";
             foreach (Meeting meeting in _clientMeetings.Values) {
                 s += meeting.ToString();
             }
             
-            Console.WriteLine(s);
-        }*/
+            return s;
+        }
     }
 }
