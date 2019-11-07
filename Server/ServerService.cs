@@ -68,9 +68,9 @@ namespace Server {
             _server.closeMeeting(topic);
         }
 
-        public void receiveMeeting(IDictionary<String, int> vectorTimeStamp, IDictionary<String, Meeting> meetings) {
+        public void receiveChanges(String serverUrl, IDictionary<String, int> operationCounters, IDictionary<String, Meeting> meetings, List<String> alteredMeetings) {
             _server.checkDelay();
-            _server.receiveMeeting(vectorTimeStamp, meetings);
+            _server.receiveChanges(serverUrl, operationCounters, meetings, alteredMeetings);
         }
 
         public void addRoom(String roomLocation, int capacity, String name) {

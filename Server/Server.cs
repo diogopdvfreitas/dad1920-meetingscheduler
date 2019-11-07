@@ -12,8 +12,8 @@ namespace Server {
     public class Server {
 
         // Default values
-        private String _id = "server1";
-        private String _url = "tcp://localhost:8086/server1";
+        private String _id = "LISBOA";
+        private String _url = "tcp://localhost:8086/LISBOA";
         private int _port = 8086;
         private int _max_faults = 0;
         private int _min_delay = 0;
@@ -21,15 +21,12 @@ namespace Server {
 
         TcpChannel _channel;
 
-        private IDictionary<String, Location> _locations;               // <Location Name, Location>
-        private IDictionary<String, Meeting> _meetings;                 // <Meeting Topic, Meeting>
-        private IDictionary<String, String> _clients;                   // <Client Username, Client URL>
-        private IDictionary<String, IServerService> _otherServers;      // <Server URL, IServerService>
-        private IDictionary<String, int> _vectorTimeStamp;              // <ServerUrl, timeStamp> //??? key tbm podera ser o id
-
-       // private List<String> _sentMessageServers;
-
-       //private Timer _replicationTimer;
+        private IDictionary<String, Location> _locations;                       // <Location Name, Location>
+        private IDictionary<String, Meeting> _meetings;                         // <Meeting Topic, Meeting>
+        private IDictionary<String, String> _clients;                           // <Client Username, Client URL>
+        private IDictionary<String, IServerService> _otherServers;              // <Server URL, IServerService>
+        private IDictionary<String, int> _operationCounters;                    // <Server URL, List<Operation>>
+        private List<String> _alteredBeforeReplication;                         // <Meeting Topic>
 
         private Boolean _freeze = false;
         
@@ -71,9 +68,9 @@ namespace Server {
             get { return _clients; }
         }
 
-        public IDictionary<String, int> VectorTimeStamp {
-            get { return _vectorTimeStamp; }
-            set { _vectorTimeStamp = value; }
+        public IDictionary<String, int> Operations {
+            get { return _operationCounters; }
+            set { _operationCounters = value; }
         }
 
 
@@ -89,7 +86,7 @@ namespace Server {
 
         public void serversConfig() {
             _otherServers = new Dictionary<String, IServerService>();
-            _vectorTimeStamp = new Dictionary<String, int>();
+            _operationCounters = new Dictionary<String, int>();
 
             Console.WriteLine("|========== Servers ==========|");
             Console.WriteLine("[THIS SERVER]  " + _url);
@@ -99,7 +96,7 @@ namespace Server {
                     IServerService serverServ = (IServerService)Activator.GetObject(typeof(IServerService), serverUrl);
                     _otherServers.Add(serverUrl, serverServ);
                 }
-                _vectorTimeStamp.Add(serverUrl, 0);
+                _operationCounters.Add(serverUrl, 0);
             }
         }
         public void clientConnect(String username, String clientUrl) {
@@ -120,18 +117,20 @@ namespace Server {
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
             Meeting meeting = new Meeting(username, topic, minAtt, slots);
             _meetings.Add(meeting.Topic, meeting);
+            incrementOperationCounter();
+            _alteredBeforeReplication.Add(topic);
             Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
-            incrementTimeStamp();
-            sendMeetings();
+            replicateChanges();
             return meeting;
         }
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
             Meeting meeting = new Meeting(username, topic, minAtt, slots, invitees);
             _meetings.Add(meeting.Topic, meeting);
+            incrementOperationCounter();
+            _alteredBeforeReplication.Add(topic);
             Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
-            incrementTimeStamp();
-            sendMeetings();
+            replicateChanges();
             return meeting;
         }
 
@@ -143,11 +142,13 @@ namespace Server {
             return meeting.checkStatusChange(_meetings[meeting.Topic]);
         }
 
-        public Meeting joinMeetingSlot(String topic, String slot, String username) { // TODO Como funciona uma chamada remota, é apenas uma chamade e depois executa as outras ou espera pelo resultado da chamada remota. Devemos utilizar Threads para fazer as alterações remotas concorrentemente o mais depressa possível?
+        // TODO Check if meeting exists and do returns to client properly
+        public Meeting joinMeetingSlot(String topic, String slot, String username) {
             if (_meetings[topic].joinSlot(slot, username)) {
+                incrementOperationCounter();
+                _alteredBeforeReplication.Add(topic);
                 Console.WriteLine("[CLIENT:" + username + "] Joined meeting " + topic + " on slot " + slot);
-                incrementTimeStamp();
-                sendMeetings();
+                replicateChanges();
                 return _meetings[topic];
             }
             return null;
@@ -224,34 +225,38 @@ namespace Server {
             return finalClients;
         }
 
-        public void incrementTimeStamp() {
-            _vectorTimeStamp[_url] += 1;
+        public void incrementOperationCounter() {
+            _operationCounters[_url]++;
         }
 
         //sendMeeting: sends the meeting new state to the other servers with url and vectorTimeStamp 
-        public void sendMeetings() {
-            Console.WriteLine("Meetings sent");
+        public void replicateChanges() {
             foreach (IServerService serverServ in _otherServers.Values) {
-                serverServ.receiveMeeting(_vectorTimeStamp, _meetings);
+                serverServ.receiveChanges(_url, _operationCounters, _meetings, _alteredBeforeReplication);
             }
-        }
-
-        public bool checkVectorTimeStamp(IDictionary<String, int> vectorTimeStamp) {
-            foreach (KeyValuePair<String, int> serverTimeStamp in vectorTimeStamp) {
-                if (serverTimeStamp.Key != _url & _vectorTimeStamp[serverTimeStamp.Key] > serverTimeStamp.Value) {
-                    return false;
-                }
-            }
-            return true;
         }
 
         //receiveMeeting: receives the meeting new status and the send server vectorTimeStamp
-        public void receiveMeeting(IDictionary<String, int> vectorTimeStamp, IDictionary<String, Meeting> meetings) {
-            if (checkVectorTimeStamp(vectorTimeStamp)) {
-                int timeStamp = _vectorTimeStamp[_url];
-                _vectorTimeStamp = vectorTimeStamp;
-
-                _vectorTimeStamp[_url] = timeStamp;
+        public void receiveChanges(String serverUrl, IDictionary<String, int> operationCounters, IDictionary<String, Meeting> meetings, List<String> alteredMeetings) {
+           if (!(_operationCounters[_url] > operationCounters[_url]) &&
+                (operationCounters[serverUrl] > _operationCounters[serverUrl])) {
+                _meetings = meetings;
+                _operationCounters = operationCounters;
+           }
+           if ((_operationCounters[_url] > operationCounters[_url])) {
+                List<String> changeInConflict = new List<String>();
+                foreach (String topic in alteredMeetings) {
+                    if (_alteredBeforeReplication.Contains(topic))
+                        changeInConflict.Add(topic);
+                }
+                foreach (String topic in alteredMeetings) {
+                    if (!changeInConflict.Contains(topic)) {
+                        if (_meetings.ContainsKey(topic))
+                            _meetings[topic] = meetings[topic];
+                        else
+                            _meetings.Add(topic, meetings[topic]);
+                    }
+                }
             }
         }
 
