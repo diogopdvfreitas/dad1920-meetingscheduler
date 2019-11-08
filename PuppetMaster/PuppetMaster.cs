@@ -205,7 +205,7 @@ namespace PuppetMaster {
         }
 
         public void readPuppetMasterScript() {
-            Console.WriteLine("Reading Script " + _scriptName);
+            Console.WriteLine("Reading Script " + _scriptName + "\n");
             StreamReader script;
             try {
                 script = File.OpenText("../../../" + _scriptName);
