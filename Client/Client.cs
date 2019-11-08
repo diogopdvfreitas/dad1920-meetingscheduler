@@ -89,14 +89,18 @@ namespace Client {
             String list = "";
             List<String> meetingStatusChanged = new List<String>();
 
-            foreach (Meeting meeting in _clientMeetings.Values) {
-                if (_serverService.checkMeetingStatusChange(meeting)) {
-                    meetingStatusChanged.Add(meeting.Topic);
+            lock (meetingStatusChanged) {
+                foreach (Meeting meeting in _clientMeetings.Values) {
+                    if (_serverService.checkMeetingStatusChange(meeting)) {
+                        meetingStatusChanged.Add(meeting.Topic);
+                    }
                 }
             }
 
-            foreach (String topic in meetingStatusChanged) {
-                _clientMeetings[topic] = _serverService.getMeeting(topic);
+            lock (_clientMeetings) {
+                foreach (String topic in meetingStatusChanged) {
+                    _clientMeetings[topic] = _serverService.getMeeting(topic);
+                }
             }
 
             foreach (Meeting meeting in _clientMeetings.Values) {
@@ -108,7 +112,9 @@ namespace Client {
         public void createMeeting(String topic, int minAtt, List<Slot> slots) {
             
             Meeting meeting = _serverService.createMeeting(_username, topic, minAtt, slots);
-            _clientMeetings.Add(meeting.Topic, meeting);
+            lock (_clientMeetings) {
+                _clientMeetings.Add(meeting.Topic, meeting);
+            }
 
             Console.WriteLine("Meeting " + topic + " created");
             Console.WriteLine(meeting.ToString());
@@ -117,7 +123,9 @@ namespace Client {
 
         public void createMeeting(String topic, int minAtt, List<Slot> slots, List<String> invitees) {
             Meeting meeting = _serverService.createMeeting(_username, topic, minAtt, slots, invitees);
-            _clientMeetings.Add(meeting.Topic, meeting);
+            lock (_clientMeetings) {
+                _clientMeetings.Add(meeting.Topic, meeting);
+            }
 
             Console.WriteLine("Meeting " + topic + " Created");
             Console.WriteLine(meeting.ToString());
