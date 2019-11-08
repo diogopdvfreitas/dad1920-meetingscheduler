@@ -114,7 +114,7 @@ namespace Server {
         }
 
         public void informNewClient(String username, String clientUrl) {
-            Console.WriteLine("[ NEW CLIENT: " + username + " ]");
+            Console.WriteLine("[NEW CLIENT: " + username + " ]");
             foreach (IServerService serverServ in _otherServers.Values)
                 serverServ.receiveNewClient(username, clientUrl);
         }
@@ -177,6 +177,8 @@ namespace Server {
                                 meeting.PickedSlot = slot;
                                 meeting.MStatus = Meeting.Status.BOOKED;
                                 meeting.cleanInvalidSlots();
+                                incrementVectorClock();
+                                replicateChanges(meeting);
                                 return;
                             }
                         }
@@ -203,6 +205,9 @@ namespace Server {
 
                                     if (room.Capacity < meeting.PickedSlot.NJoined)
                                         meeting.PickedSlot.Joined = excludeClients(room.Capacity, meeting.PickedSlot);
+
+                                    incrementVectorClock();
+                                    replicateChanges(meeting);
                                     return;
                                 }
                             }
@@ -212,6 +217,8 @@ namespace Server {
                 }
                 if (meeting.MStatus == Meeting.Status.OPEN) {
                     meeting.MStatus = Meeting.Status.CANCELLED;
+                    incrementVectorClock();
+                    replicateChanges(meeting);
                 }
             }
         }

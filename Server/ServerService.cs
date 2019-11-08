@@ -64,7 +64,7 @@ namespace Server {
         }
 
         public void closeMeeting(String topic) {
-            //_server.checkDelay();
+            _server.checkDelay();
             _server.closeMeeting(topic);
         }
 
