@@ -92,7 +92,7 @@ namespace ObjectsLibrary {
         }
 
         public bool checkInvitation(String username) {
-            if (_invitees == null || _invitees.Contains(username))
+            if (_invitees == null || _invitees.Contains(username) || username.Equals(_coord))
                 return true;
             return false;
         }
