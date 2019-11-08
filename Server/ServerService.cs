@@ -49,6 +49,16 @@ namespace Server {
             return _server.createMeeting(username, topic, minAtt, slots, invitees);
         }
 
+        public Meeting joinMeetingSlot(String topic, String slot, String username) {
+            _server.checkDelay();
+            return _server.joinMeetingSlot(topic, slot, username);
+        }
+
+        public Meeting closeMeeting(String topic, String username) {
+            _server.checkDelay();
+            return _server.closeMeeting(topic, username);
+        }
+        
         public Meeting getMeeting(String topic) {
             _server.checkDelay();
             return _server.getMeeting(topic);
@@ -57,17 +67,7 @@ namespace Server {
         public bool checkMeetingStatusChange(Meeting meeting) {
             return _server.checkMeetingStatusChange(meeting);
         }
-
-        public Meeting joinMeetingSlot(String topic, String slot, String username) {
-            _server.checkDelay();
-            return _server.joinMeetingSlot(topic, slot, username);
-        }
-
-        public void closeMeeting(String topic) {
-            _server.checkDelay();
-            _server.closeMeeting(topic);
-        }
-
+       
         public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings) {
             _server.checkDelay();
             _server.receiveChanges(serverUrl, vectorClock, meetings);

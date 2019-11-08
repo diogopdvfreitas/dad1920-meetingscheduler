@@ -39,6 +39,7 @@ namespace PuppetMaster {
         }
 
         public void PCSConfig() {
+            Console.WriteLine("|============================== PCS' List ==============================|");
             NameValueCollection appSettings = ConfigurationManager.AppSettings;
             foreach (String key in ConfigurationManager.AppSettings) {
                 String pcsUrl = appSettings.Get(key);
@@ -47,6 +48,7 @@ namespace PuppetMaster {
                 _pcsList.Add(urlAttributes[1], pcServ);
                 Console.WriteLine("[" + key + "] " + pcsUrl);
             }
+            Console.WriteLine();
         }
 
         public String Script {
@@ -85,6 +87,8 @@ namespace PuppetMaster {
         }
 
         public void status() {
+            Console.WriteLine("|================================ STATUS ================================|");
+
             var e = _pcsList.GetEnumerator();
             e.MoveNext();
             var pcservice = e.Current.Value;
@@ -92,13 +96,12 @@ namespace PuppetMaster {
                 bool processResponding = processDct.Value.Responding;
                 String response = "";
                 if (pcservice.ServerURLs.ContainsKey(processDct.Key)) {
-                    response += "Server " + processDct.Key;
+                    response += "[SERVER:" + processDct.Key + "]";
                     if (processResponding) {
                         IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processDct.Key]);
 
-                        response += " is present.\n";
+                        response += " Present";
 
-                        Console.WriteLine("|========== STATUS ==========|");
                         Console.WriteLine(response);
                         Console.WriteLine(serverService.status());
                     }
@@ -108,12 +111,12 @@ namespace PuppetMaster {
                     }
                 }
                 else {
+                    response += "[CLIENT:" + processDct.Key + "]";
                     if (processResponding) {
                         IClientService client = (IClientService)Activator.GetObject(typeof(IClientService), pcservice.ClientURLs[processDct.Key]);
 
-                        response += "Client " + processDct.Key + " is connected.\n";
+                        response += "Connected";
 
-                        Console.WriteLine("|========== STATUS ==========|");
                         Console.WriteLine(response);
                         Console.WriteLine(client.status());
                     }
@@ -202,7 +205,7 @@ namespace PuppetMaster {
         }
 
         public void readPuppetMasterScript() {
-            Console.WriteLine("Read Script " + _scriptName);
+            Console.WriteLine("Reading Script " + _scriptName);
             StreamReader script;
             try {
                 script = File.OpenText("../../../" + _scriptName);
@@ -221,7 +224,9 @@ namespace PuppetMaster {
         }
 
         static void Main(string[] args) {
-            Console.WriteLine("|========== Meeting Scheduler PuppetMaster ==========|");
+            Console.WriteLine("+========================================================================+\n" + 
+                              "|==================== Meeting Scheduler PuppetMaster ====================|\n" +
+                              "+========================================================================+\n");
             PuppetMaster puppetMaster = new PuppetMaster();
             Console.Write("Please write the script filename: ");
             String scriptName = Console.ReadLine();

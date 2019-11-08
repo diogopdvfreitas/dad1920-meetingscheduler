@@ -10,17 +10,8 @@ namespace Client {
             _client = client; 
         }
         //receiveInvite: receive meeting invitee
-        public void receiveInvitee(Meeting meeting) {
-            Console.WriteLine("Received an invitation to the meeting " + meeting.Topic);
-            _client.receiveInvitee(meeting);
-        }
-
-        public void listMeetings() {
-            _client.listMeetings();
-        }
-
-        public String getUsername() {
-           return _client.getUsername();
+        public void receiveInvite(Meeting meeting) {
+            _client.receiveInvite(meeting);
         }
 
         public String status() {

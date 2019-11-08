@@ -33,7 +33,7 @@ namespace ObjectsLibrary {
         }
 
         public override String ToString() {
-            String s = "[LOCATION: " + _name + "] has the following rooms: \n";
+            String s = "\tLocation " + _name + ": \n";
 
             foreach(Room room in _rooms) {
                 s += room.ToString();

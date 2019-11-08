@@ -141,26 +141,32 @@ namespace ObjectsLibrary {
 
         }
 
-        public String slotsToString(List<Slot> slotsList) {
+        public String slotsToString(List<Slot> slotsList, bool flagPrintStatus) {
             String s = "";
-            foreach (Slot slot in slotsList)
-                s += "\n\t\t" + slot.ToString();
-            return s;
-        }
-
-        public String inviteesToString(List<String> inviteesList) {
-            String s = "";
-            foreach (String invitee in inviteesList) {
-                s += "\n\t\t" + invitee;
+            foreach (Slot slot in slotsList) {
+                s += "\n\t\t";
+                if (flagPrintStatus)
+                    s += "\t";
+                s += slot.ToString();
             }
             return s;
         }
 
+        public String inviteesToString(List<String> inviteesList, bool flagPrintStatus) {
+            String s = "\n\t\t";
+            if (flagPrintStatus)
+                s += "\t";
+            foreach (String invitee in inviteesList) {
+                s += invitee + ", ";
+            }
+            return s.TrimEnd(' ', ',');
+        }
+
         public override String ToString() {
-            String s = "Meeting:\n\tCoordinator: " + _coord + "\n\tTopic: " + _topic + "\n\tMin. Attendes: " + _minAtt + "\n\tNumber of Slots: " + _nSlots + "\n\tSlots: " + slotsToString(_slots);
+            String s = "Meeting " + _topic + ":\n\tCoordinator: " + _coord + "\n\tMin. Attendes: " + _minAtt + "\n\tNumber of Slots: " + _nSlots + "\n\tSlots: " + slotsToString(_slots, false);
 
             if(_nInvitees != 0)
-                s += "\n\tNumber of Invitees: " + _nInvitees + "\n\tInvitees: " + inviteesToString(_invitees);
+                s += "\n\tNumber of Invitees: " + _nInvitees + "\n\tInvitees: " + inviteesToString(_invitees, false);
             else
                 s += "\n\tNumber of Invitees: " + _nInvitees;
 
@@ -171,8 +177,29 @@ namespace ObjectsLibrary {
                 if (_pickedSlot != null)
                     s += "\n\t\tMeeting at " + _pickedSlot + " in " + _pickedSlot.PickedRoom.Name;
                 else
-                    s += "\n\t\tMeeting couldn't be scheduled";            }
+                    s += "\n\t\tMeeting couldn't be scheduled";
+            }
             
+            return s + "\n";
+        }
+        public String status() {
+            String s = "\tMeeting " + _topic + ":\n\t\tCoordinator: " + _coord + "\n\t\tMin. Attendes: " + _minAtt + "\n\t\tNumber of Slots: " + _nSlots + "\n\t\tSlots: " + slotsToString(_slots, true);
+
+            if (_nInvitees != 0)
+                s += "\n\t\tNumber of Invitees: " + _nInvitees + "\n\t\tInvitees: " + inviteesToString(_invitees, true);
+            else
+                s += "\n\t\tNumber of Invitees: " + _nInvitees;
+
+            if (_status == Status.OPEN)
+                s += "\n\t\tStatus: Open";
+            else {
+                s += "\n\t\tStatus: Closed";
+                if (_pickedSlot != null)
+                    s += "\n\t\t\tMeeting at " + _pickedSlot + " in " + _pickedSlot.PickedRoom.Name;
+                else
+                    s += "\n\t\t\tMeeting couldn't be scheduled";
+            }
+
             return s + "\n";
         }
     }

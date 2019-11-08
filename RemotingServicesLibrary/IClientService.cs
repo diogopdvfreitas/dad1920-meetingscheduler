@@ -3,10 +3,7 @@ using ObjectsLibrary;
 
 namespace RemotingServicesLibrary {
     public interface IClientService {
-        void receiveInvitee(Meeting meeting);
-        void listMeetings();
-        String getUsername();
-
+        void receiveInvite(Meeting meeting);
         String status();
     }
 }

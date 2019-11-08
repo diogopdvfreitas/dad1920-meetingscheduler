@@ -56,23 +56,9 @@ namespace Server {
             serversConfig();
         }
 
-        public String ID {
-            get { return _id; }
-        }
-
-        public String URL { 
-            get { return _url; }
-        }
-
         public IDictionary<String, String> Clients {
             get { return _clients; }
         }
-
-        public IDictionary<String, int> Operations {
-            get { return _vectorClock; }
-            set { _vectorClock = value; }
-        }
-
 
         private void setServer(String obj) {
             _channel = new TcpChannel(_port);
@@ -81,7 +67,7 @@ namespace Server {
             ServerService serverService = new ServerService(this);
             RemotingServices.Marshal(serverService, obj, typeof(ServerService));
             
-            Console.WriteLine("[SERVER:" + _id + "] " + _url + " Delay: " + _min_delay + "ms to " + _max_delay + "ms");
+            Console.WriteLine("[SERVER:" + _id + "] " + _url + " Delay: " + _min_delay + "ms to " + _max_delay + "ms\n");
         }
 
         public void serversConfig() {
@@ -90,7 +76,7 @@ namespace Server {
             _otherServersLastVectorClock = new Dictionary<String, IDictionary<String, int>>();
             _otherServersLastReceivedMeetings = new Dictionary<String, List<Meeting>>();
 
-              Console.WriteLine("|========== Servers ==========|");
+            Console.WriteLine("|========== Servers List ==========|");
             Console.WriteLine(_url + "  [THIS SERVER]");
             foreach (String serverUrl in ConfigurationManager.AppSettings) {
                 if (!serverUrl.Equals(_url)) {
@@ -100,7 +86,7 @@ namespace Server {
                 }
                 _vectorClock.Add(serverUrl, 0);
             }
-
+            Console.WriteLine();
             foreach (String serverUrl in ConfigurationManager.AppSettings) {
                 if (!serverUrl.Equals(_url)) {
                     _otherServersLastVectorClock.Add(serverUrl, _vectorClock);
@@ -108,13 +94,10 @@ namespace Server {
                 }
             }
         }
+       
         public void clientConnect(String username, String clientUrl) {
             _clients.Add(username, clientUrl);
-            informNewClient(username, clientUrl);
-        }
-
-        public void informNewClient(String username, String clientUrl) {
-            Console.WriteLine("[NEW CLIENT: " + username + " ]");
+            Console.WriteLine("[CONNECT] CLIENT:" + username + " connected to this server");
             foreach (IServerService serverServ in _otherServers.Values)
                 serverServ.receiveNewClient(username, clientUrl);
         }
@@ -124,32 +107,29 @@ namespace Server {
         }
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
-            Meeting meeting = new Meeting(username, topic, minAtt, slots);
-            _meetings.Add(meeting.Topic, meeting);
-            incrementVectorClock();
-            replicateChanges(meeting);
-            Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
-            return meeting;
+            if (!_meetings.ContainsKey(topic)) {
+                Meeting meeting = new Meeting(username, topic, minAtt, slots);
+                _meetings.Add(meeting.Topic, meeting);
+                incrementVectorClock();
+                replicateChanges(meeting);
+                Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
+                return meeting;
+            }
+            return null;
         }
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
-            Meeting meeting = new Meeting(username, topic, minAtt, slots, invitees);
-            _meetings.Add(meeting.Topic, meeting);
-            incrementVectorClock();
-            replicateChanges(meeting);
-            Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
-            return meeting;
+            if (!_meetings.ContainsKey(topic)) {
+                Meeting meeting = new Meeting(username, topic, minAtt, slots, invitees);
+                _meetings.Add(meeting.Topic, meeting);
+                incrementVectorClock();
+                replicateChanges(meeting);
+                Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
+                return meeting;
+            }
+            return null;
         }
 
-        public Meeting getMeeting(String topic) {
-            return _meetings[topic];
-        }
-
-        public bool checkMeetingStatusChange(Meeting meeting) {
-            return meeting.checkStatusChange(_meetings[meeting.Topic]);
-        }
-
-        // TODO Check if meeting exists and do returns to client properly
         public Meeting joinMeetingSlot(String topic, String slot, String username) {
             if (_meetings[topic].joinSlot(slot, username)) {
                 incrementVectorClock();
@@ -160,8 +140,7 @@ namespace Server {
             return null;
         }
 
-        public void closeMeeting(String topic) {
-            Console.WriteLine("Close Meeting" + topic);
+        public Meeting closeMeeting(String topic, String username) {
             Meeting meeting = _meetings[topic];
 
             if (meeting.checkClose()) {
@@ -179,7 +158,9 @@ namespace Server {
                                 meeting.cleanInvalidSlots();
                                 incrementVectorClock();
                                 replicateChanges(meeting);
-                                return;
+                                Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + 
+                                    ". Selected Slot is " + meeting.PickedSlot + " in Room " + meeting.PickedSlot.PickedRoom);
+                                return meeting;
                             }
                         }
                     }
@@ -187,7 +168,7 @@ namespace Server {
                         meeting.invalidSlot(slot);
                     }
                 }
-                //theres no available room so we need to exclude some clients
+                // Theres no available room so we need to exclude some clients
                 if (meeting.MStatus == Meeting.Status.OPEN) {
                     meeting.cleanInvalidSlots();
                     while (meeting.MStatus != Meeting.Status.BOOKED) {
@@ -208,21 +189,36 @@ namespace Server {
 
                                     incrementVectorClock();
                                     replicateChanges(meeting);
-                                    return;
+                                    Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + 
+                                        ". Selected Slot is " + meeting.PickedSlot + " in Room " + meeting.PickedSlot.PickedRoom);
+                                    return meeting;
                                 }
                             }
                         }
-
                     }
                 }
                 if (meeting.MStatus == Meeting.Status.OPEN) {
                     meeting.MStatus = Meeting.Status.CANCELLED;
                     incrementVectorClock();
                     replicateChanges(meeting);
+                    Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + 
+                        ". Selected Slot is " + meeting.PickedSlot + " in Room " + meeting.PickedSlot.PickedRoom);
+                    return meeting;
                 }
             }
+            return null;
+        }
+        
+        public Meeting getMeeting(String topic) {
+            if (_meetings.ContainsKey(topic))
+                return _meetings[topic];
+            return null;
         }
 
+        public bool checkMeetingStatusChange(Meeting meeting) {
+            return meeting.checkStatusChange(_meetings[meeting.Topic]);
+        }
+        
         public List<String> excludeClients(int roomCapacity, Slot pickedSlot) {
             List<String> joinedClients = pickedSlot.Joined;
             List<String> finalClients = new List<String>();
@@ -290,12 +286,12 @@ namespace Server {
         }
 
         public String status() {
-            String s = "[SERVER: " + _id + "] has the following meetings and locations: \n";
-
+            String s = _id + " stored Meetings:\n";
             foreach(Meeting meeting in _meetings.Values) {
-                s += meeting.ToString();
+                s += meeting.status();
             }
 
+            s += _id + " stored Locations:\n";
             foreach(Location location in _locations.Values){
                 s += location.ToString();
             }

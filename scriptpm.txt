@@ -2,9 +2,10 @@ AddRoom Lisboa 10 room1
 AddRoom Porto 20 room2
 Server s1 tcp://localhost:3000/server1 0 100 200
 Server s2 tcp://localhost:3001/server2 0 100 200
-Client c1 tcp://localhost:4000/client1 tcp://localhost:3000/server1 testClient2.txt
+Client c1 tcp://localhost:4000/client1 tcp://localhost:3000/server1 scriptclientempty.txt
 Wait 20000
 Client c2 tcp://localhost:4001/client2 tcp://localhost:3001/server2 scriptclient.txt
+Wait 10000
 Status
 Wait 20000
 Freeze s1

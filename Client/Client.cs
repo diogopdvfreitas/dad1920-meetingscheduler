@@ -30,8 +30,6 @@ namespace Client {
 
             setClient("CLIENT");
             connectToServer();
-
-            Console.WriteLine("[CLIENT:" + _username + "] " + _url);
         }
 
         public Client(String username, String clientUrl, String serverUrl) {
@@ -45,31 +43,26 @@ namespace Client {
             _clientMeetings = new Dictionary<String, Meeting>();
             _otherClients = new Dictionary<String, IClientService>();
 
-            Console.WriteLine("CLIENTOBJ " + clientUrlSplit[3]);
             setClient(clientUrlSplit[3]);
             connectToServer();
-
-            Console.WriteLine("[CLIENT:" + _username + "] " + _url);
         }
 
-        public String getUsername() {
-            return _username; 
-        }
-
-        public void setClient(String obj) {
+        public void setClient(String objID) {
             _channel = new TcpChannel(_port);
             ChannelServices.RegisterChannel(_channel, false);
 
             _clientService = new ClientService(this);
-            RemotingServices.Marshal(_clientService, obj, typeof(ClientService));
+            RemotingServices.Marshal(_clientService, objID, typeof(ClientService));
+
+            Console.WriteLine("[CLIENT:" + _username + "] " + _url + "\n");
         }
 
-        // connectServer: connect to the server, save the ref to the server remote obj and asks for registered clients
         public void connectToServer() {
             _serverService = (IServerService) Activator.GetObject(typeof(IServerService), _serverUrl);
-            Console.WriteLine("[SERVER URL: " + _serverUrl + " ]");
-
             _serverService.clientConnect(_username, _url);
+            getRegisteredClients();
+
+            Console.WriteLine("[CONNECT] Connected to server at "+ _serverUrl);
         }
 
         public void getRegisteredClients() {
@@ -78,7 +71,6 @@ namespace Client {
                 if (client.Key != _username & !_otherClients.ContainsKey(client.Key)) {
                     IClientService clientServ = (IClientService)Activator.GetObject(typeof(IClientService), client.Value);
                     _otherClients.Add(client.Key, clientServ);
-                    Console.WriteLine("Registered Clients: username " + client.Key + " url: " + client.Value);
                 }
             }
         }
@@ -110,46 +102,54 @@ namespace Client {
         }
 
         public void createMeeting(String topic, int minAtt, List<Slot> slots) {
-            
             Meeting meeting = _serverService.createMeeting(_username, topic, minAtt, slots);
-            lock (_clientMeetings) {
-                _clientMeetings.Add(meeting.Topic, meeting);
-            }
+            if (meeting != null) {
+                lock (_clientMeetings) {
+                    _clientMeetings.Add(meeting.Topic, meeting);
+                }
 
-            Console.WriteLine("Meeting " + topic + " created");
-            Console.WriteLine(meeting.ToString());
-            sendInvite(meeting);
+                Console.WriteLine(meeting.ToString());
+                sendInvite(meeting);
+            }
+            else
+                Console.WriteLine("Couldn't create meeting!\nMeeting with topic " + topic + " already exists!");
         }
 
         public void createMeeting(String topic, int minAtt, List<Slot> slots, List<String> invitees) {
             Meeting meeting = _serverService.createMeeting(_username, topic, minAtt, slots, invitees);
-            lock (_clientMeetings) {
-                _clientMeetings.Add(meeting.Topic, meeting);
-            }
+            if (meeting != null) {
+                lock (_clientMeetings) {
+                    _clientMeetings.Add(meeting.Topic, meeting);
+                }
 
-            Console.WriteLine("Meeting " + topic + " Created");
-            Console.WriteLine(meeting.ToString());
-            sendInvite(meeting);
+                Console.WriteLine(meeting.ToString());
+                sendInvite(meeting);
+            }
+            else
+                Console.WriteLine("Couldn't create meeting!\nMeeting with topic " + topic + " already exists!");
         }
 
         public void joinMeetingSlot(String topic, String slot){
             Meeting meeting = _serverService.getMeeting(topic);
+            if (meeting == null) {
+                Console.WriteLine("Couldn't join meeting!\nMeeting " + topic + " doesn't exist!");
+                return;
+            }
             if (!meeting.checkInvitation(_username)) {
-                Console.WriteLine("You were not invited to this meeting!");
+                Console.WriteLine("Couldn't join meeting!\nYou were not invited to this meeting!");
                 return;
             }
             meeting = _serverService.joinMeetingSlot(topic, slot, _username);
-            if (meeting != null) {
-                Console.WriteLine("Joined meeting " + topic + " on slot " + slot);
+            if (meeting != null)
                 Console.WriteLine(meeting.ToString());
-            }
-            else {
-                Console.WriteLine("Couldn't find desired slot!");
-            }
+            else
+                Console.WriteLine("Couldn't join meeting!\nDesired slot not found!");
         }
 
         public void closeMeeting(String topic) {
-            _serverService.closeMeeting(topic);
+            Meeting meeting = _serverService.closeMeeting(topic, _username);
+            if (meeting == null)
+                Console.WriteLine("Couldn't close meeting!\nMinimum number of Atendees not yet reached!");
         }
 
         public Meeting getMeeting(String topic) {
@@ -160,19 +160,20 @@ namespace Client {
             getRegisteredClients();
             if (meeting.Invitees == null) {
                 foreach (IClientService clientServ in _otherClients.Values)
-                    clientServ.receiveInvitee(meeting);
+                    clientServ.receiveInvite(meeting);
             }
             else {
                 foreach (String invitee in meeting.Invitees) {  //send to only the invited clients
                     if (_otherClients.ContainsKey(invitee))
-                        _otherClients[invitee].receiveInvitee(meeting);
+                        _otherClients[invitee].receiveInvite(meeting);
                     else
                         Console.WriteLine(invitee + " is not registered in the system.");
                 }
             }
         }
 
-        public void receiveInvitee(Meeting meeting) {
+        public void receiveInvite(Meeting meeting) {
+            Console.WriteLine("[INVITE] Received an invitation to meeting " + meeting.Topic + " from " + meeting.Coord);
             lock (_clientMeetings) {
                 _clientMeetings.Add(meeting.Topic, meeting);
             }
@@ -183,9 +184,9 @@ namespace Client {
         }
 
         public String status() {
-            String s = "[CLIENT: " + _username + "] has the following meetings: \n";
+            String s = _username + " known Meetings: \n";
             foreach (Meeting meeting in _clientMeetings.Values) {
-                s += meeting.ToString();
+                s += meeting.status();
             }
             
             return s;

@@ -91,7 +91,6 @@ namespace Client {
                     break;
 
                 case "close":
-                    Console.WriteLine("Close Meeting");
                     _client.closeMeeting(commandAttr[1]);
                     break;
 
@@ -104,7 +103,6 @@ namespace Client {
         }
 
         static void Main(string[] args) {
-            Console.WriteLine("[CLIENT SCRIPT]");
             ClientScript clientScript;
             if (args.Length == 0)
                 clientScript = new ClientScript();
@@ -114,7 +112,7 @@ namespace Client {
             clientScript.readClientScript();
             Console.WriteLine("QUIT to exit");
             while (true) {
-                Console.Write("[INSERT NEW COMMAND:] ");
+                Console.Write("[COMMAND] ");
                 String line = Console.ReadLine();
                 if (line == "QUIT")
                     break;

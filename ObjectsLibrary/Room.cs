@@ -35,10 +35,10 @@ namespace ObjectsLibrary {
         }
 
         public override String ToString() {
-            String s = "[ROOM: " + _name + "] has a capacity of " + _capacity + " and the following schedules: \n";
+            String s = "\t\tRoom " + _name + ":\n\t\t\tCapacity - " + _capacity + "\n\t\t\tSchedule:\n";
 
             foreach(KeyValuePair<String, String> meetingScheduled in _meetingSchedule) {
-                s += " - [TOPIC: " + meetingScheduled.Value + "] Scheduled for " + meetingScheduled.Key + "\n";
+                s += "\t\t\t\t" + meetingScheduled.Value + " on " + meetingScheduled.Key + "\n";
             }
 
             return s;
