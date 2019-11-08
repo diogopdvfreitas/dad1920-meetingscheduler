@@ -114,6 +114,7 @@ namespace Server {
         }
 
         public void informNewClient(String username, String clientUrl) {
+            Console.WriteLine("[ NEW CLIENT: " + username + " ]");
             foreach (IServerService serverServ in _otherServers.Values)
                 serverServ.receiveNewClient(username, clientUrl);
         }

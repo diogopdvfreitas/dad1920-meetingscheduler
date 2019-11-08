@@ -1,1 +1,0 @@
-Server LISBOA tcp://localhost:8086/LISBOA 0 0 0

@@ -1,3 +1,4 @@
-create myTopic1 1 2 0 Lisboa,2020-01-02 Porto,2020-02-03
+create myTopic1 3 2 1 Lisboa,2020-01-02 Porto,2020-02-03 c1
 create myTopic2 2 1 0 Lisboa,2020-01-10
 list
+join myTopic2 1 Lisboa,2020-01-10

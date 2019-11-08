@@ -75,7 +75,7 @@ namespace Client {
         public void getRegisteredClients() {
             IDictionary<String, String> registeredClients = _serverService.getRegisteredClients();
             foreach (KeyValuePair<String, String> client in registeredClients) {
-                if (client.Key != _username & !registeredClients.ContainsKey(client.Key)) {
+                if (client.Key != _username & !_otherClients.ContainsKey(client.Key)) {
                     IClientService clientServ = (IClientService)Activator.GetObject(typeof(IClientService), client.Value);
                     _otherClients.Add(client.Key, clientServ);
                     Console.WriteLine("Registered Clients: username " + client.Key + " url: " + client.Value);
@@ -165,7 +165,9 @@ namespace Client {
         }
 
         public void receiveInvitee(Meeting meeting) {
-            _clientMeetings.Add(meeting.Topic, meeting);
+            lock (_clientMeetings) {
+                _clientMeetings.Add(meeting.Topic, meeting);
+            }
         }
 
         public void wait(int time) {
