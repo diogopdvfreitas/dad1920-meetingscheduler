@@ -21,12 +21,13 @@ namespace Server {
 
         TcpChannel _channel;
 
-        private IDictionary<String, Location> _locations;                       // <Location Name, Location>
-        private IDictionary<String, Meeting> _meetings;                         // <Meeting Topic, Meeting>
-        private IDictionary<String, String> _clients;                           // <Client Username, Client URL>
-        private IDictionary<String, IServerService> _otherServers;              // <Server URL, IServerService>
-        private IDictionary<String, int> _operationCounters;                    // <Server URL, List<Operation>>
-        private List<String> _alteredBeforeReplication;                         // <Meeting Topic>
+        private IDictionary<String, Location> _locations;                                           // <Location Name, Location>
+        private IDictionary<String, Meeting> _meetings;                                             // <Meeting Topic, Meeting>
+        private IDictionary<String, String> _clients;                                               // <Client Username, Client URL>
+        private IDictionary<String, IServerService> _otherServers;                                  // <Server URL, IServerService>
+        private IDictionary<String, int> _vectorClock;                                              // <Server URL, Clock Counter>
+        private IDictionary<String, IDictionary<String, int>> _otherServersLastVectorClock;         // <Server URL, Known Server Vector Clock>
+        private IDictionary<String, List<Meeting>> _otherServersLastReceivedMeetings;               // <Server URL, Last Received Meeting from Server>
 
         private Boolean _freeze = false;
         
@@ -52,7 +53,6 @@ namespace Server {
             _clients = new Dictionary<String, String>();
 
             setServer(obj);
-
             serversConfig();
         }
 
@@ -69,8 +69,8 @@ namespace Server {
         }
 
         public IDictionary<String, int> Operations {
-            get { return _operationCounters; }
-            set { _operationCounters = value; }
+            get { return _vectorClock; }
+            set { _vectorClock = value; }
         }
 
 
@@ -86,17 +86,26 @@ namespace Server {
 
         public void serversConfig() {
             _otherServers = new Dictionary<String, IServerService>();
-            _operationCounters = new Dictionary<String, int>();
+            _vectorClock = new Dictionary<String, int>();
+            _otherServersLastVectorClock = new Dictionary<String, IDictionary<String, int>>();
+            _otherServersLastReceivedMeetings = new Dictionary<String, List<Meeting>>();
 
-            Console.WriteLine("|========== Servers ==========|");
-            Console.WriteLine("[THIS SERVER]  " + _url);
+              Console.WriteLine("|========== Servers ==========|");
+            Console.WriteLine(_url + "  [THIS SERVER]");
             foreach (String serverUrl in ConfigurationManager.AppSettings) {
                 if (!serverUrl.Equals(_url)) {
                     Console.WriteLine(serverUrl);
                     IServerService serverServ = (IServerService)Activator.GetObject(typeof(IServerService), serverUrl);
                     _otherServers.Add(serverUrl, serverServ);
                 }
-                _operationCounters.Add(serverUrl, 0);
+                _vectorClock.Add(serverUrl, 0);
+            }
+
+            foreach (String serverUrl in ConfigurationManager.AppSettings) {
+                if (!serverUrl.Equals(_url)) {
+                    _otherServersLastVectorClock.Add(serverUrl, _vectorClock);
+                    _otherServersLastReceivedMeetings.Add(serverUrl, new List<Meeting>());
+                }
             }
         }
         public void clientConnect(String username, String clientUrl) {
@@ -107,7 +116,6 @@ namespace Server {
         public void informNewClient(String username, String clientUrl) {
             foreach (IServerService serverServ in _otherServers.Values)
                 serverServ.receiveNewClient(username, clientUrl);
-
         }
 
         public void receiveNewClient(String username, String clientUrl) {
@@ -117,20 +125,18 @@ namespace Server {
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
             Meeting meeting = new Meeting(username, topic, minAtt, slots);
             _meetings.Add(meeting.Topic, meeting);
-            incrementOperationCounter();
-            _alteredBeforeReplication.Add(topic);
+            incrementVectorClock();
+            replicateChanges(meeting);
             Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
-            replicateChanges();
             return meeting;
         }
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
             Meeting meeting = new Meeting(username, topic, minAtt, slots, invitees);
             _meetings.Add(meeting.Topic, meeting);
-            incrementOperationCounter();
-            _alteredBeforeReplication.Add(topic);
+            incrementVectorClock();
+            replicateChanges(meeting);
             Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
-            replicateChanges();
             return meeting;
         }
 
@@ -145,10 +151,9 @@ namespace Server {
         // TODO Check if meeting exists and do returns to client properly
         public Meeting joinMeetingSlot(String topic, String slot, String username) {
             if (_meetings[topic].joinSlot(slot, username)) {
-                incrementOperationCounter();
-                _alteredBeforeReplication.Add(topic);
+                incrementVectorClock();
+                replicateChanges(_meetings[topic]);
                 Console.WriteLine("[CLIENT:" + username + "] Joined meeting " + topic + " on slot " + slot);
-                replicateChanges();
                 return _meetings[topic];
             }
             return null;
@@ -225,39 +230,47 @@ namespace Server {
             return finalClients;
         }
 
-        public void incrementOperationCounter() {
-            _operationCounters[_url]++;
+        public void incrementVectorClock() {
+            _vectorClock[_url]++;
         }
 
-        //sendMeeting: sends the meeting new state to the other servers with url and vectorTimeStamp 
-        public void replicateChanges() {
-            foreach (IServerService serverServ in _otherServers.Values) {
-                serverServ.receiveChanges(_url, _operationCounters, _meetings, _alteredBeforeReplication);
-            }
-        }
-
-        //receiveMeeting: receives the meeting new status and the send server vectorTimeStamp
-        public void receiveChanges(String serverUrl, IDictionary<String, int> operationCounters, IDictionary<String, Meeting> meetings, List<String> alteredMeetings) {
-           if (!(_operationCounters[_url] > operationCounters[_url]) &&
-                (operationCounters[serverUrl] > _operationCounters[serverUrl])) {
-                _meetings = meetings;
-                _operationCounters = operationCounters;
-           }
-           if ((_operationCounters[_url] > operationCounters[_url])) {
-                List<String> changeInConflict = new List<String>();
-                foreach (String topic in alteredMeetings) {
-                    if (_alteredBeforeReplication.Contains(topic))
-                        changeInConflict.Add(topic);
-                }
-                foreach (String topic in alteredMeetings) {
-                    if (!changeInConflict.Contains(topic)) {
-                        if (_meetings.ContainsKey(topic))
-                            _meetings[topic] = meetings[topic];
-                        else
-                            _meetings.Add(topic, meetings[topic]);
+        public void replicateChanges(Meeting meeting) {
+            IDictionary<String, List<Meeting>> meetingsToSend = new Dictionary<String, List<Meeting>>();        // <Server URL, Server Meetings to send>
+            List<Meeting> thisMeetings = new List<Meeting>();
+            thisMeetings.Add(meeting);
+            meetingsToSend.Add(_url, thisMeetings);
+            foreach (KeyValuePair<String, IServerService> server in _otherServers) {                            // Loops through other servers
+                foreach (KeyValuePair<String, int> vectorClock in _otherServersLastVectorClock[server.Key]) {   // Loops through server last vector clock
+                    if (!vectorClock.Key.Equals(_url) && !vectorClock.Key.Equals(server.Key)) {                 // If URL not mine and not receiver's
+                        if (_vectorClock[vectorClock.Key] > vectorClock.Value) {
+                            meetingsToSend.Add(vectorClock.Key, _otherServersLastReceivedMeetings[vectorClock.Key]);
+                        }
                     }
                 }
+                server.Value.receiveChanges(_url, _vectorClock, meetingsToSend);
             }
+        }
+
+        public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings) {
+            IDictionary<String, List<Meeting>> meetingsToResend = new Dictionary<String, List<Meeting>>();      // <Server URL, Server Meetings to send>
+            foreach (KeyValuePair<String, int> serverClock in vectorClock) {                                    // Loops through clocks
+                if (serverClock.Value > _vectorClock[serverClock.Key]) {                                        // If received server clock value > stored server clock value
+                    foreach (Meeting meeting in meetings[serverClock.Key]) {                                    // Set meetings from that server
+                        if (_meetings.ContainsKey(meeting.Topic))
+                            _meetings[meeting.Topic] = meeting;
+                        else
+                            _meetings.Add(meeting.Topic, meeting);
+                    }
+                    _vectorClock[serverClock.Key] = serverClock.Value;                                          // Update local server clock
+                    _otherServersLastReceivedMeetings[serverClock.Key] = meetings[serverClock.Key];             // Update local server last received meetings
+                }
+                if (serverClock.Value < _vectorClock[serverClock.Key]) {                                        // If received server clock value < stored server clock value
+                    meetingsToResend.Add(serverClock.Key, _otherServersLastReceivedMeetings[serverClock.Key]);  // Server who sent is delayed and should receive the last meetings regarding this server clock
+                }
+            }
+            if (meetingsToResend.Count != 0)
+                _otherServers[serverUrl].receiveChanges(_url, _vectorClock, meetingsToResend);
+            _otherServersLastVectorClock[serverUrl] = vectorClock;                                              // Update last received vector clock
         }
 
         public void addRoom(String roomLocation, int capacity, String name) {

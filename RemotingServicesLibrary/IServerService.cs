@@ -14,7 +14,7 @@ namespace RemotingServicesLibrary {
         bool checkMeetingStatusChange(Meeting meeting);
         Meeting joinMeetingSlot(String topic, String slot, String username);
         void closeMeeting(String topic);
-        void receiveChanges(String serverUrl, IDictionary<String, int> operationCounters, IDictionary<String, Meeting> meetings, List<String> alteredMeetings);
+        void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings);
         void addRoom(String location, int capacity, String name);
         void addLocation(String location_name, Location location);
         String status();
