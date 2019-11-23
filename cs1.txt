@@ -1,0 +1,16 @@
+create myTopic0 2 2 2 Lisboa,2020-01-02 Porto,2020-02-03 c1 c2
+create myTopic1 2 2 2 Lisboa,2020-01-02 Porto,2020-02-03 c1 c2
+create myTopic2 1 1 0 Porto,2020-01-10
+list
+join myTopic0 1 Lisboa,2020-01-02
+list
+close myTopic0
+list
+join myTopic1 1 Lisboa,2020-01-02
+list
+wait 7000
+close myTopic1
+join myTopic2 1 Porto,2020-01-10
+close myTopic2
+wait 3000
+list

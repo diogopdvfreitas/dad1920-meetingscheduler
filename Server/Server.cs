@@ -224,7 +224,7 @@ namespace Server {
             List<String> finalClients = new List<String>();
             int counter = 0;
             foreach (String client in joinedClients) {
-                if (counter <= roomCapacity) {
+                if (counter < roomCapacity) {
                     finalClients.Add(client);
                     counter += 1;
                 }
