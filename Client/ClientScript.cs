@@ -29,12 +29,27 @@ namespace Client {
                 return;
             }
 
+            Console.WriteLine("[COMMAND] S : run commands step by step");
+            Console.WriteLine("[COMMAND] R : run commands sequentially");
+
+            Console.Write("[COMMAND] ");
+            String execution = Console.ReadLine();
+            bool stepByStep = false;
+
+            if (execution.Equals("S") || execution.Equals("s"))
+                stepByStep = true;
+
             String scriptLine = script.ReadLine();
             while (scriptLine != null) {
                 Console.WriteLine("[COMMAND] " + scriptLine);
                 executeCommand(scriptLine);
+                if (stepByStep) {
+                    Console.WriteLine("[Press Enter for Next Command]");
+                    Console.ReadLine();
+                }
                 scriptLine = script.ReadLine();
             }
+            Console.WriteLine("[End of Script File]");
             script.Close();
         }
 
@@ -97,7 +112,6 @@ namespace Client {
                 case "wait":
                     int time = Int32.Parse(commandAttr[1]);
                     _client.wait(time);
-                    Console.WriteLine("Wait");
                     break;
             }
         }
@@ -110,7 +124,7 @@ namespace Client {
                 clientScript = new ClientScript(args[0], args[1], args[2], args[3]);
             }
             clientScript.readClientScript();
-            Console.WriteLine("QUIT to exit");
+            Console.WriteLine("[QUIT to Exit]");
             while (true) {
                 Console.Write("[COMMAND] ");
                 String line = Console.ReadLine();
