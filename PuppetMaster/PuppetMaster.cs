@@ -159,6 +159,12 @@ namespace PuppetMaster {
             System.Threading.Thread.Sleep(int.Parse(miliseconds));
         }
 
+        public void shutDown(){ 
+            foreach(IPCSService pcs in _pcsList.Values){
+                pcs.shutDown();
+            }
+        }
+
         public void executeCommand(String command) {
             Console.WriteLine("[COMMAND] " + command);
             String[] commandAttr = command.Split(' ');
@@ -224,15 +230,29 @@ namespace PuppetMaster {
         }
 
         static void Main(string[] args) {
-            Console.WriteLine("+========================================================================+\n" + 
+            Console.WriteLine("+========================================================================+\n" +
                               "|==================== Meeting Scheduler PuppetMaster ====================|\n" +
                               "+========================================================================+\n");
             PuppetMaster puppetMaster = new PuppetMaster();
-            Console.Write("Please write the script filename: ");
+            Console.WriteLine("[Write the script filename]");
             String scriptName = Console.ReadLine();
             puppetMaster.Script = scriptName;
             puppetMaster.readPuppetMasterScript();
-            Console.ReadLine();
+
+            Console.WriteLine("[COMAND OPTIONS]");
+            Console.WriteLine("\t[SHUTDOWN to Kill all Processes]");
+            Console.WriteLine("\t[QUIT to Exit]");
+
+            while (true) {
+                Console.Write("[COMMAND]");
+                String command = Console.ReadLine();
+                if (command.Equals("SHUTDOWN") || command.Equals("shutdown")) {
+                    puppetMaster.shutDown();
+                    break;
+                }
+                else if (command.Equals("QUIT") || command.Equals("quit"))
+                    break;
+            }
         }
     }
 }

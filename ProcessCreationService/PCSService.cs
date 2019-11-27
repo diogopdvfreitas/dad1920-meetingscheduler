@@ -41,6 +41,12 @@ namespace ProcessCreationService {
             _clientUrls.Add(clientUsername, clientUrl);
         }
 
+        public void shutDown() {
+            foreach (Process p in _processes.Values) {
+                p.Kill();
+            }
+        }
+
         public IDictionary<String, Process> Processes {
             get { return _processes; }
         }

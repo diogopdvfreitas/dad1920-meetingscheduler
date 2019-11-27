@@ -18,7 +18,15 @@ namespace ProcessCreationService {
         static void Main(string[] args) {
             Console.WriteLine("|========== Process Creation Service ==========|");
             PCS pcs = new PCS();
-            Console.ReadLine(); 
+
+            Console.WriteLine("[QUIT to Exit]");
+
+            while (true) {
+                Console.Write("[COMMAND]");
+                String command = Console.ReadLine();
+                if (command.Equals("QUIT") || command.Equals("quit"))
+                    break;
+            }
         }
     }
 }

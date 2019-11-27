@@ -128,7 +128,7 @@ namespace Client {
             while (true) {
                 Console.Write("[COMMAND] ");
                 String line = Console.ReadLine();
-                if (line == "QUIT")
+                if (line.Equals("QUIT") || line.Equals("quit"))
                     break;
                 else
                     clientScript.executeCommand(line);

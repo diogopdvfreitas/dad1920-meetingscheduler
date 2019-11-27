@@ -44,14 +44,6 @@ namespace ObjectsLibrary {
             _joined.Add(clientName);
         }
 
-        /*public bool bookMeeting(Meeting meeting, Room room) {
-            if (room.bookMeeting(_date, meeting)) {
-                _pickedRoom = room;
-                return true;
-            }
-            return false;
-        }*/
-
         public override String ToString() {
             return _location + "," + _date + ": Number of Joins - " + NJoined;
         }

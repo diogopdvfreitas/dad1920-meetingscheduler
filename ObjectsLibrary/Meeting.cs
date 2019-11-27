@@ -174,8 +174,10 @@ namespace ObjectsLibrary {
                 s += "\n\tStatus: Open";
             else {
                 s += "\n\tStatus: Closed";
-                if (_pickedSlot != null)
+                if (_pickedSlot != null) {
                     s += "\n\t\tMeeting at " + _pickedSlot + " in " + _pickedSlot.PickedRoom.Name;
+                    s += "\n\t\tAttendees: " + inviteesToString(_pickedSlot.Joined, false);
+                }
                 else
                     s += "\n\t\tMeeting couldn't be scheduled";
             }
