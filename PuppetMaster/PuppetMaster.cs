@@ -218,6 +218,10 @@ namespace PuppetMaster {
             }
             catch (FileNotFoundException) {
                 Console.WriteLine("File: " + _scriptName + " Not Found");
+                Console.Write("[Write the correct script filename]");
+                String scriptName = Console.ReadLine();
+                this.Script = scriptName;
+                this.readPuppetMasterScript();
                 return;
             }
 
