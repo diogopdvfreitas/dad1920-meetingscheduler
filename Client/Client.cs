@@ -68,7 +68,7 @@ namespace Client {
         public void getRegisteredClients() {
             IDictionary<String, String> registeredClients = _serverService.getRegisteredClients();
             foreach (KeyValuePair<String, String> client in registeredClients) {
-                if (client.Key != _username & !_otherClients.ContainsKey(client.Key)) {
+                if (!_otherClients.ContainsKey(client.Key)) {
                     IClientService clientServ = (IClientService)Activator.GetObject(typeof(IClientService), client.Value);
                     _otherClients.Add(client.Key, clientServ);
                 }
@@ -173,8 +173,10 @@ namespace Client {
 
         public void receiveInvite(Meeting meeting) {
             Console.WriteLine("[INVITE] Received an invitation to meeting " + meeting.Topic + " from " + meeting.Coord);
-            lock (_clientMeetings) {
-                _clientMeetings.Add(meeting.Topic, meeting);
+            if (!_clientMeetings.ContainsKey(meeting.Topic)) {
+                lock (_clientMeetings) {
+                    _clientMeetings.Add(meeting.Topic, meeting);
+                }
             }
         }
 
