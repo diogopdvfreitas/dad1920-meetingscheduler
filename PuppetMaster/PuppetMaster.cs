@@ -234,7 +234,7 @@ namespace PuppetMaster {
                               "|==================== Meeting Scheduler PuppetMaster ====================|\n" +
                               "+========================================================================+\n");
             PuppetMaster puppetMaster = new PuppetMaster();
-            Console.WriteLine("[Write the script filename]");
+            Console.Write("[Write the script filename]");
             String scriptName = Console.ReadLine();
             puppetMaster.Script = scriptName;
             puppetMaster.readPuppetMasterScript();

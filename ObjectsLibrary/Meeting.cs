@@ -99,13 +99,11 @@ namespace ObjectsLibrary {
 
         public bool joinSlot(String chosenSlot, String username) {
             String[] slotAttr = chosenSlot.Split(',');
-            if (_invitees == null || _invitees.Contains(username)) {
-                foreach (Slot slot in _slots) {
-                    if (slot.Location.Equals(slotAttr[0]) && slot.Date.Equals(slotAttr[1])) {
-                        slot.joinSlot(username);
-                        _nJoined++;
-                        return true;
-                    }
+            foreach (Slot slot in _slots) {
+                if (slot.Location.Equals(slotAttr[0]) && slot.Date.Equals(slotAttr[1])) {
+                    slot.joinSlot(username);
+                    _nJoined++;
+                    return true;
                 }
             }
             return false;
@@ -176,7 +174,8 @@ namespace ObjectsLibrary {
                 s += "\n\tStatus: Closed";
                 if (_pickedSlot != null) {
                     s += "\n\t\tMeeting at " + _pickedSlot + " in " + _pickedSlot.PickedRoom.Name;
-                    s += "\n\t\tAttendees: " + inviteesToString(_pickedSlot.Joined, false);
+                    if(_pickedSlot.Joined != null)
+                        s += "\n\t\tAttendees: " + inviteesToString(_pickedSlot.Joined, false);
                 }
                 else
                     s += "\n\t\tMeeting couldn't be scheduled";

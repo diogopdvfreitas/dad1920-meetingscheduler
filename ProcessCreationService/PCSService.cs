@@ -43,7 +43,11 @@ namespace ProcessCreationService {
 
         public void shutDown() {
             foreach (Process p in _processes.Values) {
-                p.Kill();
+                try {
+                    p.Kill();
+                }catch(InvalidOperationException){ 
+                
+                }
             }
         }
 
