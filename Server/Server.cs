@@ -246,7 +246,7 @@ namespace Server {
             foreach (KeyValuePair<String, IServerService> server in _otherServers) {                            // Loops through other servers
                 foreach (KeyValuePair<String, int> vectorClock in _otherServersLastVectorClock[server.Key]) {   // Loops through server last vector clock
                     if (!vectorClock.Key.Equals(_url) && !vectorClock.Key.Equals(server.Key)) {                 // If URL not mine and not receiver's
-                        if (_vectorClock[vectorClock.Key] > vectorClock.Value) {
+                        if (_vectorClock[vectorClock.Key] > vectorClock.Value) {                                //Check if I have received a message that the receiver did not receive from the other servers
                             meetingsToSend.Add(vectorClock.Key, _otherServersLastReceivedMeetings[vectorClock.Key]);
                         }
                     }
