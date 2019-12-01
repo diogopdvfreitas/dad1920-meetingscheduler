@@ -14,10 +14,6 @@ namespace Server {
             _server = server;
         }
 
-        public Boolean checkFreeze() {
-            return _server.Freeze;
-        }
-
         public void clientConnect(String username, String clientUrl) {
             _server.checkDelay();
             _server.clientConnect(username, clientUrl);
@@ -35,17 +31,11 @@ namespace Server {
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
             _server.checkDelay();
-            if (_server.Freeze) {
-                //_server.DelayedMessages(meeting)
-            }
             return _server.createMeeting(username, topic, minAtt, slots);
         }
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
             _server.checkDelay();
-            if (_server.Freeze) {
-                //_server.DelayedMessages(meeting)
-            }
             return _server.createMeeting(username, topic, minAtt, slots, invitees);
         }
 
@@ -86,6 +76,14 @@ namespace Server {
         public String status() {
             _server.checkDelay();
             return _server.status();
+        }
+        
+        public void freeze() {
+            _server.freeze();
+        }
+
+        public void unfreeze() {
+            _server.unfreeze();
         }
     }
 }

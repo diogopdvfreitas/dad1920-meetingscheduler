@@ -138,21 +138,21 @@ namespace PuppetMaster {
         }
 
         public void freeze(String processId) {
-            /*foreach (IPCSService pcservice in _pcsList.Values) {
+            foreach (IPCSService pcservice in _pcsList.Values) {
                 if (pcservice.ServerURLs.ContainsKey(processId)) {
                     IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processId]);
-                    //serverService.freeze();
+                    serverService.freeze();
                 }
-            }*/
+            }
         }
 
         public void unfreeze(String processId) {
-            /*foreach (IPCSService pcservice in _pcsList.Values) {
+            foreach (IPCSService pcservice in _pcsList.Values) {
                 if (pcservice.ServerURLs.ContainsKey(processId)) {
                     IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processId]);
-                    //serverService.unfreeze();
+                    serverService.unfreeze();
                 }
-            }*/
+            }
         }
 
         public void wait(String miliseconds) {
