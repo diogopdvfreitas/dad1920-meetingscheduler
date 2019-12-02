@@ -34,7 +34,7 @@ namespace Server {
 
         public delegate void ReplicationDelegate(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings);
         private IList<ReplicationDelegate> delegates = new List<ReplicationDelegate>();
-        
+
         public Server() {
             _locations = new Dictionary<String, Location>();
             _meetings = new Dictionary<String, Meeting>();
@@ -70,7 +70,7 @@ namespace Server {
 
             ServerService serverService = new ServerService(this);
             RemotingServices.Marshal(serverService, obj, typeof(ServerService));
-            
+
             Console.WriteLine("[SERVER:" + _id + "] " + _url + " Delay: " + _min_delay + "ms to " + _max_delay + "ms\n");
         }
 
@@ -99,7 +99,7 @@ namespace Server {
                 }
             }
         }
-       
+
         public void clientConnect(String username, String clientUrl) {
             _clients.Add(username, clientUrl);
             Console.WriteLine("[CONNECT] CLIENT:" + username + " connected to this server");
@@ -212,7 +212,7 @@ namespace Server {
                     replicateChanges(meeting);
                     return meeting;
                 }
-            }else {
+            } else {
                 meeting.MStatus = Meeting.Status.CANCELLED;
                 incrementVectorClock();
                 replicateChanges(meeting);
@@ -221,7 +221,7 @@ namespace Server {
             }
             return null;
         }
-        
+
         public Meeting getMeeting(String topic) {
             if (_meetings.ContainsKey(topic))
                 return _meetings[topic];
@@ -231,7 +231,7 @@ namespace Server {
         public bool checkMeetingStatusChange(Meeting meeting) {
             return meeting.checkStatusChange(_meetings[meeting.Topic]);
         }
-        
+
         public List<String> excludeClients(int roomCapacity, Slot pickedSlot) {
             List<String> joinedClients = pickedSlot.Joined;
             List<String> finalClients = new List<String>();
@@ -257,31 +257,38 @@ namespace Server {
             List<Meeting> thisMeetings = new List<Meeting>();
             thisMeetings.Add(meeting);
             meetingsToSend.Add(_url, thisMeetings);
-            
+
+            foreach (KeyValuePair<String, IServerService> server in _otherServers) {                            // Loops through other servers
+                foreach (KeyValuePair<String, int> vectorClock in _otherServersLastVectorClock[server.Key]) {   // Loops through server last vector clock
+                    if (!vectorClock.Key.Equals(_url) && !vectorClock.Key.Equals(server.Key)) {                 // If URL not mine and not receiver's
+                        if (_vectorClock[vectorClock.Key] > vectorClock.Value) {                                //Check if I have received a message that the receiver did not receive from the other servers
+                            meetingsToSend.Add(vectorClock.Key, _otherServersLastReceivedMeetings[vectorClock.Key]);
+                        }
+                    }
+                }
+            }
+            sendToServers(_vectorClock, meetingsToSend);
+        }
+
+        public void sendToServers(IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings) {
             AutoResetEvent[] handles = new AutoResetEvent[_otherServers.Count];
             for (int i = 0; i < _otherServers.Count; i++) {
                 handles[i] = new AutoResetEvent(false);
             }
 
             int t = 0;
-            foreach (KeyValuePair<String, IServerService> server in _otherServers) {                            // Loops through other servers
+            foreach (KeyValuePair<String, IServerService> server in _otherServers) {
                 if (!_unreachServers.Contains(server.Key)) {
-                    foreach (KeyValuePair<String, int> vectorClock in _otherServersLastVectorClock[server.Key]) {   // Loops through server last vector clock
-                        if (!vectorClock.Key.Equals(_url) && !vectorClock.Key.Equals(server.Key)) {                 // If URL not mine and not receiver's
-                            if (_vectorClock[vectorClock.Key] > vectorClock.Value) {                                //Check if I have received a message that the receiver did not receive from the other servers
-                                meetingsToSend.Add(vectorClock.Key, _otherServersLastReceivedMeetings[vectorClock.Key]);
-                            }
-                        }
-                    }
                     Thread thread = new Thread(() => {
                         try {
 
-                            server.Value.receiveChanges(_url, _vectorClock, meetingsToSend);
+                            server.Value.receiveChanges(_url, vectorClock, meetings);
                             handles[t].Set();
                             t++;
 
-                        }catch (SocketException) {
-                            Console.WriteLine("[Unreached server: " + server.Key +"]");
+                        }
+                        catch (SocketException) {
+                            Console.WriteLine("[Unreached server: " + server.Key + "]");
                             _unreachServers.Add(server.Key);
                         }
                     });
@@ -289,14 +296,15 @@ namespace Server {
                 }
             }
             int threadCounter = 0;
-            while(threadCounter != _max_faults) {       //It waits for max_fauls responses since it is us plus _max_faults (f+1) in order to tolerate _max_faults faults
+            while (threadCounter != _max_faults) {       //It waits for max_fauls responses since it is us plus _max_faults (f+1) in order to tolerate _max_faults faults
                 int index = WaitHandle.WaitAny(handles);
                 threadCounter++;
             }
         }
 
         public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings) {
-            Console.WriteLine("RECEIVED FROM: "+ serverUrl);
+            bool changes = false;
+            Console.WriteLine("RECEIVED FROM: " + serverUrl);
             IDictionary<String, List<Meeting>> meetingsToResend = new Dictionary<String, List<Meeting>>();      // <Server URL, Server Meetings to send>
             foreach (KeyValuePair<String, int> serverClock in vectorClock) {                                    // Loops through clocks
                 if (serverClock.Value > _vectorClock[serverClock.Key]) {                                        // If received server clock value > stored server clock value
@@ -305,6 +313,7 @@ namespace Server {
                             _meetings[meeting.Topic] = meeting;
                         else
                             _meetings.Add(meeting.Topic, meeting);
+                        changes = true;
                     }
                     _vectorClock[serverClock.Key] = serverClock.Value;                                          // Update local server clock
                     _otherServersLastReceivedMeetings[serverClock.Key] = meetings[serverClock.Key];             // Update local server last received meetings
@@ -312,19 +321,16 @@ namespace Server {
                 if (serverClock.Value < _vectorClock[serverClock.Key]) {                                        // If received server clock value < stored server clock value
                     meetingsToResend.Add(serverClock.Key, _otherServersLastReceivedMeetings[serverClock.Key]);  // Server who sent is delayed and should receive the last meetings regarding this server clock
                 }
+
             }
             if (meetingsToResend.Count != 0)
                 _otherServers[serverUrl].receiveChanges(_url, _vectorClock, meetingsToResend);
-            _otherServersLastVectorClock[serverUrl] = vectorClock;                                              // Update last received vector clock
+            _otherServersLastVectorClock[serverUrl] = vectorClock;                                           // Update last received vector clock
+
+            if (changes) {
+                sendToServers(vectorClock, meetings);
+            }
         }
-
-
-
-
-
-
-
-
 
         public void addRoom(String roomLocation, int capacity, String name) {
             _locations[roomLocation].addRoom(new Room(name, capacity));
