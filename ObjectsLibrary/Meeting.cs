@@ -170,17 +170,19 @@ namespace ObjectsLibrary {
 
             if(_status == Status.OPEN)
                 s += "\n\tStatus: Open";
+            else if (_status == Status.CANCELLED)
+                s += "\n\tStatus: Cancelled";
+
             else {
                 s += "\n\tStatus: Closed";
                 if (_pickedSlot != null) {
                     s += "\n\t\tMeeting at " + _pickedSlot + " in " + _pickedSlot.PickedRoom.Name;
-                    if(_pickedSlot.Joined != null)
+                    if (_pickedSlot.Joined != null)
                         s += "\n\t\tAttendees: " + inviteesToString(_pickedSlot.Joined, false);
                 }
                 else
                     s += "\n\t\tMeeting couldn't be scheduled";
             }
-            
             return s + "\n";
         }
         public String status() {
@@ -193,6 +195,10 @@ namespace ObjectsLibrary {
 
             if (_status == Status.OPEN)
                 s += "\n\t\tStatus: Open";
+
+            else if(_status ==Status.CANCELLED)
+                s += "\n\t\tStatus: Cancelled";
+
             else {
                 s += "\n\t\tStatus: Closed";
                 if (_pickedSlot != null)

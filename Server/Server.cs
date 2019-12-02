@@ -151,19 +151,19 @@ namespace Server {
             if (meeting.checkClose()) {
                 while (meeting.MStatus != Meeting.Status.BOOKED) {
                     Slot slot = meeting.mostCapacitySlot();
-                    if (slot == null)
+                    if (slot == null || slot.NJoined == 0) {
                         break;
+                    }
                     foreach (Room room in _locations[slot.Location].roomWithCapacity(slot.NJoined)) {
                         if (room.checkRoomFree(slot.Date)) {
                             if (room.bookMeeting(slot.Date, meeting)) {
-                                Console.WriteLine("Room " + room.Name);
                                 slot.PickedRoom = room;
                                 meeting.PickedSlot = slot;
                                 meeting.MStatus = Meeting.Status.BOOKED;
                                 meeting.cleanInvalidSlots();
                                 incrementVectorClock();
                                 replicateChanges(meeting);
-                                Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + 
+                                Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic +
                                     ". Selected Slot is " + meeting.PickedSlot + " in Room " + meeting.PickedSlot.PickedRoom);
                                 return meeting;
                             }
@@ -178,12 +178,13 @@ namespace Server {
                     meeting.cleanInvalidSlots();
                     while (meeting.MStatus != Meeting.Status.BOOKED) {
                         Slot slot = meeting.mostCapacitySlot();
-                        if (slot == null)
+
+                        if (slot == null || slot.NJoined == 0) {
                             break;
+                        }
                         foreach (Room room in _locations[slot.Location].Rooms) {
                             if (room.checkRoomFree(slot.Date)) {
                                 if (room.bookMeeting(slot.Date, meeting)) {
-                                    Console.WriteLine("Room " + room.Name);
                                     slot.PickedRoom = room;
                                     meeting.PickedSlot = slot;
                                     meeting.MStatus = Meeting.Status.BOOKED;
@@ -194,11 +195,14 @@ namespace Server {
 
                                     incrementVectorClock();
                                     replicateChanges(meeting);
-                                    Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + 
+                                    Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic +
                                         ". Selected Slot is " + meeting.PickedSlot + " in Room " + meeting.PickedSlot.PickedRoom);
                                     return meeting;
                                 }
                             }
+                        }
+                        if (meeting.MStatus == Meeting.Status.OPEN) {
+                            meeting.invalidSlot(slot);
                         }
                     }
                 }
@@ -206,10 +210,14 @@ namespace Server {
                     meeting.MStatus = Meeting.Status.CANCELLED;
                     incrementVectorClock();
                     replicateChanges(meeting);
-                    Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + 
-                        ". Selected Slot is " + meeting.PickedSlot + " in Room " + meeting.PickedSlot.PickedRoom);
                     return meeting;
                 }
+            }else {
+                meeting.MStatus = Meeting.Status.CANCELLED;
+                incrementVectorClock();
+                replicateChanges(meeting);
+                return meeting;
+
             }
             return null;
         }
@@ -278,13 +286,11 @@ namespace Server {
                         }
                     });
                     thread.Start();
-
                 }
             }
             int threadCounter = 0;
-            while(threadCounter != _max_faults) {
+            while(threadCounter != _max_faults) {       //It waits for max_fauls responses since it is us plus _max_faults (f+1) in order to tolerate _max_faults faults
                 int index = WaitHandle.WaitAny(handles);
-                Console.WriteLine("index: " + index + "counter: " + threadCounter);
                 threadCounter++;
             }
         }

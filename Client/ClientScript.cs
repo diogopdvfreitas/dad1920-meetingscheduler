@@ -29,8 +29,8 @@ namespace Client {
                 return;
             }
 
-            Console.WriteLine("[COMMAND] S : run commands step by step");
-            Console.WriteLine("[COMMAND] R : run commands sequentially");
+            Console.WriteLine("[COMMAND] S + Enter : run commands step by step");
+            Console.WriteLine("[COMMAND] Other key : run commands sequentially");
 
             Console.Write("[COMMAND] ");
             String execution = Console.ReadLine();
