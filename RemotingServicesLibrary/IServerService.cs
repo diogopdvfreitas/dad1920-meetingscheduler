@@ -17,5 +17,7 @@ namespace RemotingServicesLibrary {
         void addRoom(String location, int capacity, String name);
         void addLocation(String location_name, Location location);
         String status();
+        void freeze();
+        void unfreeze();
     }
 }

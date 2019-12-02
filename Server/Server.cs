@@ -348,6 +348,7 @@ namespace Server {
         }
 
         public void freeze() {
+            Console.WriteLine("Freezing Server " + _id + ".\n");
             _freeze = true;
         }
 
@@ -355,10 +356,30 @@ namespace Server {
             get { return _freeze; }
         }
 
+        public void checkFreeze() {
+            if (Freeze) {
+                Console.WriteLine("Server " + _id + " still frozen.\n");
+                lock (this) {
+                    while(Freeze) {
+                        Monitor.Wait(this);
+                    }
+                }
+            }
+        }
+
+        public void unfreeze() {
+            Console.WriteLine("Server " + _id + " unfreezing. \n");
+            lock (this) {
+                Monitor.PulseAll(this);
+            }
+            _freeze = false;
+        }
+
         public void checkDelay() {
             Random random = new Random();
             int delay = random.Next(_min_delay, _max_delay);
             Thread.Sleep(delay);
+            checkFreeze();
         }
 
         static void Main(string[] args) {
