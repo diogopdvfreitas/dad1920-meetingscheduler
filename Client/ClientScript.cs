@@ -117,21 +117,27 @@ namespace Client {
         }
 
         static void Main(string[] args) {
-            ClientScript clientScript;
-            if (args.Length == 0)
-                clientScript = new ClientScript();
-            else {
-                clientScript = new ClientScript(args[0], args[1], args[2], args[3]);
+            try {
+                ClientScript clientScript;
+                if (args.Length == 0)
+                    clientScript = new ClientScript();
+                else {
+                    clientScript = new ClientScript(args[0], args[1], args[2], args[3]);
+                }
+                clientScript.readClientScript();
+                Console.WriteLine("[QUIT to Exit]");
+                while (true) {
+                    Console.Write("[COMMAND] ");
+                    String line = Console.ReadLine();
+                    if (line.Equals("QUIT") || line.Equals("quit"))
+                        break;
+                    else
+                        clientScript.executeCommand(line);
+                }
             }
-            clientScript.readClientScript();
-            Console.WriteLine("[QUIT to Exit]");
-            while (true) {
-                Console.Write("[COMMAND] ");
-                String line = Console.ReadLine();
-                if (line.Equals("QUIT") || line.Equals("quit"))
-                    break;
-                else
-                    clientScript.executeCommand(line);
+            catch (Exception e) {
+                Console.WriteLine(e.ToString());
+                Console.ReadLine();
             }
         }
     }

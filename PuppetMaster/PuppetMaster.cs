@@ -93,7 +93,13 @@ namespace PuppetMaster {
             e.MoveNext();
             var pcservice = e.Current.Value;
             foreach (KeyValuePair<String, Process> processDct in pcservice.Processes) {
-                bool processResponding = processDct.Value.Responding;
+                bool processResponding;
+                try {
+                    processResponding = processDct.Value.Responding;
+                }
+                catch (InvalidOperationException) {
+                    processResponding = false;
+                }
                 String response = "";
                 if (pcservice.ServerURLs.ContainsKey(processDct.Key)) {
                     response += "[SERVER:" + processDct.Key + "]";

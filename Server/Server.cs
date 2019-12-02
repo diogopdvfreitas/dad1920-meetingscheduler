@@ -7,6 +7,7 @@ using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Threading;
+using System.Net.Sockets;
 
 namespace Server {
     public class Server {
@@ -28,8 +29,11 @@ namespace Server {
         private IDictionary<String, int> _vectorClock;                                              // <Server URL, Clock Counter>
         private IDictionary<String, IDictionary<String, int>> _otherServersLastVectorClock;         // <Server URL, Known Server Vector Clock>
         private IDictionary<String, List<Meeting>> _otherServersLastReceivedMeetings;               // <Server URL, Last Received Meeting from Server>
-
+        private IList<String> _unreachServers;
         private Boolean _freeze = false;
+
+        public delegate void ReplicationDelegate(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings);
+        private IList<ReplicationDelegate> delegates = new List<ReplicationDelegate>();
         
         public Server() {
             _locations = new Dictionary<String, Location>();
@@ -75,6 +79,7 @@ namespace Server {
             _vectorClock = new Dictionary<String, int>();
             _otherServersLastVectorClock = new Dictionary<String, IDictionary<String, int>>();
             _otherServersLastReceivedMeetings = new Dictionary<String, List<Meeting>>();
+            _unreachServers = new List<String>();
 
             Console.WriteLine("|========== Servers List ==========|");
             Console.WriteLine(_url + "  [THIS SERVER]");
@@ -238,24 +243,59 @@ namespace Server {
             _vectorClock[_url]++;
         }
 
+        //when we call replicate changes we already did the changes
         public void replicateChanges(Meeting meeting) {
             IDictionary<String, List<Meeting>> meetingsToSend = new Dictionary<String, List<Meeting>>();        // <Server URL, Server Meetings to send>
             List<Meeting> thisMeetings = new List<Meeting>();
             thisMeetings.Add(meeting);
             meetingsToSend.Add(_url, thisMeetings);
+            
+            AutoResetEvent[] handles = new AutoResetEvent[_otherServers.Count];
+            for (int i = 0; i < _otherServers.Count; i++) {
+                handles[i] = new AutoResetEvent(false);
+            }
+
+            int t = 0;
             foreach (KeyValuePair<String, IServerService> server in _otherServers) {                            // Loops through other servers
-                foreach (KeyValuePair<String, int> vectorClock in _otherServersLastVectorClock[server.Key]) {   // Loops through server last vector clock
-                    if (!vectorClock.Key.Equals(_url) && !vectorClock.Key.Equals(server.Key)) {                 // If URL not mine and not receiver's
-                        if (_vectorClock[vectorClock.Key] > vectorClock.Value) {                                //Check if I have received a message that the receiver did not receive from the other servers
-                            meetingsToSend.Add(vectorClock.Key, _otherServersLastReceivedMeetings[vectorClock.Key]);
+                if (!_unreachServers.Contains(server.Key)) {
+                    foreach (KeyValuePair<String, int> vectorClock in _otherServersLastVectorClock[server.Key]) {   // Loops through server last vector clock
+                        if (!vectorClock.Key.Equals(_url) && !vectorClock.Key.Equals(server.Key)) {                 // If URL not mine and not receiver's
+                            if (_vectorClock[vectorClock.Key] > vectorClock.Value) {                                //Check if I have received a message that the receiver did not receive from the other servers
+                                meetingsToSend.Add(vectorClock.Key, _otherServersLastReceivedMeetings[vectorClock.Key]);
+                            }
                         }
                     }
+                    Thread thread = new Thread(() => {
+                        try {
+
+                            server.Value.receiveChanges(_url, _vectorClock, meetingsToSend);
+
+                        }catch (SocketException) {
+                            Console.WriteLine("[Unreached server: " + server.Key +"]");
+                            _unreachServers.Add(server.Key);
+                        }
+                    });
+                    thread.Start();
+
+                    handles[t].Set(); //check
+                    t++;
+
                 }
-                server.Value.receiveChanges(_url, _vectorClock, meetingsToSend);
+                else {
+                    Console.WriteLine("unreached: " + server.Key);
+                }
+            }
+
+            int threadCounter = 0;
+            while(threadCounter != _max_faults) {
+                int index = WaitHandle.WaitAny(handles);
+                Console.WriteLine("index: " + index + "counter: " + threadCounter);
+                threadCounter++;
             }
         }
 
         public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings) {
+            Console.WriteLine("RECEIVED FROM: "+ serverUrl);
             IDictionary<String, List<Meeting>> meetingsToResend = new Dictionary<String, List<Meeting>>();      // <Server URL, Server Meetings to send>
             foreach (KeyValuePair<String, int> serverClock in vectorClock) {                                    // Loops through clocks
                 if (serverClock.Value > _vectorClock[serverClock.Key]) {                                        // If received server clock value > stored server clock value
@@ -276,6 +316,14 @@ namespace Server {
                 _otherServers[serverUrl].receiveChanges(_url, _vectorClock, meetingsToResend);
             _otherServersLastVectorClock[serverUrl] = vectorClock;                                              // Update last received vector clock
         }
+
+
+
+
+
+
+
+
 
         public void addRoom(String roomLocation, int capacity, String name) {
             _locations[roomLocation].addRoom(new Room(name, capacity));
@@ -314,10 +362,10 @@ namespace Server {
         }
 
         static void Main(string[] args) {
-            if(args.Length == 0) {
+            if (args.Length == 0) {
                 Server server = new Server();
             }
-            else{
+            else {
                 Server server = new Server(Int32.Parse(args[0]), args[1], args[2], Int32.Parse(args[3]), Int32.Parse(args[4]), Int32.Parse(args[5]), args[6]);
             }
             Console.ReadLine();
