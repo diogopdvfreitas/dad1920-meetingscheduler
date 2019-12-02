@@ -269,6 +269,8 @@ namespace Server {
                         try {
 
                             server.Value.receiveChanges(_url, _vectorClock, meetingsToSend);
+                            handles[t].Set();
+                            t++;
 
                         }catch (SocketException) {
                             Console.WriteLine("[Unreached server: " + server.Key +"]");
@@ -277,15 +279,8 @@ namespace Server {
                     });
                     thread.Start();
 
-                    handles[t].Set(); //check
-                    t++;
-
-                }
-                else {
-                    Console.WriteLine("unreached: " + server.Key);
                 }
             }
-
             int threadCounter = 0;
             while(threadCounter != _max_faults) {
                 int index = WaitHandle.WaitAny(handles);
