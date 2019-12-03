@@ -288,8 +288,8 @@ namespace Server {
 
                         }
                         catch (SocketException) {
-                            Console.WriteLine("[Unreached server: " + server.Key + "]");
                             _unreachServers.Add(server.Key);
+                            Console.WriteLine("[Unreached server: " + server.Key + "]");
                         }
                     });
                     thread.Start();
@@ -298,8 +298,10 @@ namespace Server {
             int threadCounter = 0;
             while (threadCounter != _max_faults) {       //It waits for max_fauls responses since it is us plus _max_faults (f+1) in order to tolerate _max_faults faults
                 int index = WaitHandle.WaitAny(handles);
+                Console.WriteLine("end wait");
                 threadCounter++;
             }
+            Console.WriteLine("END SENDING SERVERS");
         }
 
         public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings) {
