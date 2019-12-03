@@ -210,12 +210,15 @@ namespace Server {
                     meeting.MStatus = Meeting.Status.CANCELLED;
                     incrementVectorClock();
                     replicateChanges(meeting);
+                    Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + " but meeting was cancelled");
                     return meeting;
                 }
             } else {
                 meeting.MStatus = Meeting.Status.CANCELLED;
                 incrementVectorClock();
                 replicateChanges(meeting);
+                Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + " but meeting was cancelled");
+
                 return meeting;
 
             }
@@ -298,10 +301,8 @@ namespace Server {
             int threadCounter = 0;
             while (threadCounter != _max_faults) {       //It waits for max_fauls responses since it is us plus _max_faults (f+1) in order to tolerate _max_faults faults
                 int index = WaitHandle.WaitAny(handles);
-                Console.WriteLine("end wait");
                 threadCounter++;
             }
-            Console.WriteLine("END SENDING SERVERS");
         }
 
         public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings) {
