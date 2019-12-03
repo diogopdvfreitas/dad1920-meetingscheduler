@@ -1,12 +1,13 @@
 AddRoom Lisboa 2 room1
 AddRoom Porto 1 room2
 Server s1 tcp://localhost:3001/server1 1 0 0
-Wait 1000
+Wait 10000
 Server s2 tcp://localhost:3002/server2 1 0 0
-Wait 1000
+Wait 10000
 Server s3 tcp://localhost:3003/server3 1 0 0
-Wait 1000
+Wait 20000
 Client c1 tcp://localhost:4001/client1 tcp://localhost:3001/server1 cs1.txt
+Wait 10000
 Client c2 tcp://localhost:4002/client2 tcp://localhost:3002/server2 cs2.txt
-Wait 15000
+Wait 20000
 Status

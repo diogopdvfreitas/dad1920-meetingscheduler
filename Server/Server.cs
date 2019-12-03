@@ -14,7 +14,8 @@ namespace Server {
 
         // Default values
         private String _id = "LISBOA";
-        private String _url = "tcp://localhost:8086/LISBOA";
+        private String _url = "tcp://localhost:8086/server1";
+        private String _objName = "server1";
         private int _port = 8086;
         private int _max_faults = 0;
         private int _min_delay = 0;
@@ -35,12 +36,13 @@ namespace Server {
         public delegate void ReplicationDelegate(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings);
         private IList<ReplicationDelegate> delegates = new List<ReplicationDelegate>();
 
+
         public Server() {
             _locations = new Dictionary<String, Location>();
             _meetings = new Dictionary<String, Meeting>();
             _clients = new Dictionary<String, String>();
 
-            setServer(_id);
+            setServer(_objName);
             serversConfig();
         }
 
@@ -48,6 +50,7 @@ namespace Server {
             _id = id;
             _url = url;
             _port = port;
+            _objName = obj;
             _max_faults = max_faults;
             _min_delay = min_delay;
             _max_delay = max_delay;
@@ -108,7 +111,9 @@ namespace Server {
         }
 
         public void receiveNewClient(String username, String clientUrl) {
-            _clients.Add(username, clientUrl);
+            lock (_clients) {
+                _clients.Add(username, clientUrl);
+            }
         }
 
         public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
@@ -401,5 +406,17 @@ namespace Server {
             }
             Console.ReadLine();
         }
+
+        //the first leader is the server with the highest object name
+        public void selectFirstLeader() {
+            String highestObjName = _objName;
+            /*foreach(String serverUrl in _otherServers.Keys)
+            String[] server_url = commandAttr[2].Split(new char[] { '/', ':' }, StringSplitOptions.RemoveEmptyEntries);
+            String server_IP = server_url[1];*/
+
+
+        }
+
+
     }
 }
