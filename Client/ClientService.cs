@@ -10,8 +10,8 @@ namespace Client {
             _client = client; 
         }
         //receiveInvite: receive meeting invitee
-        public void receiveInvite(Meeting meeting) {
-            _client.receiveInvite(meeting);
+        public void receiveInvite(Meeting meeting, String usernameSender) {
+            _client.receiveInvite(meeting, usernameSender);
         }
 
         public String status() {
