@@ -14,7 +14,7 @@ namespace Client {
         private String _username = "Rita";
         private String _url = "tcp://localhost:8080/CLIENT";
         private int _port = 8080;
-        private String _serverUrl = "tcp://localhost:8086/server1";
+        private String _serverUrl = "tcp://localhost:8080/server1";
 
         private TcpChannel _channel;
 
@@ -24,11 +24,14 @@ namespace Client {
         private IDictionary<String, Meeting> _clientMeetings;           // <Meeting Topic, Meeting>
         private IDictionary<String, IClientService> _otherClients;      // <Client 
 
-        private List<String> _auxToInvites;
+        private List<String> _auxToInvites; //auxiliary list of the clients we have to send invites to
+        private List<String> _auxMeetingAlredySent; //auxiliary list of the clients that have already send the invite to us
 
         public Client() {
             _clientMeetings = new Dictionary<String, Meeting>();
             _otherClients = new Dictionary<String, IClientService>();
+            _auxToInvites = new List<String>();
+            _auxMeetingAlredySent = new List<String>();
 
             setClient("CLIENT");
             connectToServer();
@@ -44,6 +47,8 @@ namespace Client {
 
             _clientMeetings = new Dictionary<String, Meeting>();
             _otherClients = new Dictionary<String, IClientService>();
+            _auxToInvites = new List<String>();
+            _auxMeetingAlredySent = new List<String>();
 
             setClient(clientUrlSplit[3]);
             connectToServer();
@@ -111,7 +116,6 @@ namespace Client {
                 }
 
                 Console.WriteLine(meeting.ToString());
-                Console.WriteLine("print para testar: --------------------------CREATING INVITE-------------------------");
                 sendInvite(meeting);
             }
             else
@@ -161,58 +165,84 @@ namespace Client {
         public void sendInvite(Meeting meeting) {
             _auxToInvites = new List<string>();
             getRegisteredClients();
-            if (meeting.Invitees == null) {
-                foreach (IClientService clientServ in _otherClients.Values) {
-                    clientServ.receiveInvite(meeting, _username);
-                }
+           
+            populateAuxInvite(meeting);
+            Console.WriteLine("Sending invites...");
+            foreach (String invitee in new List<string>(_auxToInvites)) {
+                _otherClients[invitee].receiveInvite(meeting, _username);
             }
-            else {
-                foreach (String invitee in meeting.Invitees) {  //send to only the invited clients
-                    if (_otherClients.ContainsKey(invitee))
-                        _otherClients[invitee].receiveInvite(meeting, _username);
-                    else
-                        Console.WriteLine(invitee + " is not registered in the system.");
-                }
-            }
+            
         }
 
         public void receiveInvite(Meeting meeting, String usernameSender) {
-            Console.WriteLine("[INVITE] Received an invitation to meeting " + meeting.Topic + " from " + meeting.Coord);
+            getRegisteredClients();
+            
             if (!_clientMeetings.ContainsKey(meeting.Topic)) {
+                Console.WriteLine("[INVITE] Received an invitation to meeting " + meeting.Topic);
                 lock (_clientMeetings) {
                     _clientMeetings.Add(meeting.Topic, meeting);
                 }
-                if (meeting.Invitees == null) {                         //if there is no invitees then we want to send to every client 
-                    _auxToInvites = new List<string>(_otherClients.Keys);
 
+                populateAuxInvite(meeting);
+                _auxMeetingAlredySent = new List<string>();
+                if (_auxToInvites.Count == 1 && _auxToInvites[0].Equals(usernameSender)) { //in the case that there is only a need to send the invite to one client and the chosen one was this.client
+                    populateAuxInvite(meeting);
                 }
-                else {
-                    _auxToInvites = meeting.Invitees;
-                }
-
-                Random random = new Random();                           //however we dont want every client to know every otherclient 
-                int i = random.Next(0, 1);                              //so, we divide the _otherClients list in two halfs and attribute a half to our clint via a random binary
-                int N = _auxToInvites.Count;
-                if (i == 1) {
-                    _auxToInvites.GetRange(0, (N / 2));
-                }
-                else if (i == 0) {
-                    _auxToInvites.GetRange((N / 2), (N / 2));
-                }
-
-                Console.WriteLine("print para testar: Aux to invites has the following clients: " + _auxToInvites);
-            }
-            else {
-                if (_auxToInvites.Contains(usernameSender)) {
+                
+                _otherClients[usernameSender].receiveInvite(meeting, _username); //resends the invitee in order for the other user to know we received
+                if (_auxToInvites.Contains(usernameSender)) {                    //if the sender was a client on our aux list, we dont wanna resend again the invitee in the future
                     _auxToInvites.Remove(usernameSender);
                 }
-
-                else if (_auxToInvites != null){                        //If we no longer have any clients in our aux list then it means that 
-                    foreach (String invitee in _auxToInvites) {         //all the clients we sent a message to, sent us one back and so, we no longer have to send them the invite again
+                foreach (String invitee in new List<string>(_auxToInvites)) {
+                    _auxMeetingAlredySent.Add(usernameSender);
+                    _otherClients[invitee].receiveInvite(meeting, _username);
+                }
+            }
+            else {
+                
+                //If we no longer have any clients in our aux list then it means that 
+                //all the clients we sent a message to, sent us one back and so, we no longer have to send them the invite again
+                if (_auxToInvites != null && !_auxMeetingAlredySent.Contains(usernameSender)) {
+                    _auxMeetingAlredySent.Add(usernameSender);    //this way, if the same usernameSender resends the invitee we no longer re-propagate it again
+                    foreach (String invitee in new List<string>(_auxToInvites)) {         
                         _otherClients[invitee].receiveInvite(meeting, _username);
+                    }
+                    if (_auxToInvites.Contains(usernameSender)) { //only removed after sending the answer
+                        _auxToInvites.Remove(usernameSender);
                     }
                 }
             }            
+        }
+
+        public void populateAuxInvite(Meeting meeting) {
+            if (meeting.Invitees == null) {                         //if there are no invitees then we want to send to every client 
+                _auxToInvites = new List<string>(_otherClients.Keys);
+
+            }
+            else {
+                _auxToInvites = new List<string>(meeting.Invitees);
+            }
+
+            if (_auxToInvites.Contains(_username)) {    //we dont want the client to send to himself
+                _auxToInvites.Remove(_username);
+            }
+
+            int N = _auxToInvites.Count;
+            if (N > 1) {                            //so, we divide the _otherClients list in two halfs and attribute a half to our clint via a random binary
+                Random random = new Random();       //however we dont want every client to know every otherclient 
+                Dictionary<int, string> auxList = new Dictionary<int, string>();
+                int w = 0;
+                while (w <= ((N/2))){ //half of all the clients -- in order to guarantee that every client receives at least one invite
+                    int index = random.Next(_auxToInvites.Count);
+                    if (!auxList.ContainsKey(index)) {
+                        auxList.Add(index, _auxToInvites[index]);
+                        w++;
+                    }
+                }
+                if (auxList.Count != 0) {
+                    _auxToInvites = new List<string>(auxList.Values);
+                }
+            }
         }
 
         public void wait(int time) {
