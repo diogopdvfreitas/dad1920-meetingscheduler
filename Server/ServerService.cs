@@ -58,9 +58,9 @@ namespace Server {
             return _server.checkMeetingStatusChange(meeting);
         }
        
-        public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings) {
+        public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings, int serverCloseTicket) {
             _server.checkDelay();
-            _server.receiveChanges(serverUrl, vectorClock, meetings);
+            _server.receiveChanges(serverUrl, vectorClock, meetings, serverCloseTicket);
         }
 
         public void addRoom(String roomLocation, int capacity, String name) {
@@ -84,6 +84,10 @@ namespace Server {
 
         public void unfreeze() {
             _server.unfreeze();
+        }
+
+        public int grantCloseTicket(String serverUrl) {
+            return _server.grantCloseTicket(serverUrl);
         }
     }
 }

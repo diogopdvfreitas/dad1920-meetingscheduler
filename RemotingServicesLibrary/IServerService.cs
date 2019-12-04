@@ -13,11 +13,12 @@ namespace RemotingServicesLibrary {
         Meeting closeMeeting(String topic, String username);
         Meeting getMeeting(String topic);
         bool checkMeetingStatusChange(Meeting meeting);
-        void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings);
+        void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings, int serverCloseTicket);
         void addRoom(String location, int capacity, String name);
         void addLocation(String location_name, Location location);
         String status();
         void freeze();
         void unfreeze();
+        int grantCloseTicket(String serverUrl);
     }
 }

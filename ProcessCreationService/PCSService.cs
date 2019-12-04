@@ -27,7 +27,8 @@ namespace ProcessCreationService {
             process.StartInfo.FileName = "..\\..\\..\\Server\\bin\\Debug\\Server";
             process.StartInfo.Arguments = serverPort + " " + server_id + " " + server_url + " " + maxFaults + " " + minDelay + " " + maxDelay + " " + obj;
             process.Start();
-            _processes.Add(server_id, process);
+            lock(_processes)
+                _processes.Add(server_id, process);
             _serverUrls.Add(server_id, server_url);
         }
 

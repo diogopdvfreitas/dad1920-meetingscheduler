@@ -21,6 +21,8 @@ namespace ObjectsLibrary {
         int _nJoined;
         Slot _pickedSlot;
         List<Slot> _invalidSlots;
+        int _closeTicket;
+        String _closeUser; //the client that wanted to close the meeting
 
         public Meeting(String coord, String topic, int minAtt, List<Slot> slots) {
             _coord = coord;
@@ -33,6 +35,7 @@ namespace ObjectsLibrary {
             _pickedSlot = null;
             _invitees = null;
             _invalidSlots = new List<Slot>();
+            _closeTicket = 0;
         }
 
         public Meeting(String coord, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
@@ -47,6 +50,8 @@ namespace ObjectsLibrary {
             _nJoined = 0;
             _pickedSlot = null;
             _invalidSlots = new List<Slot>();
+            _closeTicket = 0;
+
         }
 
         public String Coord {
@@ -78,6 +83,17 @@ namespace ObjectsLibrary {
             set { _pickedSlot = value; }
         }
 
+        public int CloseTicket {
+            get { return _closeTicket; }
+            set { this._closeTicket = value; }
+        }
+
+        public String CloseUser {
+            get { return _closeUser; }
+            set { this._closeUser = value;  }
+        }
+
+
         public Slot getSlot(String slot) {
             String[] slotAttr = slot.Split(',');
             foreach(Slot slt in _slots) {
@@ -101,8 +117,10 @@ namespace ObjectsLibrary {
             String[] slotAttr = chosenSlot.Split(',');
             foreach (Slot slot in _slots) {
                 if (slot.Location.Equals(slotAttr[0]) && slot.Date.Equals(slotAttr[1])) {
-                    slot.joinSlot(username);
-                    _nJoined++;
+                    lock (this) {
+                        slot.joinSlot(username);
+                        _nJoined++;
+                    }
                     return true;
                 }
             }
