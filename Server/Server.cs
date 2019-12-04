@@ -295,7 +295,8 @@ namespace Server {
         }
 
         public void incrementVectorClock() {
-            _vectorClock[_url]++;
+            lock(_vectorClock)
+                _vectorClock[_url]++;
         }
 
         //when we call replicate changes we already did the changes
@@ -565,16 +566,10 @@ namespace Server {
         }
 
         public void processPendingCloses() {
-            Console.WriteLine("PROCESSING PENDING");
-
             if (_pendingCloses.Count != 0) {
                 foreach (Meeting meeting in _pendingCloses.Values) {
-                    Console.WriteLine("PROCESSING PENDING MEETING: " + meeting.Topic);
-                    if (meeting.CloseTicket == (_lastCloseTicket + 1) & meeting.MStatus == Meeting.Status.OPEN) {
+                    if (meeting.CloseTicket == (_lastCloseTicket + 1) & meeting.MStatus == Meeting.Status.OPEN)
                         closeMeeting(meeting.Topic, meeting.CloseUser);
-                        Console.WriteLine(_meetings[meeting.Topic].ToString());
-                        Console.WriteLine("processed " + meeting.Topic);
-                    }
                 }
             }
         }

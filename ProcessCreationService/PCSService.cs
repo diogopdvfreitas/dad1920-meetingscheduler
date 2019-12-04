@@ -29,7 +29,8 @@ namespace ProcessCreationService {
             process.Start();
             lock(_processes)
                 _processes.Add(server_id, process);
-            _serverUrls.Add(server_id, server_url);
+            lock(_serverUrls)
+                _serverUrls.Add(server_id, server_url);
         }
 
         public void createClient(String clientUsername, String clientUrl, String serverUrl, String scriptFile) {
@@ -38,8 +39,10 @@ namespace ProcessCreationService {
             process.StartInfo.FileName = "..\\..\\..\\Client\\bin\\Debug\\Client";
             process.StartInfo.Arguments = clientUsername + " " + clientUrl + " " + serverUrl + " " + scriptFile;
             process.Start();
-            _processes.Add(clientUsername, process);
-            _clientUrls.Add(clientUsername, clientUrl);
+            lock(_processes)
+                _processes.Add(clientUsername, process);
+            lock(_clientUrls)
+                _clientUrls.Add(clientUsername, clientUrl);
         }
 
         public void shutDown() {
