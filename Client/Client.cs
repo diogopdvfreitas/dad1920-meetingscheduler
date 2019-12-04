@@ -6,6 +6,8 @@ using System.Runtime.Remoting.Channels;
 using RemotingServicesLibrary;
 using System.Runtime.Remoting;
 using ClientLibrary;
+using ExceptionsLibrary;
+
 
 namespace Client {
     public class Client : ClientAPI {
@@ -154,6 +156,7 @@ namespace Client {
 
         public void closeMeeting(String topic) {
             Meeting meeting = _serverService.closeMeeting(topic, _username);
+
             if (meeting == null)
                 Console.WriteLine("Couldn't close meeting!\nMinimum number of Atendees not yet reached!");
         }

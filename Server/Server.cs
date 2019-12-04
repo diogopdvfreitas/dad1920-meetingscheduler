@@ -8,6 +8,7 @@ using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Threading;
 using System.Net.Sockets;
+using ExceptionsLibrary;
 
 namespace Server {
     public class Server {
@@ -171,9 +172,12 @@ namespace Server {
         }
 
         public Meeting closeMeeting(String topic, String username) {
-            Console.WriteLine("CLOSE MEETING");
             Meeting meeting = _meetings[topic];
 
+            if (meeting.MStatus != Meeting.Status.OPEN) {
+                return null;
+               // throw new ClosedMeetingException();
+            }
             if (checkIfCanClose(meeting, username) & meeting.MStatus == Meeting.Status.OPEN) {
                 if (meeting.checkClose()) {
                     while (meeting.MStatus != Meeting.Status.BOOKED) {
@@ -256,8 +260,8 @@ namespace Server {
                     Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + " but meeting was cancelled");
 
                     processPendingCloses();
+                    //throw new NotEnoughAttendeesExceptions();
                     return meeting;
-
                 }
             }
             else

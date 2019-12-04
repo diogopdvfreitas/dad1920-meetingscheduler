@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{225C951F-9168-49BA-90A2-B42DE2300796}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>Client</RootNamespace>
-    <AssemblyName>Client</AssemblyName>
+    <ProjectGuid>{4E46F02C-B666-409A-B274-B05BD8AD42ED}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ExceptionsLibrary</RootNamespace>
+    <AssemblyName>ExceptionsLibrary</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,13 +30,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Project Start|AnyCPU'">
-    <OutputPath>bin\Project Start\</OutputPath>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -47,31 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientScript.cs" />
-    <Compile Include="Client.cs" />
-    <Compile Include="ClientService.cs" />
+    <Compile Include="NotEnoughAttendeesExceptions.cs" />
+    <Compile Include="ClosedMeetingException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ClientLibrary\ClientLibrary.csproj">
-      <Project>{e0e06ccb-01b8-453c-ba93-6dfcbaec8d17}</Project>
-      <Name>ClientLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ExceptionsLibrary\ExceptionsLibrary.csproj">
-      <Project>{4e46f02c-b666-409a-b274-b05bd8ad42ed}</Project>
-      <Name>ExceptionsLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ObjectsLibrary\ObjectsLibrary.csproj">
-      <Project>{ee1d1785-a995-48cd-9ca1-baf08d3c894e}</Project>
-      <Name>ObjectsLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RemotingServicesLibrary\RemotingServicesLibrary.csproj">
-      <Project>{c1d5bb12-aeb8-4743-b1bc-81c478bb2e73}</Project>
-      <Name>RemotingServicesLibrary</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

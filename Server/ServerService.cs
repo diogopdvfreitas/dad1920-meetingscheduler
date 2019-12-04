@@ -2,9 +2,7 @@
 using RemotingServicesLibrary;
 using ObjectsLibrary;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Threading;
-
+using ExceptionsLibrary;
 namespace Server {
     public class ServerService : MarshalByRefObject, IServerService {
 
@@ -44,7 +42,7 @@ namespace Server {
             return _server.joinMeetingSlot(topic, slot, username);
         }
 
-        public Meeting closeMeeting(String topic, String username) {
+        public Meeting closeMeeting(String topic, String username){
             _server.checkDelay();
             return _server.closeMeeting(topic, username);
         }
