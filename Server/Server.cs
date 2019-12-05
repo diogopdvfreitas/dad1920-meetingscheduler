@@ -169,11 +169,13 @@ namespace Server {
         public Meeting joinMeetingSlot(String topic, String slot, String username) {
             if (_meetings.ContainsKey(topic)) {
                 lock (_meetings[topic]) {
-                    if (_meetings[topic].joinSlot(slot, username)) {
-                        incrementVectorClock();
-                        replicateChanges(_meetings[topic]);
-                        Console.WriteLine("[CLIENT:" + username + "] Joined meeting " + topic + " on slot " + slot);
-                        return _meetings[topic];
+                    if (_meetings[topic].MStatus == Meeting.Status.OPEN) {
+                        if (_meetings[topic].joinSlot(slot, username)) {
+                            incrementVectorClock();
+                            replicateChanges(_meetings[topic]);
+                            Console.WriteLine("[CLIENT:" + username + "] Joined meeting " + topic + " on slot " + slot);
+                            return _meetings[topic];
+                        }
                     }
                 }
             }
@@ -194,8 +196,10 @@ namespace Server {
                             foreach (Room room in _locations[slot.Location].roomWithCapacity(slot.NJoined)) {
                                 if (room.checkRoomFree(slot.Date)) {
                                     if (room.bookMeeting(slot.Date, meeting)) {
-                                        slot.PickedRoom = room;
-                                        meeting.PickedSlot = slot;
+                                        Slot pickedSlot = new Slot(slot.Location, slot.Date);
+                                        pickedSlot.PickedRoom = room;
+                                        pickedSlot.Joined = slot.Joined;
+                                        meeting.PickedSlot = pickedSlot;
                                         meeting.MStatus = Meeting.Status.BOOKED;
                                         meeting.cleanInvalidSlots();
                                         incrementVectorClock();
@@ -224,8 +228,10 @@ namespace Server {
                                 foreach (Room room in _locations[slot.Location].Rooms) {
                                     if (room.checkRoomFree(slot.Date)) {
                                         if (room.bookMeeting(slot.Date, meeting)) {
-                                            slot.PickedRoom = room;
-                                            meeting.PickedSlot = slot;
+                                            Slot pickedSlot = new Slot(slot.Location, slot.Date);
+                                            pickedSlot.PickedRoom = room;
+                                            pickedSlot.Joined = slot.Joined;
+                                            meeting.PickedSlot = pickedSlot;
                                             meeting.MStatus = Meeting.Status.BOOKED;
                                             meeting.cleanInvalidSlots();
 
@@ -237,7 +243,6 @@ namespace Server {
                                             Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic +
                                                 ". Selected Slot is " + meeting.PickedSlot + " in Room " + meeting.PickedSlot.PickedRoom);
                                             processPendingCloses();
-                                            Console.WriteLine("FINISAHED2");
                                             return _meetings[topic];
                                         }
                                     }
@@ -253,7 +258,6 @@ namespace Server {
                             replicateChanges(meeting);
                             Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + " but meeting was cancelled");
                             processPendingCloses();
-                            Console.WriteLine("FINISAHED3");
                             return _meetings[topic];
                         }
                     }
@@ -264,7 +268,6 @@ namespace Server {
                         Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + " but meeting was cancelled");
                         processPendingCloses();
                         //throw new NotEnoughAttendeesExceptions();
-                        Console.WriteLine("FINISAHED4");
 
                         return _meetings[topic];
                     }
@@ -333,6 +336,7 @@ namespace Server {
             foreach (KeyValuePair<String, IServerService> server in _otherServers) {
                 if (!_unreachServers.Contains(server.Key)) {
                     Thread thread = new Thread(() => {
+                        Console.WriteLine("thread");
                         try {
                             server.Value.receiveChanges(_url, vectorClock, meetings, _lastCloseTicket);
                             handles[t].Set();
@@ -354,6 +358,8 @@ namespace Server {
             int threadCounter = 0;
             while (threadCounter != _max_faults) {       //It waits for max_fauls responses since it is us plus _max_faults (f+1) in order to tolerate _max_faults faults
                 int index = WaitHandle.WaitAny(handles);
+                Console.WriteLine("INDEX: " + index);
+                handles[index] = new AutoResetEvent(false);
                 threadCounter++;
             }
         }
