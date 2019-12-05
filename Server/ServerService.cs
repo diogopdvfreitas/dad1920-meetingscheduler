@@ -94,8 +94,16 @@ namespace Server {
             _server.unfreeze();
         }
 
-        public int grantCloseTicket(String serverUrl) {
+        public KeyValuePair<int, String> grantCloseTicket(String serverUrl) {
             return _server.grantCloseTicket(serverUrl);
+        }
+
+        public void newGrantedTicket(String leader, KeyValuePair<int, String> newGrantedTicketByLeader) {
+            _server.newGrantedTicket(leader, newGrantedTicketByLeader);
+        }
+
+        public void selectNewLeader() {
+            _server.selectNewLeader();
         }
     }
 }

@@ -21,6 +21,8 @@ namespace RemotingServicesLibrary {
         String status();
         void freeze();
         void unfreeze();
-        int grantCloseTicket(String serverUrl);
+        KeyValuePair<int, String> grantCloseTicket(String serverUrl);
+        void newGrantedTicket(String leader, KeyValuePair<int, String> newGrantedTicketByLeader);
+        void selectNewLeader();
     }
 }

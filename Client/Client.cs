@@ -174,6 +174,8 @@ namespace Client {
         public void closeMeeting(String topic) {
             while (checkServerNeedsUpdate()) { _serverService.updateServer(); };
             Meeting meeting = _serverService.closeMeeting(topic, _username).Meeting;
+            if (meeting != null)
+                Console.WriteLine(meeting.ToString());
 
             if (meeting == null)
                 Console.WriteLine("Couldn't close meeting!\nMinimum number of Atendees not yet reached!");
