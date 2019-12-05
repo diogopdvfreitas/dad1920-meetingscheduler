@@ -12,9 +12,9 @@ namespace Server {
             _server = server;
         }
 
-        public void clientConnect(String username, String clientUrl) {
+        public IDictionary<String, int> clientConnect(String username, String clientUrl) {
             _server.checkDelay();
-            _server.clientConnect(username, clientUrl);
+            return _server.clientConnect(username, clientUrl);
         }
 
         public void receiveNewClient(String username, String clientUrl) {
@@ -27,22 +27,27 @@ namespace Server {
             return _server.Clients;
         }
 
-        public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
+        public IDictionary<String, int> getVectorClock() {
+            _server.checkDelay();
+            return _server.VectorClock;
+        }
+
+        public MeetingMessage createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
             _server.checkDelay();
             return _server.createMeeting(username, topic, minAtt, slots);
         }
 
-        public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
+        public MeetingMessage createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
             _server.checkDelay();
             return _server.createMeeting(username, topic, minAtt, slots, invitees);
         }
 
-        public Meeting joinMeetingSlot(String topic, String slot, String username) {
+        public MeetingMessage joinMeetingSlot(String topic, String slot, String username) {
             _server.checkDelay();
             return _server.joinMeetingSlot(topic, slot, username);
         }
 
-        public Meeting closeMeeting(String topic, String username){
+        public MeetingMessage closeMeeting(String topic, String username){
             _server.checkDelay();
             return _server.closeMeeting(topic, username);
         }
@@ -69,6 +74,11 @@ namespace Server {
         public void addLocation(String location_name, Location location) {
             _server.checkDelay();
             _server.addLocation(location_name, location);
+        }
+
+        public void updateServer() {
+            _server.checkDelay();
+            _server.updateServer();
         }
 
         public String status() {
