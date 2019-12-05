@@ -7,7 +7,7 @@ using RemotingServicesLibrary;
 using System.Runtime.Remoting;
 using ClientLibrary;
 using ExceptionsLibrary;
-
+using System.Net.Sockets;
 
 namespace Client {
     public class Client : ClientAPI {
@@ -15,8 +15,8 @@ namespace Client {
         //default values
         private String _username = "Rita";
         private String _url = "tcp://localhost:8080/CLIENT";
-        private int _port = 8080;
-        private String _serverUrl = "tcp://localhost:8080/server1";
+        private int _port = 8081;
+        private String _serverUrl = "tcp://localhost:8081/server1";
 
         private TcpChannel _channel;
 
@@ -25,6 +25,7 @@ namespace Client {
 
         private IDictionary<String, Meeting> _clientMeetings;           // <Meeting Topic, Meeting>
         private IDictionary<String, IClientService> _otherClients;      // <Client 
+        private SortedList<String, IServerService> _otherServers;      // <Client 
 
         private List<String> _auxToInvites; //auxiliary list of the clients we have to send invites to
         private List<String> _auxMeetingAlredySent; //auxiliary list of the clients that have already send the invite to us
@@ -32,6 +33,7 @@ namespace Client {
         public Client() {
             _clientMeetings = new Dictionary<String, Meeting>();
             _otherClients = new Dictionary<String, IClientService>();
+            _otherServers = new SortedList<String, IServerService>();
             _auxToInvites = new List<String>();
             _auxMeetingAlredySent = new List<String>();
 
@@ -49,6 +51,7 @@ namespace Client {
 
             _clientMeetings = new Dictionary<String, Meeting>();
             _otherClients = new Dictionary<String, IClientService>();
+            _otherServers = new SortedList<String, IServerService>();
             _auxToInvites = new List<String>();
             _auxMeetingAlredySent = new List<String>();
 
@@ -70,7 +73,7 @@ namespace Client {
             _serverService = (IServerService) Activator.GetObject(typeof(IServerService), _serverUrl);
             _serverService.clientConnect(_username, _url);
             getRegisteredClients();
-
+            getRegisteredServers();
             Console.WriteLine("[CONNECT] Connected to server at "+ _serverUrl);
         }
 
@@ -84,85 +87,159 @@ namespace Client {
             }
         }
 
+        public void getRegisteredServers() {
+            IDictionary<String, IServerService> registeredServers = _serverService.getRegisteredServers();
+            foreach (KeyValuePair<String, IServerService> server in registeredServers) {
+                if (!_otherServers.ContainsKey(server.Key)) {
+                    _otherServers.Add(server.Key, server.Value);
+                }
+            }
+        }
+
+        public IServerService getServerService() {
+            try { 
+                return _serverService;
+            }
+            catch (SocketException) {
+                Console.WriteLine("Previously connected server now disconnected...");
+                newServerConnection();
+                return getServerService();
+            }
+        }
+
+        public void newServerConnection() {
+            int index = 0;
+            if (_otherServers.Count != 0) { 
+                foreach (KeyValuePair<String, IServerService> server in _otherServers){
+                    index = _otherServers.IndexOfKey(_serverUrl);
+                }
+            }
+            Console.WriteLine("Trying to connect to new Server " + _otherServers.Keys[index+1]);
+            _serverUrl = _otherServers.Keys[index+1];
+            _serverService = (IServerService)Activator.GetObject(typeof(IServerService), _serverUrl);
+        }
+
         public void listMeetings() {
-            Console.WriteLine("|========== Meetings ==========|");
+            try { 
+                Console.WriteLine("|========== Meetings ==========|");
 
-            String list = "";
-            List<String> meetingStatusChanged = new List<String>();
+                String list = "";
+                List<String> meetingStatusChanged = new List<String>();
 
-            lock (meetingStatusChanged) {
-                foreach (Meeting meeting in _clientMeetings.Values) {
-                    if (_serverService.checkMeetingStatusChange(meeting)) {
-                        meetingStatusChanged.Add(meeting.Topic);
+                lock (meetingStatusChanged) {
+                    foreach (Meeting meeting in _clientMeetings.Values) {
+                        if (getServerService().checkMeetingStatusChange(meeting)) {
+                            meetingStatusChanged.Add(meeting.Topic);
+                        }
                     }
                 }
-            }
 
-            lock (_clientMeetings) {
-                foreach (String topic in meetingStatusChanged) {
-                    _clientMeetings[topic] = _serverService.getMeeting(topic);
+                lock (_clientMeetings) {
+                    foreach (String topic in meetingStatusChanged) {
+                        _clientMeetings[topic] = getServerService().getMeeting(topic);
+                    }
                 }
-            }
 
-            foreach (Meeting meeting in _clientMeetings.Values) {
-                list += meeting.ToString(); 
+                foreach (Meeting meeting in _clientMeetings.Values) {
+                    list += meeting.ToString(); 
+                }
+                Console.WriteLine(list);
             }
-            Console.WriteLine(list);  
+            catch (SocketException) {
+                Console.WriteLine("Previously connected server now disconnected...");
+                newServerConnection();
+                listMeetings();
+            }
         }
 
         public void createMeeting(String topic, int minAtt, List<Slot> slots) {
-            Meeting meeting = _serverService.createMeeting(_username, topic, minAtt, slots);
-            if (meeting != null) {
-                lock (_clientMeetings) {
-                    _clientMeetings.Add(meeting.Topic, meeting);
-                }
+            try {
+                Meeting meeting = getServerService().createMeeting(_username, topic, minAtt, slots);
+                if (meeting != null) {
+                    lock (_clientMeetings) {
+                        _clientMeetings.Add(meeting.Topic, meeting);
+                    }
 
-                Console.WriteLine(meeting.ToString());
-                sendInvite(meeting);
+                    Console.WriteLine(meeting.ToString());
+                    sendInvite(meeting);
+                }
+                else
+                    Console.WriteLine("Couldn't create meeting!\nMeeting with topic " + topic + " already exists!");
             }
-            else
-                Console.WriteLine("Couldn't create meeting!\nMeeting with topic " + topic + " already exists!");
+            catch (SocketException) {
+                Console.WriteLine("Previously connected server now disconnected...");
+                newServerConnection();
+                createMeeting(topic, minAtt, slots);
+            }
         }
 
         public void createMeeting(String topic, int minAtt, List<Slot> slots, List<String> invitees) {
-            Meeting meeting = _serverService.createMeeting(_username, topic, minAtt, slots, invitees);
-            if (meeting != null) {
-                lock (_clientMeetings) {
-                    _clientMeetings.Add(meeting.Topic, meeting);
-                }
+            try {
+                Meeting meeting = getServerService().createMeeting(_username, topic, minAtt, slots, invitees);
+                if (meeting != null) {
+                    lock (_clientMeetings) {
+                        _clientMeetings.Add(meeting.Topic, meeting);
+                    }
 
-                Console.WriteLine(meeting.ToString());
-                sendInvite(meeting);
+                    Console.WriteLine(meeting.ToString());
+                    sendInvite(meeting);
+                }
+                else
+                    Console.WriteLine("Couldn't create meeting!\nMeeting with topic " + topic + " already exists!");
             }
-            else
-                Console.WriteLine("Couldn't create meeting!\nMeeting with topic " + topic + " already exists!");
+            catch (SocketException) {
+                Console.WriteLine("Previously connected server now disconnected...");
+                newServerConnection();
+                createMeeting(topic, minAtt, slots, invitees);
+            }
         }
 
         public void joinMeetingSlot(String topic, String slot){
-            Meeting meeting = _serverService.getMeeting(topic);
-            if (meeting == null) {
-                Console.WriteLine("Couldn't join meeting!\nMeeting " + topic + " doesn't exist!");
-                return;
+            try {
+                Meeting meeting = getServerService().getMeeting(topic);
+                if (meeting == null) {
+                    Console.WriteLine("Couldn't join meeting!\nMeeting " + topic + " doesn't exist!");
+                    return;
+                }
+                if (!meeting.checkInvitation(_username)) {
+                    Console.WriteLine("You were not invited to this meeting!");
+                }
+                meeting = getServerService().joinMeetingSlot(topic, slot, _username);
+                if (meeting != null)
+                    Console.WriteLine(meeting.ToString());
+                else
+                    Console.WriteLine("Couldn't join meeting!\nDesired slot not found!");
             }
-            if (!meeting.checkInvitation(_username)) {
-                Console.WriteLine("You were not invited to this meeting!");
+            catch (SocketException) {
+                Console.WriteLine("Previously connected server now disconnected...");
+                newServerConnection();
+                joinMeetingSlot(topic, slot);
             }
-            meeting = _serverService.joinMeetingSlot(topic, slot, _username);
-            if (meeting != null)
-                Console.WriteLine(meeting.ToString());
-            else
-                Console.WriteLine("Couldn't join meeting!\nDesired slot not found!");
         }
 
         public void closeMeeting(String topic) {
-            Meeting meeting = _serverService.closeMeeting(topic, _username);
+            try {
+                Meeting meeting = getServerService().closeMeeting(topic, _username);
 
-            if (meeting == null)
-                Console.WriteLine("Couldn't close meeting!\nMinimum number of Atendees not yet reached!");
+                if (meeting == null)
+                    Console.WriteLine("Couldn't close meeting!\nMinimum number of Atendees not yet reached!");
+            }
+            catch (SocketException) {
+                Console.WriteLine("Previously connected server now disconnected...");
+                newServerConnection();
+                closeMeeting(topic);
+            }
         }
 
         public Meeting getMeeting(String topic) {
-            return _serverService.getMeeting(topic);
+            try {
+                return getServerService().getMeeting(topic);
+            }
+            catch (SocketException) {
+                Console.WriteLine("Previously connected server now disconnected...");
+                newServerConnection();
+                return getMeeting(topic);
+            }
         }
 
         public void sendInvite(Meeting meeting) {
@@ -174,6 +251,7 @@ namespace Client {
             foreach (String invitee in new List<string>(_auxToInvites)) {
                 _otherClients[invitee].receiveInvite(meeting, _username);
             }
+            Console.WriteLine("All invites sent.");
             
         }
 
