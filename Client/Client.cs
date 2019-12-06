@@ -26,7 +26,6 @@ namespace Client {
         private IDictionary<String, Meeting> _clientMeetings;           // <Meeting Topic, Meeting>
         private IDictionary<String, IClientService> _otherClients;      // <Client 
 		private SortedList<String, IServerService> _otherServers;      // <Client 
-        private int _newConnection = 0;
 
         private IDictionary<String, int> _vectorClock;                  // <Server URL, Clock Counter>
 
@@ -112,21 +111,16 @@ namespace Client {
         }
 
         public void newServerConnection() {
-            if (_newConnection < (_otherServers.Count - 1)) {
-                _newConnection++;
-                int index = 0;
-                if (_otherServers.Count != 0) {
-                    foreach (KeyValuePair<String, IServerService> server in _otherServers) {
-                        index = _otherServers.IndexOfKey(_serverUrl);
-                    }
+            int index = 0;
+            if (_otherServers.Count != 0) {
+                foreach (KeyValuePair<String, IServerService> server in _otherServers) {
+                    index = _otherServers.IndexOfKey(_serverUrl);
                 }
-                int newIndex = (index + 1) % _otherServers.Count;
-                Console.WriteLine("Trying to connect to new Server " + _otherServers.Keys[newIndex]);
-                _serverUrl = _otherServers.Keys[newIndex];
-                _serverService = (IServerService)Activator.GetObject(typeof(IServerService), _serverUrl);
             }
-            else
-                throw new NoMoreAvailableServersException("No More Servers Avalable.");
+            int newIndex = (index + 1) % _otherServers.Count;
+            Console.WriteLine("Trying to connect to new Server " + _otherServers.Keys[newIndex]);
+            _serverUrl = _otherServers.Keys[newIndex];
+            _serverService = (IServerService)Activator.GetObject(typeof(IServerService), _serverUrl);
         }
 
         public bool checkServerNeedsUpdate() {
