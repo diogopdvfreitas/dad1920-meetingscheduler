@@ -367,7 +367,7 @@ namespace Server {
             }
         }
 
-        public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings, int serverLastCloseTicket) {
+        public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings) {
             try {
                 lock (this) {
                     bool changes = false;
@@ -421,7 +421,7 @@ namespace Server {
                     }
                     if (meetingsToResend.Count != 0)
                         try {
-                            _otherServers[serverUrl].receiveChanges(_url, _vectorClock, meetingsToResend, _lastCloseTicket);
+                            _otherServers[serverUrl].receiveChanges(_url, _vectorClock, meetingsToResend);
                         }
                         catch (SocketException) {
                             if (!_unreachServers.Contains(serverUrl)) {
@@ -452,7 +452,7 @@ namespace Server {
             _locations.Add(location_name, location);
         }
 
-        public void updateServer() {
+        public IDictionary<String, int> updateServer() {
             KeyValuePair<String, IDictionary<String, int>> mostUpdatedServerVectorClock = new KeyValuePair<String, IDictionary<String, int>>(_url, _vectorClock);
             foreach (KeyValuePair<String, IServerService> server in _otherServers) {
                 bool newVC = false;
@@ -467,12 +467,14 @@ namespace Server {
                     mostUpdatedServerVectorClock = new KeyValuePair<String, IDictionary<String, int>>(server.Key, serverVectorClock);
             }
 
-            if (!mostUpdatedServerVectorClock.Value.Equals(_vectorClock)) {
-
-            }
+            if (!mostUpdatedServerVectorClock.Value.Equals(_vectorClock))
+                _otherServers[mostUpdatedServerVectorClock.Key].getUpdatedMeetingsFromUpdatedServer(_url, _vectorClock);
+            
+            _vectorClock = mostUpdatedServerVectorClock.Value;
+            return _vectorClock;
         }
 
-        public IDictionary<String, List<Meeting>> getUpdatedMeetingsFromUpdatedServer(String requestingServerURL, IDictionary<String, int> vectorClock) {
+        public void getUpdatedMeetingsFromUpdatedServer(String requestingServerURL, IDictionary<String, int> vectorClock) {
             IDictionary<String, List<Meeting>> meetingsToSend = new Dictionary<String, List<Meeting>>();        // <Server URL, Server Meetings to send>
             foreach (String serverURL in vectorClock.Keys) {
                 if (!serverURL.Equals(requestingServerURL) && !serverURL.Equals(_url)) {
@@ -481,7 +483,7 @@ namespace Server {
                     }
                 }
             }
-            return meetingsToSend;
+            _otherServers[requestingServerURL].receiveChanges(_url, _vectorClock, meetingsToSend);
         }
 
         public String status() {

@@ -97,7 +97,7 @@ namespace Client {
         }
 
         public void listMeetings() {
-            while (checkServerNeedsUpdate()) { _serverService.updateServer(); };
+            while (checkServerNeedsUpdate()) { _vectorClock = _serverService.updateServer(); };
             Console.WriteLine("|========== Meetings ==========|");
 
             String list = "";
@@ -124,8 +124,9 @@ namespace Client {
         }
 
         public void createMeeting(String topic, int minAtt, List<Slot> slots) {
-            while (checkServerNeedsUpdate()) { _serverService.updateServer(); };
-            Meeting meeting = _serverService.createMeeting(_username, topic, minAtt, slots).Meeting;
+            while (checkServerNeedsUpdate()) { _vectorClock = _serverService.updateServer(); };
+            MeetingMessage meetingMessage = _serverService.createMeeting(_username, topic, minAtt, slots);
+            Meeting meeting = meetingMessage.Meeting;
             if (meeting != null) {
                 lock (_clientMeetings) {
                     _clientMeetings.Add(meeting.Topic, meeting);
@@ -133,15 +134,16 @@ namespace Client {
 
                 Console.WriteLine(meeting.ToString());
                 sendInvite(meeting);
+                _vectorClock = meetingMessage.VectorClock;
             }
             else
                 Console.WriteLine("Couldn't create meeting!\nMeeting with topic " + topic + " already exists!");
         }
 
         public void createMeeting(String topic, int minAtt, List<Slot> slots, List<String> invitees) {
-            while (checkServerNeedsUpdate()) ;
-
-            Meeting meeting = _serverService.createMeeting(_username, topic, minAtt, slots, invitees).Meeting;
+            while (checkServerNeedsUpdate()) { _vectorClock = _serverService.updateServer(); };
+            MeetingMessage meetingMessage = _serverService.createMeeting(_username, topic, minAtt, slots);
+            Meeting meeting = meetingMessage.Meeting;
             if (meeting != null) {
                 lock (_clientMeetings) {
                     _clientMeetings.Add(meeting.Topic, meeting);
@@ -149,13 +151,14 @@ namespace Client {
 
                 Console.WriteLine(meeting.ToString());
                 sendInvite(meeting);
+                _vectorClock = meetingMessage.VectorClock;
             }
             else
                 Console.WriteLine("Couldn't create meeting!\nMeeting with topic " + topic + " already exists!");
         }
 
         public void joinMeetingSlot(String topic, String slot){
-            while (checkServerNeedsUpdate()) { _serverService.updateServer(); };
+            while (checkServerNeedsUpdate()) { _vectorClock = _serverService.updateServer(); };
             Meeting meeting = _serverService.getMeeting(topic);
             if (meeting == null) {
                 Console.WriteLine("Couldn't join meeting!\nMeeting " + topic + " doesn't exist!");
@@ -164,25 +167,30 @@ namespace Client {
             if (!meeting.checkInvitation(_username)) {
                 Console.WriteLine("You were not invited to this meeting!");
             }
-            meeting = _serverService.joinMeetingSlot(topic, slot, _username).Meeting;
-            if (meeting != null)
+            MeetingMessage meetingMessage = _serverService.joinMeetingSlot(topic, slot, _username);
+            meeting = meetingMessage.Meeting;
+            if (meeting != null) {
                 Console.WriteLine(meeting.ToString());
+                _vectorClock = meetingMessage.VectorClock;
+            }
             else
                 Console.WriteLine("Couldn't join meeting!\nDesired slot not found!");
         }
 
         public void closeMeeting(String topic) {
-            while (checkServerNeedsUpdate()) { _serverService.updateServer(); };
-            Meeting meeting = _serverService.closeMeeting(topic, _username).Meeting;
-            if (meeting != null)
+            while (checkServerNeedsUpdate()) { _vectorClock = _serverService.updateServer(); };
+            MeetingMessage meetingMessage = _serverService.closeMeeting(topic, _username);
+            Meeting meeting = meetingMessage.Meeting;
+            if (meeting != null) { 
                 Console.WriteLine(meeting.ToString());
-
+                _vectorClock = meetingMessage.VectorClock;
+            }
             if (meeting == null)
                 Console.WriteLine("Couldn't close meeting!\nMinimum number of Atendees not yet reached!");
         }
 
         public Meeting getMeeting(String topic) {
-            while (checkServerNeedsUpdate()) { _serverService.updateServer(); };
+            while (checkServerNeedsUpdate()) { _vectorClock = _serverService.updateServer(); };
             return _serverService.getMeeting(topic);
         }
 
@@ -195,7 +203,6 @@ namespace Client {
             foreach (String invitee in new List<string>(_auxToInvites)) {
                 _otherClients[invitee].receiveInvite(meeting, _username);
             }
-            
         }
 
         public void receiveInvite(Meeting meeting, String usernameSender) {

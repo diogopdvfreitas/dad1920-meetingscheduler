@@ -61,9 +61,9 @@ namespace Server {
             return _server.checkMeetingStatusChange(meeting);
         }
        
-        public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings, int serverCloseTicket) {
+        public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings) {
             _server.checkDelay();
-            _server.receiveChanges(serverUrl, vectorClock, meetings, serverCloseTicket);
+            _server.receiveChanges(serverUrl, vectorClock, meetings);
         }
 
         public void addRoom(String roomLocation, int capacity, String name) {
@@ -76,9 +76,14 @@ namespace Server {
             _server.addLocation(location_name, location);
         }
 
-        public void updateServer() {
+        public IDictionary<String, int> updateServer() {
             _server.checkDelay();
-            _server.updateServer();
+            return _server.updateServer();
+        }
+
+        public void getUpdatedMeetingsFromUpdatedServer(String requestingServerURL, IDictionary<String, int> vectorClock) {
+            _server.checkDelay();
+            _server.getUpdatedMeetingsFromUpdatedServer(requestingServerURL, vectorClock);
         }
 
         public String status() {
