@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Collections.Specialized;
 using ClientLibrary;
 using ObjectsLibrary;
+using System.Net.Sockets;
 
 namespace PuppetMaster {
     public class PuppetMaster {
@@ -106,10 +107,18 @@ namespace PuppetMaster {
                     if (processResponding) {
                         IServerService serverService = (IServerService)Activator.GetObject(typeof(IServerService), pcservice.ServerURLs[processDct.Key]);
 
-                        response += " Present";
+                        try {
+                            String state = " Present";
+                            state += serverService.status();
+                            response += state;
+                            Console.WriteLine(response);
 
-                        Console.WriteLine(response);
-                        Console.WriteLine(serverService.status());
+                        }
+                        catch (SocketException) {
+                            response += " has failed! \n";
+                            Console.WriteLine(response);
+
+                        }
                     }
                     else {
                             response += " has failed! \n";
@@ -121,10 +130,17 @@ namespace PuppetMaster {
                     if (processResponding) {
                         IClientService client = (IClientService)Activator.GetObject(typeof(IClientService), pcservice.ClientURLs[processDct.Key]);
 
-                        response += "Connected";
+                        try {
+                            String state = "Connected";
+                            state += client.status();
+                            response += state;
+                            Console.WriteLine(response);
 
-                        Console.WriteLine(response);
-                        Console.WriteLine(client.status());
+                        }
+                        catch (SocketException) {
+                            response += "has failed!\n";
+                            Console.WriteLine(response);
+                        }
                     }
                 }       
             }

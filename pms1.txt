@@ -10,14 +10,14 @@ Server s7 tcp://localhost:8087/server7 1 0 0
 Server s8 tcp://localhost:8088/server8 1 0 0
 Server s9 tcp://localhost:8089/server9 1 0 0
 Wait 2000
-Client c2 tcp://localhost:4002/client2 tcp://localhost:8082/server2 cs2.txt
-Client c3 tcp://localhost:4003/client3 tcp://localhost:8083/server3 cs3.txt
-Client c4 tcp://localhost:4004/client4 tcp://localhost:8084/server4 cs4.txt
-Client c5 tcp://localhost:4005/client5 tcp://localhost:8085/server5 cs4.txt
-Client c6 tcp://localhost:4006/client6 tcp://localhost:8086/server6 cs4.txt
-Client c7 tcp://localhost:4007/client7 tcp://localhost:8087/server7 cs4.txt
-Client c8 tcp://localhost:4008/client8 tcp://localhost:8088/server8 cs4.txt
-Client c9 tcp://localhost:4009/client9 tcp://localhost:8089/server9 cs4.txt
+Client c2 tcp://localhost:4002/client2 tcp://localhost:8082/server2 scriptclientempty.txt
+Client c3 tcp://localhost:4003/client3 tcp://localhost:8083/server3 scriptclientempty.txt
+Client c4 tcp://localhost:4004/client4 tcp://localhost:8084/server4 scriptclientempty.txt
+Client c5 tcp://localhost:4005/client5 tcp://localhost:8085/server5 scriptclientempty.txt
+Client c6 tcp://localhost:4006/client6 tcp://localhost:8086/server6 scriptclientempty.txt
+Client c7 tcp://localhost:4007/client7 tcp://localhost:8087/server7 scriptclientempty.txt
+Client c8 tcp://localhost:4008/client8 tcp://localhost:8088/server8 scriptclientempty.txt
+Client c9 tcp://localhost:4009/client9 tcp://localhost:8089/server9 scriptclientempty.txt
 Wait 2000
 Client c1 tcp://localhost:4001/client1 tcp://localhost:8081/server1 cs1.txt
 Status

@@ -125,10 +125,11 @@ namespace Client {
             else {
                 clientScript = new ClientScript(args[0], args[1], args[2], args[3]);
             }
-            clientScript.readClientScript();
-            Console.WriteLine("[QUIT to Exit]");
+            try {
+                clientScript.readClientScript();
+                Console.WriteLine("[QUIT to Exit]");
             
-            try { 
+            
                 while (true) {
                     Console.Write("[COMMAND] ");
                     String line = Console.ReadLine();

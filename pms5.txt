@@ -2,9 +2,14 @@ AddRoom Lisboa 2 room1
 AddRoom Porto 1 room2
 Server s1 tcp://localhost:3001/server1 1 0 0
 Server s2 tcp://localhost:3002/server2 1 0 0
-Server s3 tcp://localhost:3003/server3 1 00 1000
+Server s3 tcp://localhost:3003/server3 1 0 1000
 Wait 1000
 Client c1 tcp://localhost:4001/client1 tcp://localhost:3003/server3 cs1.txt
 Client c2 tcp://localhost:4002/client2 tcp://localhost:3002/server2 cs2.txt
 Wait 15000
+Freeze tcp://localhost:3003/server3
+Wait 5000
+Unfreeze tcp://localhost:3003/server3
+Wait 20000
+Crash s2
 Status
