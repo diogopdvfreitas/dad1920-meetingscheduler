@@ -362,7 +362,7 @@ namespace Server {
                 if (!_unreachServers.Contains(server.Key)) {
                     Thread thread = new Thread(() => {
                         try {
-                            server.Value.receiveChanges(_url, vectorClock, meetings, _lastCloseTicket);
+                            server.Value.receiveChanges(_url, vectorClock, meetings);
                             handles[t].Set();
                             t++;
 
