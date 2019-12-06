@@ -7,6 +7,7 @@ namespace RemotingServicesLibrary {
         IDictionary<String, int> clientConnect(String username, String clientUrl);
         void receiveNewClient(String username, String clientUrl);
         IDictionary<String, String> getRegisteredClients();
+		IDictionary<String, IServerService> getRegisteredServers();
         IDictionary<String, int> getVectorClock();
         MeetingMessage createMeeting(String username, String topic, int minAtt, List<Slot> slots);
         MeetingMessage createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees);

@@ -41,6 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UnknownMeetingException.cs" />
+    <Compile Include="SlotNotFoundException.cs" />
+    <Compile Include="AlreadyExistingMeetingException.cs" />
+    <Compile Include="NoMoreAvailableServersException.cs" />
     <Compile Include="NotEnoughAttendeesExceptions.cs" />
     <Compile Include="ClosedMeetingException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

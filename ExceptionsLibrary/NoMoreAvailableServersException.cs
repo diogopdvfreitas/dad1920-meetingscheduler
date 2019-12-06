@@ -5,16 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ExceptionsLibrary {
-
     [Serializable]
-    public class NotEnoughAttendeesExceptions : ApplicationException {
+    public class NoMoreAvailableServersException : ApplicationException {
         public String message;
 
-        public NotEnoughAttendeesExceptions(String message) {
+        public NoMoreAvailableServersException(String message) {
             this.message = message;
         }
 
-        public NotEnoughAttendeesExceptions(System.Runtime.Serialization.SerializationInfo info,
+        public NoMoreAvailableServersException(System.Runtime.Serialization.SerializationInfo info,
         System.Runtime.Serialization.StreamingContext context) : base(info, context) {
             message = info.GetString("message");
         }
