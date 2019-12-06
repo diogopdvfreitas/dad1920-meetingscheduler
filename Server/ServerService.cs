@@ -27,7 +27,7 @@ namespace Server {
             getServer().receiveNewClient(username, clientUrl);
         }
 
-        public IDictionary<String, String> getRegisteredClients() {
+        public IDictionary<String, String> getRegisteredClients() { 
             return getServer().Clients;
         }
 
@@ -89,11 +89,11 @@ namespace Server {
         }
         
         public void freeze() {
-            getServer().freeze();
+            _server.freeze();
         }
 
         public void unfreeze() {
-            getServer().unfreeze();
+            _server.unfreeze();
         }
 
 
