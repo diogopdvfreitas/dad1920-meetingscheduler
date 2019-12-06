@@ -164,7 +164,7 @@ namespace Server {
                 Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
                 return new MeetingMessage(_url, _vectorClock, meeting);
             }
-            return new MeetingMessage(_url, _vectorClock, null);
+            throw new AlreadyExistingMeetingException("Couldn't create meeting.\nMeeting with topic " + topic + " already exists!");
         }
 
         public MeetingMessage createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
@@ -177,7 +177,7 @@ namespace Server {
                 Console.WriteLine("[CLIENT:" + username + "] Created meeting " + topic);
                 return new MeetingMessage(_url, _vectorClock, meeting);
             }
-            return new MeetingMessage(_url, _vectorClock, null);
+            throw new AlreadyExistingMeetingException("Couldn't create meeting.\nMeeting with topic " + topic + " already exists!");
         }
 
         public MeetingMessage joinMeetingSlot(String topic, String slot, String username) {
@@ -190,14 +190,26 @@ namespace Server {
                             Console.WriteLine("[CLIENT:" + username + "] Joined meeting " + topic + " on slot " + slot);
                             return new MeetingMessage(_url, _vectorClock, _meetings[topic]);
                         }
+                        else
+                            throw new SlotNotFoundException("Couldn't join meeting. \nDesired slot not found.");
                     }
+                    else
+                        throw new ClosedMeetingException("Couldn't join meeting. \nMeeting " + topic + " already closed.");
                 }
             }
-            return new MeetingMessage(_url, _vectorClock, null);
+            throw new UnknownMeetingException("Couldn´t join meeting. \nMeeting " + topic + " unknow.");
         }
 
         public MeetingMessage closeMeeting(String topic, String username) {
-            Meeting meeting = _meetings[topic];
+            Meeting meeting;
+            try {
+                meeting = _meetings[topic];
+            } catch (KeyNotFoundException) { 
+                 throw new UnknownMeetingException("Meeting " + topic + " unknow."); 
+            }
+
+            if (meeting.MStatus != Meeting.Status.OPEN)
+                throw new ClosedMeetingException("Meeting " + topic + " already closed.");
 
             lock (meeting) {
                 if (checkIfCanClose(meeting, username)) {
@@ -221,7 +233,6 @@ namespace Server {
                                         Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic +
                                             ". Selected Slot is " + meeting.PickedSlot + " in Room " + meeting.PickedSlot.PickedRoom);
                                         processPendingCloses();
-                                        Console.WriteLine("FINISAHED1");
                                         return new MeetingMessage(_url, _vectorClock, _meetings[topic]);
                                     }
                                 }
@@ -281,9 +292,8 @@ namespace Server {
                         replicateChanges(meeting);
                         Console.WriteLine("[CLIENT:" + username + "] Closed meeting " + meeting.Topic + " but meeting was cancelled");
                         processPendingCloses();
-                        //throw new NotEnoughAttendeesExceptions();
 
-                        return new MeetingMessage(_url, _vectorClock, _meetings[topic]);
+                        throw new NotEnoughAttendeesExceptions("Meeting Canceled " + topic + ".\nMinimum number of Atendees not yet reached!");
                     }
                 }
                 else
@@ -295,7 +305,8 @@ namespace Server {
         public Meeting getMeeting(String topic) {
             if (_meetings.ContainsKey(topic))
                 return _meetings[topic];
-            return null;
+            throw new UnknownMeetingException("Meeting " + topic + " unknow.");
+
         }
 
         public bool checkMeetingStatusChange(Meeting meeting) {
@@ -321,7 +332,7 @@ namespace Server {
             _vectorClock[_url]++;
         }
 
-        //when we call replicate changes we already did the changes
+        
         public void replicateChanges(Meeting meeting) {
             IDictionary<String, List<Meeting>> meetingsToSend = new Dictionary<String, List<Meeting>>();        // <Server URL, Server Meetings to send>
             List<Meeting> thisMeetings = new List<Meeting>();
@@ -350,7 +361,6 @@ namespace Server {
             foreach (KeyValuePair<String, IServerService> server in _otherServers) {
                 if (!_unreachServers.Contains(server.Key)) {
                     Thread thread = new Thread(() => {
-                        Console.WriteLine("thread");
                         try {
                             server.Value.receiveChanges(_url, vectorClock, meetings, _lastCloseTicket);
                             handles[t].Set();
@@ -372,86 +382,81 @@ namespace Server {
             int threadCounter = 0;
             while (threadCounter != _max_faults) {       //It waits for max_fauls responses since it is us plus _max_faults (f+1) in order to tolerate _max_faults faults
                 int index = WaitHandle.WaitAny(handles);
-                Console.WriteLine("INDEX: " + index);
                 handles[index] = new AutoResetEvent(false);
                 threadCounter++;
             }
         }
 
         public void receiveChanges(String serverUrl, IDictionary<String, int> vectorClock, IDictionary<String, List<Meeting>> meetings, int serverLastCloseTicket) {
-            try {
-                lock (this) {
-                    bool changes = false;
+            lock (this) {
+                bool changes = false;
 
-                    Console.WriteLine("[RECEIVED FROM: " + serverUrl +"]");
-                    IDictionary<String, List<Meeting>> meetingsToResend = new Dictionary<String, List<Meeting>>();      // <Server URL, Server Meetings to send>
-                    foreach (KeyValuePair<String, int> serverClock in vectorClock) {                                    // Loops through clocks
-                        if (serverClock.Value > _vectorClock[serverClock.Key]) {                                        // If received server clock value > stored server clock value
-                            foreach (Meeting meeting in meetings[serverClock.Key]) {                                    // Set meetings from that server
-                                //Check if it is a new close operation that can be executed now
-                                if (meeting.MStatus != Meeting.Status.OPEN & meeting.CloseTicket == (_lastCloseTicket + 1)) {
-                                    _lastCloseTicket = meeting.CloseTicket;
-                                    if (_meetings.ContainsKey(meeting.Topic))
-                                        if (_meetings[meeting.Topic].MStatus == Meeting.Status.OPEN)
-                                            _meetings[meeting.Topic] = meeting;
-                                        else
-                                            _meetings.Add(meeting.Topic, meeting);
-                                    if (meeting.MStatus == Meeting.Status.BOOKED) {
-                                        foreach (Room room in _locations[meeting.PickedSlot.Location].Rooms)
-                                            if (room.Name.Equals(meeting.PickedSlot.PickedRoom.Name))
-                                                room.bookMeeting(meeting.PickedSlot.Date, meeting);
-                                    }
-
-                                    processPendingCloses();
-                                }
-                                //Check if it is a close operation that needs to wait
-                                else if (meeting.MStatus != Meeting.Status.OPEN & meeting.CloseTicket > (_lastCloseTicket + 1)) {
-                                    _pendingCloses.Add(meeting.Topic, meeting);
-                                }
-                                else if (meeting.MStatus != Meeting.Status.OPEN & meeting.CloseTicket < _lastCloseTicket) {
-                                    Console.WriteLine("[Delayed Close Meeting. Closed Discard]");
-                                }
-                                //It´s not a close operation
-                                else {
-
-                                    if (_meetings.ContainsKey(meeting.Topic))
+                Console.WriteLine("[Received from: " + serverUrl +"]");
+                IDictionary<String, List<Meeting>> meetingsToResend = new Dictionary<String, List<Meeting>>();      // <Server URL, Server Meetings to send>
+                foreach (KeyValuePair<String, int> serverClock in vectorClock) {                                    // Loops through clocks
+                    if (serverClock.Value > _vectorClock[serverClock.Key]) {                                        // If received server clock value > stored server clock value
+                        foreach (Meeting meeting in meetings[serverClock.Key]) {                                    // Set meetings from that server
+                            //Check if it is a new close operation that can be executed now
+                            if (meeting.MStatus != Meeting.Status.OPEN & meeting.CloseTicket == (_lastCloseTicket + 1)) {
+                                _lastCloseTicket = meeting.CloseTicket;
+                                if (_meetings.ContainsKey(meeting.Topic))
+                                    if (_meetings[meeting.Topic].MStatus == Meeting.Status.OPEN)
                                         _meetings[meeting.Topic] = meeting;
                                     else
                                         _meetings.Add(meeting.Topic, meeting);
+                                if (meeting.MStatus == Meeting.Status.BOOKED) {
+                                    foreach (Room room in _locations[meeting.PickedSlot.Location].Rooms)
+                                        if (room.Name.Equals(meeting.PickedSlot.PickedRoom.Name))
+                                            room.bookMeeting(meeting.PickedSlot.Date, meeting);
                                 }
-                                changes = true;
-                            }
-                            _vectorClock[serverClock.Key] = serverClock.Value;                                      // Update local server clock
-                            _otherServersLastReceivedMeetings[serverClock.Key] = meetings[serverClock.Key];             // Update local server last received meetings
 
+                                processPendingCloses();
+                            }
+                            //Check if it is a close operation that needs to wait
+                            else if (meeting.MStatus != Meeting.Status.OPEN & meeting.CloseTicket > (_lastCloseTicket + 1)) {
+                                _pendingCloses.Add(meeting.Topic, meeting);
+                            }
+                            //Check if it is a delayed close operation
+                            else if (meeting.MStatus != Meeting.Status.OPEN & meeting.CloseTicket < _lastCloseTicket) {
+                                Console.WriteLine("[Delayed Close Meeting. Closed Discard]");
+                            }
+                            //It´s not a close operation
+                            else {
+
+                                if (_meetings.ContainsKey(meeting.Topic))
+                                    _meetings[meeting.Topic] = meeting;
+                                else
+                                    _meetings.Add(meeting.Topic, meeting);
+                            }
+                            changes = true;
                         }
-                        if (serverClock.Value < _vectorClock[serverClock.Key] & !serverClock.Key.Equals(_url)) {                                        // If received server clock value < stored server clock value
-                            meetingsToResend.Add(serverClock.Key, _otherServersLastReceivedMeetings[serverClock.Key]);  // Server who sent is delayed and should receive the last meetings regarding this server clock
-                        }
+                        _vectorClock[serverClock.Key] = serverClock.Value;                                      // Update local server clock
+                        _otherServersLastReceivedMeetings[serverClock.Key] = meetings[serverClock.Key];             // Update local server last received meetings
 
                     }
-                    if (meetingsToResend.Count != 0)
-                        try {
-                            _otherServers[serverUrl].receiveChanges(_url, _vectorClock, meetingsToResend, _lastCloseTicket);
-                        }
-                        catch (SocketException) {
-                            if (!_unreachServers.Contains(serverUrl)) {
-                                _unreachServers.Add(serverUrl);
-                                Console.WriteLine("[Unreached server: " + serverUrl + "]");
-
-                                if (_leader.Key.Equals(serverUrl))
-                                    selectLeader();
-                            }
-                        }
-                    _otherServersLastVectorClock[serverUrl] = vectorClock;                                           // Update last received vector clock
-
-                    if (changes) {
-                        sendToServers(vectorClock, meetings);
+                    if (serverClock.Value < _vectorClock[serverClock.Key] & !serverClock.Key.Equals(_url)) {                                        // If received server clock value < stored server clock value
+                        meetingsToResend.Add(serverClock.Key, _otherServersLastReceivedMeetings[serverClock.Key]);  // Server who sent is delayed and should receive the last meetings regarding this server clock
                     }
+
                 }
-            }
-            catch (Exception e) {
-                Console.WriteLine(e.ToString());
+                if (meetingsToResend.Count != 0)
+                    try {
+                        _otherServers[serverUrl].receiveChanges(_url, _vectorClock, meetingsToResend, _lastCloseTicket);
+                    }
+                    catch (SocketException) {
+                        if (!_unreachServers.Contains(serverUrl)) {
+                            _unreachServers.Add(serverUrl);
+                            Console.WriteLine("[Unreached server: " + serverUrl + "]");
+
+                            if (_leader.Key.Equals(serverUrl))
+                                selectLeader();
+                        }
+                    }
+                _otherServersLastVectorClock[serverUrl] = vectorClock;                                           // Update last received vector clock
+
+                if (changes) {
+                    sendToServers(vectorClock, meetings);
+                }
             }
         }
 
@@ -589,7 +594,7 @@ namespace Server {
                 int ticket = _lastGrantedCloseTicket.Key;
                 ticket++;
                 _lastGrantedCloseTicket = new KeyValuePair<int, String>(ticket, serverUrl);
-                Console.WriteLine("[SERVER: " + _lastGrantedCloseTicket.Value + "ASKED FOR CLOSE TICKET. GIVEN: " + _lastGrantedCloseTicket.Key + "]");
+                Console.WriteLine("[SERVER: " + _lastGrantedCloseTicket.Value + " ASKED FOR CLOSE TICKET. GIVEN: " + _lastGrantedCloseTicket.Key + "]");
 
                 spreadNewTicket(_lastGrantedCloseTicket);
 

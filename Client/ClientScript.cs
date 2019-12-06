@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using ObjectsLibrary;
+using ExceptionsLibrary;
 
 namespace Client {
     public class ClientScript {
@@ -85,7 +86,8 @@ namespace Client {
                     // Invitees are optional
                     if (nInvitees == 0) {
                         _client.createMeeting(commandAttr[1], Int32.Parse(commandAttr[2]), slots);
-                    }else {
+                    }
+                    else {
                         invitees = new List<String>();
 
                         // Select the invitees from the command
@@ -116,16 +118,17 @@ namespace Client {
             }
         }
 
-        static void Main(string[] args) {
-            try {
-                ClientScript clientScript;
-                if (args.Length == 0)
-                    clientScript = new ClientScript();
-                else {
-                    clientScript = new ClientScript(args[0], args[1], args[2], args[3]);
-                }
-                clientScript.readClientScript();
-                Console.WriteLine("[QUIT to Exit]");
+        static void Main(string[] args) { 
+            ClientScript clientScript;
+            if (args.Length == 0)
+                clientScript = new ClientScript();
+            else {
+                clientScript = new ClientScript(args[0], args[1], args[2], args[3]);
+            }
+            clientScript.readClientScript();
+            Console.WriteLine("[QUIT to Exit]");
+            
+            try { 
                 while (true) {
                     Console.Write("[COMMAND] ");
                     String line = Console.ReadLine();
@@ -134,8 +137,11 @@ namespace Client {
                     else
                         clientScript.executeCommand(line);
                 }
-            }
-            catch (Exception e) {
+            }catch (NoMoreAvailableServersException e) {
+                Console.WriteLine(e.message);
+                Console.WriteLine("Presse Enter to Exit.");
+                Console.ReadLine();
+            }catch(Exception e){
                 Console.WriteLine(e.ToString());
                 Console.ReadLine();
             }

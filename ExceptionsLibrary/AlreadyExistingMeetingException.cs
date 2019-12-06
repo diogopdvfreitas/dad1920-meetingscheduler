@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 namespace ExceptionsLibrary {
 
     [Serializable]
-    public class NotEnoughAttendeesExceptions : ApplicationException {
+    public class AlreadyExistingMeetingException : ApplicationException {
         public String message;
 
-        public NotEnoughAttendeesExceptions(String message) {
+        public AlreadyExistingMeetingException(String message) {
             this.message = message;
         }
 
-        public NotEnoughAttendeesExceptions(System.Runtime.Serialization.SerializationInfo info,
+        public AlreadyExistingMeetingException(System.Runtime.Serialization.SerializationInfo info,
         System.Runtime.Serialization.StreamingContext context) : base(info, context) {
             message = info.GetString("message");
         }
