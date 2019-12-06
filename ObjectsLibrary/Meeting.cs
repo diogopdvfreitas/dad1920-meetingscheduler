@@ -117,10 +117,8 @@ namespace ObjectsLibrary {
             String[] slotAttr = chosenSlot.Split(',');
             foreach (Slot slot in _slots) {
                 if (slot.Location.Equals(slotAttr[0]) && slot.Date.Equals(slotAttr[1])) {
-                    lock (this) {
-                        slot.joinSlot(username);
-                        _nJoined++;
-                    }
+                    slot.joinSlot(username);
+                    _nJoined++;
                     return true;
                 }
             }

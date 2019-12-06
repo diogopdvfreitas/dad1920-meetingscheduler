@@ -19,8 +19,8 @@ namespace Server {
             return _server;
         }
 
-        public void clientConnect(String username, String clientUrl) {
-            getServer().clientConnect(username, clientUrl);
+        public IDictionary<String, int> clientConnect(String username, String clientUrl) {
+            return getServer().clientConnect(username, clientUrl)
         }
 
         public void receiveNewClient(String username, String clientUrl) {
@@ -35,19 +35,24 @@ namespace Server {
             return getServer().Servers;
         }
 
-        public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
+
+        public IDictionary<String, int> getVectorClock() {
+            return getServer().VectorClock;
+        }
+
+        public MeetingMessage createMeeting(String username, String topic, int minAtt, List<Slot> slots) {
             return getServer().createMeeting(username, topic, minAtt, slots);
         }
 
-        public Meeting createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
+        public MeetingMessage createMeeting(String username, String topic, int minAtt, List<Slot> slots, List<String> invitees) {
             return getServer().createMeeting(username, topic, minAtt, slots, invitees);
         }
 
-        public Meeting joinMeetingSlot(String topic, String slot, String username) {
+        public MeetingMessage joinMeetingSlot(String topic, String slot, String username) {
             return getServer().joinMeetingSlot(topic, slot, username);
         }
 
-        public Meeting closeMeeting(String topic, String username){
+        public MeetingMessage closeMeeting(String topic, String username){
             return getServer().closeMeeting(topic, username);
         }
         
@@ -71,6 +76,10 @@ namespace Server {
             getServer().addLocation(location_name, location);
         }
 
+        public void updateServer() {
+            getServer().updateServer();
+        }
+
         public String status() {
             return getServer().status();
         }
@@ -83,8 +92,17 @@ namespace Server {
             getServer().unfreeze();
         }
 
-        public int grantCloseTicket(String serverUrl) {
+
+        public KeyValuePair<int, String> grantCloseTicket(String serverUrl) {
             return getServer().grantCloseTicket(serverUrl);
+        }
+
+        public void newGrantedTicket(String leader, KeyValuePair<int, String> newGrantedTicketByLeader) {
+            getServer().newGrantedTicket(leader, newGrantedTicketByLeader);
+        }
+
+        public void selectNewLeader() {
+            getServer().selectNewLeader();
         }
     }
 }
