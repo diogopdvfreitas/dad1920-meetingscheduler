@@ -20,7 +20,7 @@ namespace Server {
         }
 
         public IDictionary<String, int> clientConnect(String username, String clientUrl) {
-            return getServer().clientConnect(username, clientUrl)
+            return getServer().clientConnect(username, clientUrl);
         }
 
         public void receiveNewClient(String username, String clientUrl) {

@@ -224,7 +224,7 @@ namespace Client {
                 if (!meeting.checkInvitation(_username)) {
                     Console.WriteLine("You were not invited to this meeting!");
                 }
-                meeting = getServerService().joinMeetingSlot(topic, slot, _username);
+                meeting = getServerService().joinMeetingSlot(topic, slot, _username).Meeting;
                 if (meeting != null)
                     Console.WriteLine(meeting.ToString());
                 else

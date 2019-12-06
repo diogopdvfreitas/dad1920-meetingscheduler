@@ -28,6 +28,7 @@ namespace Server {
         private IDictionary<String, Meeting> _meetings;                                             // <Meeting Topic, Meeting>
         private IDictionary<String, String> _clients;                                               // <Client Username, Client URL>
         private IDictionary<String, IServerService> _otherServers;                                  // <Server URL, IServerService>
+        private IDictionary<String, IServerService> _allServers;                                  // <Server URL, IServerService>
         private IDictionary<String, int> _vectorClock;                                              // <Server URL, Clock Counter>
         private IDictionary<String, IDictionary<String, int>> _otherServersLastVectorClock;         // <Server URL, Known Server Vector Clock>
         private IDictionary<String, List<Meeting>> _otherServersLastReceivedMeetings;               // <Server URL, Last Received Meeting from Server>
@@ -89,6 +90,10 @@ namespace Server {
             get { return _clients; }
         }
 
+        public IDictionary<String, IServerService> Servers {
+            get { return _allServers; }
+        }
+
         public IDictionary<String, int> VectorClock {
             get { return _vectorClock; }
         }
@@ -105,6 +110,7 @@ namespace Server {
 
         public void serversConfig() {
             _otherServers = new Dictionary<String, IServerService>();
+            _allServers = new Dictionary<String, IServerService>();
             _vectorClock = new Dictionary<String, int>();
             _otherServersLastVectorClock = new Dictionary<String, IDictionary<String, int>>();
             _otherServersLastReceivedMeetings = new Dictionary<String, List<Meeting>>();
@@ -117,6 +123,11 @@ namespace Server {
                     Console.WriteLine(serverUrl);
                     IServerService serverServ = (IServerService)Activator.GetObject(typeof(IServerService), serverUrl);
                     _otherServers.Add(serverUrl, serverServ);
+                    _allServers.Add(serverUrl, serverServ);
+                }
+                else {
+                    IServerService serverServ = (IServerService)Activator.GetObject(typeof(IServerService), serverUrl);
+                    _allServers.Add(serverUrl, serverServ);
                 }
                 _vectorClock.Add(serverUrl, 0);
             }
